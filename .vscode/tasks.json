@@ -1,0 +1,35 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build OpenGL App",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "src/main.cpp",
+        "src/core/Shader.cpp",
+        "src/core/RenderableObject.cpp",
+        "src/core/RenderableObjectBase.cpp",
+        "src/core/RenderableObjectNDC.cpp",
+        "src/core/Tri.cpp",
+        "-Iinclude",
+        "-IC:/vcpkg/installed/x64-mingw-static/include",
+        "-LC:/vcpkg/installed/x64-mingw-static/lib",
+        "-lglew32",
+        "-lglfw3",
+        "-lopengl32",
+        "-lgdi32",
+        "-luser32",
+        "-lkernel32",
+        "-g",                 // <--- Debug symbol flag
+        "-o",
+        "Project371.exe"
+        ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"]
+    }
+  ]
+}
