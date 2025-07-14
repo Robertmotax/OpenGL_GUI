@@ -9,9 +9,9 @@ RenderableObjectNDC::RenderableObjectNDC(const std::vector<Tri>& triangles, Shad
 }
 
 void RenderableObjectNDC::draw(const glm::mat4& viewProj) const {
-    shader->use();
+    glDisable(GL_DEPTH_TEST);  // Disable depth test for UI
 
-    // Set identity matrix for NDC rendering
+    shader->use();
     glm::mat4 identity = glm::mat4(1.0f);
     GLuint uVP = glGetUniformLocation(shader->getID(), "uVP");
     glUniformMatrix4fv(uVP, 1, GL_FALSE, glm::value_ptr(identity));
@@ -19,9 +19,11 @@ void RenderableObjectNDC::draw(const glm::mat4& viewProj) const {
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     glBindVertexArray(0);
+
+    glEnable(GL_DEPTH_TEST);  // Restore depth test for other objects
 }
 
-bool RenderableObjectNDC::isClicked(float mouseX, float mouseY, int winWidth, int winHeight) {
+bool RenderableObjectNDC::isClicked(float mouseX, float mouseY, int winWidth, int winHeight, glm::mat4 viewProjInverse) {
     // Convert mouse coords to NDC
     float x_ndc = (2.0f * mouseX) / winWidth - 1.0f;
     float y_ndc = 1.0f - (2.0f * mouseY) / winHeight;

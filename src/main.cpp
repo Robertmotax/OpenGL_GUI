@@ -4,6 +4,8 @@
 #include "core/RenderableObject.h"
 #include "core/RenderableObjectNDC.h"
 #include "core/Tri.h"
+#include "core/Camera.h"
+#include "core/MouseClickHandler.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -17,7 +19,6 @@ glm::mat4 viewProj;
 glm::mat4 viewProjInverse;
 
 std::vector<RenderableObjectBase*> allObjects;
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 1.0f); // Z = 1 for orthographic
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
@@ -28,12 +29,14 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         glfwGetWindowSize(window, &width, &height);
 
         for (auto& obj : allObjects) {
-            if (obj->isClicked(xpos, ypos, width, height)) {
+            // pass the global viewProjInverse here
+            if (obj->isClicked((float)xpos, (float)ypos, width, height, viewProjInverse)) {
                 obj->onClick();
             }
         }
     }
 }
+
 
 int main() {
     glfwInit();
@@ -46,6 +49,7 @@ int main() {
 #else
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_DEPTH_BITS, 24); 
 #endif
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "Project371", nullptr, nullptr);
@@ -67,20 +71,11 @@ int main() {
     glViewport(0, 0, 800, 600);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-    glm::mat4 view = glm::lookAt(
-        glm::vec3(0.0f, 0.0f, 3.0f), // Camera position
-        glm::vec3(0.0f, 0.0f, 0.0f), // Target position
-        glm::vec3(0.0f, 1.0f, 0.0f)  // Up direction
-    );
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+    float aspect = (float)width / (float)height;
 
-    glm::mat4 projection = glm::perspective(
-        glm::radians(45.0f),         // Field of view
-        (float)width / (float)windowHeight, // Aspect ratio
-        0.1f,                        // Near clipping plane
-        100.0f                       // Far clipping plane
-    );
-
-glm::mat4 viewProj = projection * view;
+    Camera camera(aspect);
 
     Shader shaderNDC(vertexPath, fragmentPath, true);
     Shader shader(vertexPath, fragmentPath, false);
@@ -97,13 +92,13 @@ glm::mat4 viewProj = projection * view;
     tris.emplace_back(
         Vertex{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // Red
         Vertex{{ 0.0f,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // Green
-        Vertex{{-0.4f,  0.2f, 0.0f}, {1.0f, 0.0f, 0.0f}}   // Cyan
+        Vertex{{-0.5f,  -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}}   // Cyan
     );
 
     tris.emplace_back(
         Vertex{{ 0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},   // Blue
         Vertex{{ 0.0f,  0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},  // Green
-        Vertex{{ 0.8f, -0.1f, 0.0f}, {0.0f, 0.0f, 1.0f}}
+        Vertex{{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}}
     );
 
     std::vector<Tri> sideUI;
@@ -124,49 +119,63 @@ glm::mat4 viewProj = projection * view;
     auto* obj2 = new RenderableObjectNDC(sideUI, &shaderNDC);
 
     obj1->setOnClick([]() {
-        std::cout << "Triangle 1 clicked!\n";
+        std::cout << "Scene Object!\n";
     });
     obj2->setOnClick([]() {
-        std::cout << "Triangle 2 clicked!\n";
+        std::cout << "SideBar!\n";
     });
 
     allObjects.push_back(obj1);
     allObjects.push_back(obj2);
 
-    while (!glfwWindowShouldClose(window)) {
-        glClear(GL_COLOR_BUFFER_BIT);
+    
+    MouseClickHandler mouseClickHandler(&camera, &allObjects);
 
-        int width, height;
+    // Set GLFW mouse callback to a lambda that calls your handler
+    glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
+        // Retrieve the MouseClickHandler pointer stored as GLFW user pointer
+        MouseClickHandler* handler = static_cast<MouseClickHandler*>(glfwGetWindowUserPointer(window));
+        if (handler)
+            handler->handleMouseClick(window, button, action, mods);
+    });
+
+    // Set the mouse handler as user pointer so lambda can access it
+    glfwSetWindowUserPointer(window, &mouseClickHandler);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS); 
+
+    float lastTime = (float)glfwGetTime();
+    while (!glfwWindowShouldClose(window)) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         glfwGetWindowSize(window, &width, &height);
         float aspect = (float)width / (float)height;
-
-        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
-        glm::mat4 projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f, 0.1f, 10.0f);
-        glm::mat4 VP = projection * view;
+        camera.updateProjectionMatrix(aspect);
 
         shader.use();
+        glm::mat4 vp = camera.getViewProjection();
         glUniformMatrix4fv(
             glGetUniformLocation(shader.getID(), "uVP"),
             1, GL_FALSE,
-            &viewProj[0][0]
+            &vp[0][0]
         );
 
         for (auto* obj : allObjects) {
-            obj->draw(viewProj);
+            obj->draw(vp);
         }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        float cameraSpeed = 0.01f;
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            cameraPos.x -= cameraSpeed;
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            cameraPos.x += cameraSpeed;
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            cameraPos.y += cameraSpeed;
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-            cameraPos.y -= cameraSpeed;
+        float currentTime = (float)glfwGetTime();
+        float deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+
+        camera.update(deltaTime, window);
+
+
+        // update viewProjInverse globally or inside camera class
+        viewProjInverse = glm::inverse(vp);
     }
 
     for (auto* obj : allObjects)

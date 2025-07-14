@@ -14,8 +14,8 @@ public:
     RenderableObjectBase(const std::vector<Tri>& triangles, Shader* shader);
     virtual ~RenderableObjectBase();
 
-    virtual void draw(const glm::mat4& viewProj) const;
-    virtual bool isClicked(float x_ndc, float y_ndc, int winWidth, int winHeight);
+    virtual void draw(const glm::mat4& viewProj) const = 0;
+    virtual bool isClicked(float mouseX, float mouseY, int winWidth, int winHeight, glm::mat4 viewProjInverse) = 0;
     void setOnClick(std::function<void()> callback);
     std::function<void()> onClick;
 

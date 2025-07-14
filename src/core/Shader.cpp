@@ -57,7 +57,6 @@ Shader::~Shader() {
 void Shader::use() const {
     glUseProgram(ID);
     setBool("isNDC", isNDC);
-    shader.setMat4("uVP", viewProjMatrix);
 }
 
 GLuint Shader::getID() const {
@@ -87,12 +86,4 @@ const char* Shader::loadShaderSource(const char* filepath) {
 
 void Shader::setBool(const std::string& name, bool value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
-}
-
-void Shader::setMat4(const std::string& name, const glm::mat4& mat) const {
-    // Get the location of the uniform variable in the shader program
-    GLuint location = glGetUniformLocation(ID, name.c_str());
-
-    // Upload the 4x4 float matrix to the GPU
-    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }

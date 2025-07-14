@@ -2,6 +2,7 @@
 
 #include <string>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
 class Shader {
 public:
@@ -10,7 +11,6 @@ public:
 
     void use() const;
     GLuint getID() const;
-    void setMat4(const std::string &name, const glm::mat4 &mat) const;
 
 private:
     GLuint ID;

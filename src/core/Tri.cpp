@@ -13,12 +13,6 @@ bool Tri::isClicked(float x, float y) const {
     glm::vec2 v1 = c - a;
     glm::vec2 v2 = p - a;
 
-    std::cout << "Checking triangle: " 
-          << glm::to_string(a) << ", "
-          << glm::to_string(b) << ", "
-          << glm::to_string(c) << " against point "
-          << glm::to_string(p) << std::endl;
-
     float d00 = glm::dot(v0, v0);
     float d01 = glm::dot(v0, v1);
     float d11 = glm::dot(v1, v1);

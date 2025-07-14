@@ -12,6 +12,8 @@
         "src/core/RenderableObjectBase.cpp",
         "src/core/RenderableObjectNDC.cpp",
         "src/core/Tri.cpp",
+        "src/core/Camera.cpp",
+        "src/core/MouseClickHandler.cpp",
         "-Iinclude",
         "-IC:/vcpkg/installed/x64-mingw-static/include",
         "-LC:/vcpkg/installed/x64-mingw-static/lib",
