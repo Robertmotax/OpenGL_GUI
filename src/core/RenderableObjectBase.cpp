@@ -3,10 +3,10 @@
 #include "core/Vertex.h"
 
 RenderableObjectBase::RenderableObjectBase(const std::vector<Tri>& triangles, Shader* shader)
-    : trianglePlanes(triangles), shader(shader)
+    : tris(triangles), shader(shader)
 {
     // Flatten triangles into vertices
-    for (const auto& tri : trianglePlanes) {
+    for (const auto& tri : tris) {
         flattenedVertices.push_back(tri.v0);
         flattenedVertices.push_back(tri.v1);
         flattenedVertices.push_back(tri.v2);
@@ -28,6 +28,9 @@ RenderableObjectBase::RenderableObjectBase(const std::vector<Tri>& triangles, Sh
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
+
+    glBindAttribLocation(shader->getID(), 0, "position");
+    glBindAttribLocation(shader->getID(), 1, "color");
 }
 
 RenderableObjectBase::~RenderableObjectBase() {

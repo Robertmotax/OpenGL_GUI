@@ -1,13 +1,23 @@
-#version 330 core
+#version 120
 
-layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec3 aColor;
+#define MAX_LIGHTS 8
 
+attribute vec3 aPos;
+attribute vec3 aColor;
+
+uniform mat4 uModel;
 uniform mat4 uVP;
+uniform mat4 uLightSpaceMatrix;
 
-out vec3 fragColor;
+varying vec3 vColor;
+varying vec3 vFragPos;
+varying vec4 vFragPosLightSpace;
 
-void main() {
-    fragColor = aColor;
-    gl_Position = uVP * vec4(aPos, 1.0);
+void main()
+{
+    vec4 worldPos = uModel * vec4(aPos, 1.0);
+    vFragPos = worldPos.xyz;
+    vFragPosLightSpace = uLightSpaceMatrix * worldPos;
+    gl_Position = uVP * worldPos;
+    vColor = aColor;
 }

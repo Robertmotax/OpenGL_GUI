@@ -4,63 +4,127 @@
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 
+void checkCompileErrors(GLuint shader, const std::string& type) {
+    GLint success;
+    GLchar infoLog[1024];
+    if (type != "PROGRAM") {
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+            std::cerr << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n"
+                      << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+        }
+    }
+    else {
+        glGetProgramiv(shader, GL_LINK_STATUS, &success);
+        if (!success) {
+            glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+            std::cerr << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n"
+                      << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+        }
+    }
+}
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath, bool isNDC) {
-    const char* vertexShaderSource = loadShaderSource(vertexPath);
-    const char* fragmentShaderSource = loadShaderSource(fragmentPath);
+Shader::Shader(const char* vertexPath, const char* fragmentPath)
+{
+    // Load from files for scene shader (with lighting)
+    char* loadedVertexSource = const_cast<char*>(loadShaderSource(vertexPath));
+    char* loadedFragmentSource = const_cast<char*>(loadShaderSource(fragmentPath));
+    char* vertexShaderSource = loadedVertexSource;
+    char* fragmentShaderSource = loadedFragmentSource;
 
-    // vertex shader
-    int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    // check for shader compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    if (!vertexShaderSource || !fragmentShaderSource) {
+        std::cerr << "ERROR::SHADER::Failed to load shader sources from files." << std::endl;
+        return;
     }
 
-    // fragment shader
-    int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    // check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success){
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
+    compileShader(vertexShaderSource, fragmentShaderSource);
 
-    // link shaders
-    int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    // Clean up loaded sources memory if any
+    if (loadedVertexSource) {
+        delete[] loadedVertexSource;
     }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    ID = shaderProgram;
+    if (loadedFragmentSource) {
+        delete[] loadedFragmentSource;
+    }
+}
+
+void Shader::addShader(GLuint theProgram, const char* shaderCode, GLenum shaderType)
+{
+GLuint theShader = glCreateShader(shaderType);
+
+	const GLchar* theCode[1];
+	theCode[0] = shaderCode;
+
+	GLint codeLength[1];
+	codeLength[0] = strlen(shaderCode);
+
+	glShaderSource(theShader, 1, theCode, codeLength);
+	glCompileShader(theShader);
+
+	GLint result = 0;
+	GLchar eLog[1024] = { 0 };
+
+	glGetShaderiv(theShader, GL_COMPILE_STATUS, &result);
+	if (!result)
+	{
+		glGetShaderInfoLog(theShader, sizeof(eLog), NULL, eLog);
+		printf("Error compiling the %d shader: '%s'\n", shaderType, eLog);
+		return;
+	}
+    // Attach the shader to the program
+	glAttachShader(theProgram, theShader);
+    // Delete the shader after attaching it to the program
+    // This is because the shader code is now part of the program and we don't need it
+    glDeleteShader(theShader);
+}
+
+void Shader::compileShader(const char* vertexCode, const char* fragmentCode)
+{
+    shaderID = glCreateProgram();
+
+	if (!shaderID)
+	{
+		printf("Error creating shader program!\n");
+		return;
+	}
+
+    //add to the program the specific shader code
+	addShader(shaderID, vertexCode, GL_VERTEX_SHADER); // vertex shader
+	addShader(shaderID, fragmentCode, GL_FRAGMENT_SHADER); //fragment shader
+
+	GLint result = 0;
+	GLchar eLog[1024] = { 0 }; //we use this to acquire the error logs
+
+	glLinkProgram(shaderID);
+	glGetProgramiv(shaderID, GL_LINK_STATUS, &result);
+	if (!result)
+	{
+		glGetProgramInfoLog(shaderID, sizeof(eLog), NULL, eLog);
+		printf("Error linking program: '%s'\n", eLog);
+		return;
+	}
+
+	glValidateProgram(shaderID);
+	glGetProgramiv(shaderID, GL_VALIDATE_STATUS, &result);
+	if (!result)
+	{
+		glGetProgramInfoLog(shaderID, sizeof(eLog), NULL, eLog);
+		printf("Error validating program: '%s'\n", eLog);
+		return;
+	}
 }
 
 Shader::~Shader() {
-    glDeleteProgram(ID);
+    glDeleteProgram(shaderID);
 }
 
 void Shader::use() const {
-    glUseProgram(ID);
-    setBool("isNDC", isNDC);
+    glUseProgram(shaderID);
 }
 
 GLuint Shader::getID() const {
-    return ID;
+    return shaderID;
 }
 
 const char* Shader::loadShaderSource(const char* filepath) {
@@ -81,9 +145,5 @@ const char* Shader::loadShaderSource(const char* filepath) {
     }
 
     buffer[size] = '\0'; // Null-terminate
-    return buffer; // ✅ Caller owns memory, must delete[]
-}
-
-void Shader::setBool(const std::string& name, bool value) const {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+    return buffer; // Caller must delete[]
 }

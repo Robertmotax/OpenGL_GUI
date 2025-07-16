@@ -6,16 +6,20 @@
 
 class Shader {
 public:
-    Shader(const char* vertexPath, const char* fragmentPath, bool isNDC);
+    Shader(const char* vertexPath, const char* fragmentPath);
     ~Shader();
 
-    void use() const;
     GLuint getID() const;
+    void use() const;
 
 private:
-    GLuint ID;
-    bool isNDC;
-
+    GLuint shaderID;
     const char* loadShaderSource(const char* filepath);
-    void setBool(const std::string& name, bool value) const;
+
+    // Compile the shader from source code
+    void compileShader(const char* vertexCode, const char* fragmentCode);
+    // Add shader to the program
+	void addShader(GLuint theProgram, const char* shaderCode, GLenum shaderType);
+    //read vertex and fragment shader files and compile them
+    const char* readShaderSourceFile(const char* filepath);
 };
