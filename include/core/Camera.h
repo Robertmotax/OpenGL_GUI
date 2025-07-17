@@ -34,4 +34,8 @@ class Camera {
 
         glm::mat4 view;
         glm::mat4 projection;
+
+        // Helper function to clamp angles
+        // This ensures that yaw and pitch stay within reasonable limits
+        void clampAngles();
 };

@@ -78,6 +78,7 @@ int main() {
 
     std::vector<Tri> tris;
 
+    //triangles for the scene objects
     tris.emplace_back(
         Vertex{{-5.0f, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}},  // Red
         Vertex{{ 0.0f, 1.0f, 0.0f}, {0.0f, 0.5f, 0.0f}},  // Green
@@ -96,6 +97,7 @@ int main() {
         Vertex{{ 0.5f, 0.0f, -10.0f}, {0.0f, 0.0f, 0.5f}}
     );
 
+    // minimalistic floor design to represent the ground
     std::vector<Tri> floor;
 
     floor.emplace_back(
@@ -110,6 +112,7 @@ int main() {
         Vertex{{-50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f}}   // Dark Gray
     );
 
+    // the UI sidebar maade to place all the components
     std::vector<Tri> sideUI;
 
     sideUI.emplace_back(
