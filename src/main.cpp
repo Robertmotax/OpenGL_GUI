@@ -1,3 +1,4 @@
+// include necessary headers
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "core/Shader.h"
@@ -12,6 +13,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <vector>
+
+// This library used for texture loading
+#define STB_IMAGE_IMPLEMENTATION
+#include "external/stb_image.h"
+
 
 const char* vertexPath = "shaders/vertex.glsl";
 const char* fragmentPath = "shaders/fragment.glsl";
