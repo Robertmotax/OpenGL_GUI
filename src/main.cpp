@@ -172,8 +172,9 @@ int main() {
         float aspect = (float)width / height;
 
         // 2. Update camera (position, rotation, etc.)
-        camera.update(deltaTime, window);
+        camera.updateKeyControl(deltaTime, window);
         camera.updateProjectionMatrix(aspect); // If aspect changes
+
 
         // 3. Recalculate matrices (important!)
         glm::mat4 viewProj = camera.getViewProjection();
@@ -210,6 +211,11 @@ int main() {
         // 7. Events
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        // Handle inputs
+        // Close window if pressed escape
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
     }
 
 
