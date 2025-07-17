@@ -25,7 +25,7 @@ class Camera {
         glm::vec3 cameraRight;
         glm::vec3 worldUp;
 
-        float yaw = 0.0f;
+        float yaw = -90.0f;
         float pitch = 0.0f;
         float fov = 45.0f;  // Add this line: field of view in degrees
 
