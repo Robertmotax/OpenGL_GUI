@@ -7,6 +7,7 @@
 #include "core/LightSource.h"
 #include "core/Tri.h"
 #include "core/Camera.h"
+#include "core/Texture.h"
 #include "core/MouseClickHandler.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -16,7 +17,7 @@
 
 // This library used for texture loading
 #define STB_IMAGE_IMPLEMENTATION
-#include "external/stb_image.h"
+#include "../external/stb_image.h"
 
 
 const char* vertexPath = "shaders/vertex.glsl";
@@ -25,6 +26,11 @@ const char* vertexPathUI = "shaders/vertexUI.glsl";
 const char* fragmentPathUI = "shaders/fragmentUI.glsl";
 const char* vertexPathShadow = "shaders/vertexShadow.glsl";
 const char* fragmentPathShadow = "shaders/fragmentShadow.glsl";
+
+//load new textures
+Texture alaskanMalamutTexture;
+Texture darknessTexture;
+
 
 glm::mat4 viewProj;
 glm::mat4 viewProjInverse;
@@ -117,17 +123,17 @@ int main() {
     );
 
     std::vector<Tri> sideUI;
-
+    
     sideUI.emplace_back(
-        Vertex{{ -0.6f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}},
-        Vertex{{ -0.6f,  -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}},
-        Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}}
+        Vertex{{ -0.6f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}},
+        Vertex{{ -0.6f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 0.0f}},
+        Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 0.0f}}
     );
 
     sideUI.emplace_back(
-        Vertex{{ -0.6f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}},
-        Vertex{{ -1.0f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}},
-        Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}}
+        Vertex{{ -0.6f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}},
+        Vertex{{ -1.0f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 1.0f}},
+        Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 0.0f}}
     );
 
     std::vector<LightSource> lights = {
@@ -138,6 +144,13 @@ int main() {
     auto* obj1 = new RenderableObject(tris, &shader, &shaderShadow);
     auto* floorObj = new RenderableObject(floor, &shader, &shaderShadow);
     auto* sidebarObj = new RenderableObjectStatic(sideUI, &shaderUI);
+
+    // @TODO --REMOVE: Set textures for objects JUST TO TRY IT OUT
+    //since we load the texture is within the constructor, we must initialize after creating the window
+    darknessTexture = Texture("textures/darkness.jpg"); 
+    sidebarObj->setTexture(&darknessTexture);
+    sidebarObj->enableTexture(true);
+
 
     obj1->setOnClick([]() {
         std::cout << "Scene Object!\n";

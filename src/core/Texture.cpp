@@ -1,19 +1,19 @@
-#include "Texture.h"
+#include "core/Texture.h"
 #include <iostream>
+#include <assert.h>
 
-Texture::Texture() : textureID(0), width(0), height(0), bitDepth(0), fileLocation(nullptr) 
-{
+//default constructor
+Texture::Texture() : textureID(0), width(0), height(0), bitDepth(0), fileLocation("")  {}
 
-}
-
+//main constructor with proper file location
 Texture::Texture(const char* fileLoc) 
     : textureID(0), width(0), height(0), bitDepth(0), fileLocation(fileLoc) 
 {
-    LoadTexture();
+    loadTexture();
 }
 
 // read texture file and load it into OpenGL
-void Texture::LoadTexture() 
+void Texture::loadTexture() 
 {
 	unsigned char* texData = stbi_load(fileLocation, &width, &height, &bitDepth, 0);
 	if (!texData) 
@@ -23,13 +23,14 @@ void Texture::LoadTexture()
 	}
 
 	glGenTextures(1, &textureID);
+	assert(textureID != 0); // Ensure textureID is valid
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
 	//GL_REPEAT is a texture wrapping mode in OpenGL that repeats the texture across
 	//the entire surface of a polygon, making the texture coordinates outside the[0, 1]
 	//range repeat the texture image instead of clamping to the edge of the texture.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	// mirrored-repeat if go esbeyond eedge of texture, it goes inverted of 1.0f
 	// example: if 1.1f, instead of 0.1f it uses 0.9f 
@@ -37,15 +38,49 @@ void Texture::LoadTexture()
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    //upload to GPU
+    GLenum format  = 0;
+    if (bitDepth == 1) 
+        format = GL_RED;
+    else if (bitDepth == 3)
+        format = GL_RGB;
+    else if (bitDepth == 4)
+        format = GL_RGBA;
 
 	//border-parameter is legacy value
 	//byte is basically char but byte is 8-bit, char is 1-bit.
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, texData);
+	//glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	stbi_image_free(texData);
+}
+
+// use the texture in OpenGL
+void Texture::useTexture() 
+{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
+// clear the texture from OpenGL
+// this is called when the texture is no longer needed
+void Texture::clearTexture() 
+{
+	glDeleteTextures(1, &textureID);
+	textureID = 0;
+	width = 0;
+	height = 0;
+	bitDepth = 0;
+	fileLocation = "";
+}
+
+
+Texture::~Texture() 
+{
+    //clearTexture();
 }

@@ -14,6 +14,15 @@ void RenderableObjectStatic::draw(const glm::mat4& viewProj, const std::vector<L
 
     shader->use();
 
+    // Set up texture if enabled and available
+    if (useTexture && texture) {
+        texture->useTexture(); // bind only when required
+        glUniform1i(glGetUniformLocation(shader->getID(), "textureSampler"), 0);
+    }
+    // If texture is not used, set uniform to false
+    glUniform1i(glGetUniformLocation(shader->getID(), "useTexture"), useTexture ? 1 : 0); 
+
+    
     glm::mat4 identity = glm::mat4(1.0f);
     glUniform1i(glGetUniformLocation(shader->getID(), "isNDC"), 1);
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uVP"), 1, GL_FALSE, glm::value_ptr(identity));
@@ -26,6 +35,7 @@ void RenderableObjectStatic::draw(const glm::mat4& viewProj, const std::vector<L
     glEnable(GL_DEPTH_TEST);     // Restore depth testing
     glDepthMask(GL_TRUE);        // Restore depth writing
 }
+
 
 bool RenderableObjectStatic::isClicked(float mouseX, float mouseY, int winWidth, int winHeight, glm::mat4 /*unused*/) {
     // Convert mouse coordinates to NDC
