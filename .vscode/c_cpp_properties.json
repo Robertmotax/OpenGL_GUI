@@ -5,12 +5,16 @@
             "includePath": [
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/src",
+                "${workspaceFolder}/external",
+                "${workspaceFolder}/textures",
                 "C:/vcpkg/installed/x64-mingw-static/include"
             ],
             "browse": {
                 "path": [
                     "${workspaceFolder}/include",
                     "${workspaceFolder}/src",
+                    "${workspaceFolder}/external",
+                    "${workspaceFolder}/textures",
                     "C:/vcpkg/installed/x64-mingw-static/include"
                 ],
                 "limitSymbolsToIncludedHeaders": true
