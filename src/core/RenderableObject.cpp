@@ -15,6 +15,9 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
     shader->use();
 
     glm::mat4 model = glm::mat4(1.0f);
+    // move object down by 0.5 on Y, such that the floor can be initialized at the beginning
+    // ensure the object is above the floor
+    // model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); 
 
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uModel"), 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uVP"), 1, GL_FALSE, glm::value_ptr(viewProj));
