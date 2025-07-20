@@ -24,8 +24,13 @@ RenderableObjectBase::RenderableObjectBase(const std::vector<Tri>& triangles, Sh
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
     glEnableVertexAttribArray(0);
 
+    // Color
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
     glEnableVertexAttribArray(1);
+
+    //Texture
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+    glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
 
@@ -36,6 +41,14 @@ RenderableObjectBase::RenderableObjectBase(const std::vector<Tri>& triangles, Sh
 RenderableObjectBase::~RenderableObjectBase() {
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
+}
+
+void RenderableObjectBase::setTexture(Texture* texture) {
+    this->texture = texture; // Store the texture for later use
+}
+
+void RenderableObjectBase::enableTexture(bool enable) {
+    useTexture = enable && (texture != nullptr);
 }
 
 void RenderableObjectBase::setOnClick(std::function<void()> callback) {
