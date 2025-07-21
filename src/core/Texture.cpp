@@ -15,6 +15,9 @@ Texture::Texture(const char* fileLoc)
 // read texture file and load it into OpenGL
 void Texture::loadTexture() 
 {
+	// Before loading any textures, call this once:
+	stbi_set_flip_vertically_on_load(true);
+
 	unsigned char* texData = stbi_load(fileLocation, &width, &height, &bitDepth, 0);
 	if (!texData) 
 	{
