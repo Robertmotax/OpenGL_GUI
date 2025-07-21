@@ -141,9 +141,9 @@ int main() {
     );
 
     //All possible tiles for the UI sidebar
-    std::vector<Tri>  tile1 = makeTile(1.0f, 0.7f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-    std::vector<Tri>  tile2 = makeTile(0.65f, 0.35f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-    std::vector<Tri>  tile3 = makeTile(0.3f, 0.0f, {0.5f, 0.5f, 0.5f}, {0.0f, 1.0f}, {1.0f, 0.0f});
+    std::vector<Tri>  tile1 = makeTile(0.1f, -0.2f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
+    std::vector<Tri>  tile2 = makeTile(-0.25f, -0.55f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
+    std::vector<Tri>  tile3 = makeTile(-0.6f, -0.9f, {0.5f, 0.5f, 0.5f}, {0.0f, 1.0f}, {1.0f, 0.0f});
 
 
     std::vector<LightSource> lights = {
@@ -160,13 +160,9 @@ int main() {
     auto* tile2Obj = new RenderableObjectStatic(tile2, &shaderUI);
     auto* tile3Obj = new RenderableObjectStatic(tile3, &shaderUI);
 
-    // @TODO --REMOVE: Set textures for objects JUST TO TRY IT OUT
     //since we load the texture is within the constructor, we must initialize after creating the window
     darknessTexture = Texture("textures/darkness.jpg"); 
     alaskanMalamutTexture = Texture("textures/alaskan-malamut.jpg");
-
-    sidebarObj->setTexture(&darknessTexture);
-    sidebarObj->enableTexture(true);
 
     //Assign textures to the buttons for preview
     tile1Obj->setTexture(&alaskanMalamutTexture);
@@ -210,8 +206,8 @@ int main() {
     uiObjects.push_back(sidebarObj);
     //Push each tile objects to UI list of clickable objects
     uiObjects.push_back(tile1Obj);
-    //uiObjects.push_back(tile2Obj);
-    //uiObjects.push_back(tile3Obj);
+    uiObjects.push_back(tile2Obj);
+    uiObjects.push_back(tile3Obj);
 
     std::vector<RenderableObjectBase*> allObjects;
     allObjects.insert(allObjects.end(), sceneObjects.begin(), sceneObjects.end());

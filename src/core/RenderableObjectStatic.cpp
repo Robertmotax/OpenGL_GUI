@@ -51,6 +51,9 @@ bool RenderableObjectStatic::isClicked(float mouseX, float mouseY, int winWidth,
     float y_ndc = 1.0f - (2.0f * mouseY) / winHeight; // Invert Y
     glm::vec2 p(x_ndc, y_ndc);
 
+    // //Debug output
+    // std::cout << "x pisition: " << mouseX << ", y position: " << mouseY << std::endl;
+
     for (const auto& tri : tris) {
         glm::vec2 a(tri.v0.position.x, tri.v0.position.y);
         glm::vec2 b(tri.v1.position.x, tri.v1.position.y);
