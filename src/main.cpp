@@ -93,21 +93,21 @@ int main() {
 
     //triangles for the scene objects
     tris.emplace_back(
-        Vertex{{-5.0f, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}},  // Red
-        Vertex{{ 0.0f, 1.0f, 0.0f}, {0.0f, 0.5f, 0.0f}},  // Green
-        Vertex{{ 0.5f, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}}   // Blue
+        Vertex{{-5.0f, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}, {0.0f, 1.0f}},  // Red
+        Vertex{{ 0.0f, 1.0f, 0.0f}, {0.0f, 0.5f, 0.0f}, {0.0f, 0.0f}},  // Green
+        Vertex{{ 0.5f, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}, {1.0f, 1.0f}}   // Blue
     );
 
     tris.emplace_back(
-        Vertex{{-5.0f, 0.0f, 0.0f}, {0.5f, 0.0f, 0.0f}},  // Red
-        Vertex{{ 0.0f,  1.0f, 0.0f}, {0.5f, 0.0f, 0.0f}},  // Green
-        Vertex{{-0.5f,  0.0f, -5.0f}, {0.5f, 0.0f, 0.0f}}   // Cyan
+        Vertex{{-5.0f, 0.0f, 0.0f}, {0.5f, 0.0f, 0.0f},   {0.0f, 1.0f}},  // Red
+        Vertex{{ 0.0f,  1.0f, 0.0f}, {0.5f, 0.0f, 0.0f},  {0.0f, 0.0f}},  // Green
+        Vertex{{-0.5f,  0.0f, -5.0f}, {0.5f, 0.0f, 0.0f}, {1.0f, 1.0f}}   // Cyan
     );
 
     tris.emplace_back(
-        Vertex{{ 0.5f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.5f}},   // Blue
-        Vertex{{ 0.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 0.5f}},  // Green
-        Vertex{{ 0.5f, 0.0f, -10.0f}, {0.0f, 0.0f, 0.5f}}
+        Vertex{{ 0.5f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.5f},   {0.0f, 1.0f}},   // Blue
+        Vertex{{ 0.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 0.5f},  {0.0f, 0.0f}},  // Green
+        Vertex{{ 0.5f, 0.0f, -10.0f}, {0.0f, 0.0f, 0.5f}, {1.0f, 1.0f}}
     );
 
     // minimalistic floor design to represent the ground
@@ -175,7 +175,7 @@ int main() {
     tile2Obj->setTexture(&darknessTexture);
     tile2Obj->enableTexture(true);
 
-    tile3Obj->setTexture(nullptr); // No texture for the third tile
+    tile3Obj->setTexture(nullptr); // No texture for the third tile -- assumed this is to remove texture
     tile3Obj->enableTexture(false); 
 
 
@@ -209,7 +209,7 @@ int main() {
     sceneObjects.push_back(floorObj);
     uiObjects.push_back(sidebarObj);
     //Push each tile objects to UI list of clickable objects
-    //uiObjects.push_back(tile1Obj);
+    uiObjects.push_back(tile1Obj);
     //uiObjects.push_back(tile2Obj);
     //uiObjects.push_back(tile3Obj);
 

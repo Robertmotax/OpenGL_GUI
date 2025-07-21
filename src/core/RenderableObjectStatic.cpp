@@ -27,7 +27,7 @@ void RenderableObjectStatic::draw(const glm::mat4& viewProj, const std::vector<L
     // Set up texture if enabled and available
     if (useTexture && texture) {
         texture->useTexture(); // bind only when required
-        glUniform1i(glGetUniformLocation(shader->getID(), "textureSampler"), 0);
+        glUniform1i(textureSamplerLocation, 0);
     }
 
     
