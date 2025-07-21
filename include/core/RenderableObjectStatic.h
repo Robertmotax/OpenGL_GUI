@@ -8,4 +8,9 @@ public:
     bool isClicked(float mouseX, float mouseY, int winWidth, int winHeight, glm::mat4 viewProjInverse) override;
 
 private:
+    GLuint useTextureLocation = -1;
+    GLuint textureSamplerLocation = -1;
+    GLuint isNDC_Location = -1;
+    GLuint uVP_Location = -1;
+    GLuint uModel_Location = -1;
 };

@@ -14,6 +14,16 @@ RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* sh
 void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const {
     shader->use();
 
+    // If texture is not used, set uniform to false
+    glUniform1i(glGetUniformLocation(shader->getID(), "useTexture"), useTexture ? 1 : 0); 
+
+    // Set up texture if enabled and available
+    if (useTexture && texture) {
+        texture->useTexture(); // bind only when required
+        glUniform1i(glGetUniformLocation(shader->getID(), "textureSampler"), 0);
+    }
+
+
     glm::mat4 model = glm::mat4(1.0f);
     // move object down by 0.5 on Y, such that the floor can be initialized at the beginning
     // ensure the object is above the floor

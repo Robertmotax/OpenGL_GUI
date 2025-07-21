@@ -1,17 +1,19 @@
-#version 120
+#version 330
 
 #define MAX_LIGHTS 8
 
-attribute vec3 aPos;
-attribute vec3 aColor;
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
 
 uniform mat4 uModel;
 uniform mat4 uVP;
 uniform mat4 uLightSpaceMatrix;
 
-varying vec3 vColor;
-varying vec3 vFragPos;
-varying vec4 vFragPosLightSpace;
+out vec3 vColor;
+out vec3 vFragPos;
+out vec4 vFragPosLightSpace;
+out vec2 vTexCoord;
 
 void main()
 {
@@ -20,4 +22,5 @@ void main()
     vFragPosLightSpace = uLightSpaceMatrix * worldPos;
     gl_Position = uVP * worldPos;
     vColor = aColor;
+    vTexCoord = aTexCoord;
 }

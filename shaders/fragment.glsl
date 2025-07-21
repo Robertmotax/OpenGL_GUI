@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 #define MAX_LIGHTS 8
 
@@ -7,11 +7,17 @@ uniform vec3 uLightPositions[MAX_LIGHTS];
 uniform vec3 uLightColors[MAX_LIGHTS];
 uniform float uLightIntensities[MAX_LIGHTS];
 
+uniform bool useTexture;
+uniform sampler2D textureSampler;
 uniform sampler2D uShadowMap;
 
-varying vec3 vColor;
-varying vec3 vFragPos;
-varying vec4 vFragPosLightSpace;
+in vec3 vColor;
+in vec2 vTexCoord;
+in vec3 vFragPos;
+in vec4 vFragPosLightSpace;
+
+out vec4 FragColor;
+
 
 float calculateShadow(vec4 fragPosLightSpace) {
     // Perform perspective divide
@@ -52,9 +58,9 @@ void main()
         float shadow = calculateShadow(vFragPosLightSpace);
 
         if(shadow > 0.5)
-            gl_FragColor = vec4(1,0,0,1); // red for shadowed fragments
+            FragColor = vec4(1,0,0,1); // red for shadowed fragments
         else
-            gl_FragColor = vec4(0,1,0,1); // green for lit fragments
+            FragColor = vec4(0,1,0,1); // green for lit fragments
 
 
         // If in shadow, reduce light contribution
@@ -63,10 +69,14 @@ void main()
         lighting += lightContrib;
     }
 
-    vec3 finalColor = vColor * lighting;
+    //depending if we wish to apply some texture or not
+    vec3 baseColor = useTexture
+        ? texture(textureSampler, vTexCoord).rgb
+        : vColor;
 
+    vec3 finalColor = baseColor * lighting;
     // Simple ambient term to avoid pure black shadows (optional)
-    finalColor += vColor * 0.1;
+    finalColor += baseColor * 0.1;
 
-    gl_FragColor = vec4(finalColor, 1.0);
+    FragColor = vec4(finalColor, 1.0);
 }

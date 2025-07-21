@@ -1,11 +1,11 @@
 #version 330
 
-attribute vec3 aPos;
-attribute vec3 aColor;
-attribute vec2 aTexCoord;
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
 
-varying vec3 vColor;
-varying vec2 vTexCoord;
+out vec3 vColor;
+out vec2 vTexCoord;
 
 uniform mat4 uModel;
 uniform mat4 uVP;
