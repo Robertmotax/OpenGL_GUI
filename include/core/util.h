@@ -59,6 +59,7 @@ inline auto makeTile = [](float top, float bottom, glm::vec3 color, glm::vec2 uv
 
 /**
  * * @brief Spawns small patches in the scene.
+ * * CURRENTLY NOT USED -- COULD BE USEFUL IN THE FUTURE IF WE WISH TO SPAWN A LOT OF OBJECTS
  * * This function generates a specified number of patches at random positions within a defined range.
  */
 std::vector<RenderableObject*> spawnPatches(
