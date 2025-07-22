@@ -23,8 +23,6 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
         glUniform1i(glGetUniformLocation(shader->getID(), "textureSampler"), 0);
     }
 
-
-    glm::mat4 model = glm::mat4(1.0f);
     // move object down by 0.5 on Y, such that the floor can be initialized at the beginning
     // ensure the object is above the floor
     // model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); 

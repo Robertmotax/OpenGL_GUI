@@ -14,7 +14,11 @@ void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int act
 
         for (auto& obj : *allObjects) {
             if (obj->isClicked((float)xpos, (float)ypos, width, height, invVP)) {
-                obj->onClick();
+                if (obj->onClick) {  //verify if onClick is set
+                    obj->onClick();
+                } else {
+                    std::cerr << "Warning: onClick not set for clicked object.\n";
+                }
             }
         }
     }
