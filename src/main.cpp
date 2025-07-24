@@ -13,6 +13,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <cstdlib> 
 #include <iostream>
 #include <vector>
 
@@ -31,7 +32,8 @@ const char* fragmentPathShadow = "shaders/fragmentShadow.glsl";
 //load new textures
 Texture alaskanMalamutTexture;
 Texture darknessTexture;
-
+Texture jupiterTexture;
+Texture uranusTexture;
 
 glm::mat4 viewProj;
 glm::mat4 viewProjInverse;
@@ -51,6 +53,9 @@ inline float computeDeltaTime() {
 
 int main() {
     glfwInit();
+
+    // Seed once before the loop
+    srand(static_cast<unsigned int>(time(nullptr)));
 
 #if defined(PLATFORM_OSX)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -165,6 +170,9 @@ int main() {
     //since we load the texture is within the constructor, we must initialize after creating the window
     darknessTexture = Texture("textures/darkness.jpg"); 
     alaskanMalamutTexture = Texture("textures/alaskan-malamut.jpg");
+    jupiterTexture = Texture("textures/jupiter_surface.jpg");
+    uranusTexture = Texture("textures/uranus_surface.jpg");
+
 
     //Assign textures to the buttons for preview
     tile1Obj->setTexture(&alaskanMalamutTexture);
@@ -204,10 +212,21 @@ int main() {
     });
 
     sceneObjects.push_back(obj1);
+    //creation of spherical ball objects
     for (int i = 0; i < 10; ++i) {
         float z = -1.0f + (i * 0.8f);
-        auto* ball = new RenderableObject(generateSphericalBalls(0.3f, 16, 12), &shader, &shaderShadow);
+        auto* ball = new RenderableObject(generateSphericalBalls(0.45f, 16, 12), &shader, &shaderShadow);
         ball->setPosition(glm::vec3(-8.0f + i, 0.4f, z));
+
+        // Randomly assign texture: 0 or 1
+        int randomNum = rand() % 2; // 0 or 1
+        if (randomNum == 0) {
+            ball->setTexture(&jupiterTexture);
+        } else {
+            ball->setTexture(&uranusTexture);
+        }
+        ball->enableTexture(true);
+
         sceneObjects.push_back(ball);
         animatedBalls.push_back(ball);
         // Alternate directions: even = +1 (left->right), odd = -1 (right->left)
