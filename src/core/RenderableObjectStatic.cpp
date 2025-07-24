@@ -1,11 +1,18 @@
 // RenderableObjectNDC.cpp
 #include "core/RenderableObjectStatic.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 
 RenderableObjectStatic::RenderableObjectStatic(const std::vector<Tri>& triangles, Shader* shader)
     : RenderableObjectBase(triangles, shader)
 {
-    // No additional initialization needed.
+    // Cache uniform locations once when the object is created
+    useTextureLocation = glGetUniformLocation(shader->getID(), "useTexture");
+    textureSamplerLocation = glGetUniformLocation(shader->getID(), "textureSampler");
+    isNDC_Location = glGetUniformLocation(shader->getID(), "isNDC");
+    uVP_Location = glGetUniformLocation(shader->getID(), "uVP");
+    uModel_Location = glGetUniformLocation(shader->getID(), "uModel");
+
 }
 
 void RenderableObjectStatic::draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const {
@@ -14,19 +21,20 @@ void RenderableObjectStatic::draw(const glm::mat4& viewProj, const std::vector<L
 
     shader->use();
 
+    // If texture is not used, set uniform to false
+    glUniform1i(useTextureLocation, useTexture ? 1 : 0);
+
     // Set up texture if enabled and available
     if (useTexture && texture) {
         texture->useTexture(); // bind only when required
-        glUniform1i(glGetUniformLocation(shader->getID(), "textureSampler"), 0);
+        glUniform1i(textureSamplerLocation, 0);
     }
-    // If texture is not used, set uniform to false
-    glUniform1i(glGetUniformLocation(shader->getID(), "useTexture"), useTexture ? 1 : 0); 
 
     
     glm::mat4 identity = glm::mat4(1.0f);
-    glUniform1i(glGetUniformLocation(shader->getID(), "isNDC"), 1);
-    glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uVP"), 1, GL_FALSE, glm::value_ptr(identity));
-    glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uModel"), 1, GL_FALSE, glm::value_ptr(identity));
+    glUniform1i(isNDC_Location, 1);
+    glUniformMatrix4fv(uVP_Location, 1, GL_FALSE, glm::value_ptr(identity));
+    glUniformMatrix4fv(uModel_Location, 1, GL_FALSE, glm::value_ptr(identity));
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, vertexCount);
@@ -42,6 +50,9 @@ bool RenderableObjectStatic::isClicked(float mouseX, float mouseY, int winWidth,
     float x_ndc = (2.0f * mouseX) / winWidth - 1.0f;
     float y_ndc = 1.0f - (2.0f * mouseY) / winHeight; // Invert Y
     glm::vec2 p(x_ndc, y_ndc);
+
+    // //Debug output
+    // std::cout << "x pisition: " << mouseX << ", y position: " << mouseY << std::endl;
 
     for (const auto& tri : tris) {
         glm::vec2 a(tri.v0.position.x, tri.v0.position.y);

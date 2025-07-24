@@ -15,6 +15,9 @@ Texture::Texture(const char* fileLoc)
 // read texture file and load it into OpenGL
 void Texture::loadTexture() 
 {
+	// Before loading any textures, call this once:
+	stbi_set_flip_vertically_on_load(true);
+
 	unsigned char* texData = stbi_load(fileLocation, &width, &height, &bitDepth, 0);
 	if (!texData) 
 	{
@@ -52,8 +55,8 @@ void Texture::loadTexture()
 
 	//border-parameter is legacy value
 	//byte is basically char but byte is 8-bit, char is 1-bit.
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, texData);
-	//glGenerateMipmap(GL_TEXTURE_2D);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, texData);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
