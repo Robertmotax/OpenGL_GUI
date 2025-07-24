@@ -100,8 +100,8 @@ int main() {
     );
 
     tris.emplace_back(
-        Vertex{{ 0.0f,  1.0f,  0.0f}, {1.0f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
         Vertex{{-0.5f,  0.2f,  0.5f}, {1.0f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ 0.0f,  1.0f,  0.0f}, {1.0f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
         Vertex{{-0.5f,  0.2f, -0.5f}, {1.0f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}  // Cyan
     );
 
@@ -212,6 +212,7 @@ int main() {
     //All possible tiles for the UI sidebar for texture selection for floor design
     std::vector<LightSource> lights = {
         LightSource(glm::vec3(2.5f, 2.0f, 2.5f), glm::vec3(1.0f, 0.8f, 0.6f), 1.0f, 25.0f),   // Warm light
+        LightSource(glm::vec3(-2.5f, 2.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 2.0f, 25.0f),   // Warm light
     };
 
     auto* obj1 = new RenderableObject(tris, &shader, &shaderShadow);
