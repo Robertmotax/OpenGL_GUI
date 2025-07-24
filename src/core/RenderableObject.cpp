@@ -23,12 +23,10 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
         glUniform1i(glGetUniformLocation(shader->getID(), "textureSampler"), 0);
     }
 
-
-    glm::mat4 model = glm::mat4(1.0f);
     // Start from stored position
-    model = glm::translate(model, position);
+    glm::mat4 modelTransformed = glm::translate(model, position);
 
-    glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uModel"), 1, GL_FALSE, glm::value_ptr(modelTransformed));
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uVP"), 1, GL_FALSE, glm::value_ptr(viewProj));
 
     for (int i = 0; i < (int)lights.size(); ++i) {
