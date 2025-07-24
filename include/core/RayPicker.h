@@ -1,20 +1,28 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "core/Camera.h"
+#include <memory>
+#include "Camera.h"
 
 class RayPicker {
 public:
-    RayPicker(Camera* cam) : camera(cam) {}
+    static RayPicker& getInstance(); // Singleton access
 
-    // Convert screen coordinates to world ray
+    // Delete copy & move constructors/operators to enforce singleton
+    RayPicker(const RayPicker&) = delete;
+    RayPicker& operator=(const RayPicker&) = delete;
+    RayPicker(RayPicker&&) = delete;
+    RayPicker& operator=(RayPicker&&) = delete;
+
+    void setCamera(Camera* cam);
+    
     bool screenPosToWorldRay(double mouseX, double mouseY, int screenWidth, int screenHeight,
                              glm::vec3& rayOrigin, glm::vec3& rayDirection) const;
 
-    // Intersect ray with XZ plane (y = yLevel)
-    static bool intersectXZPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
-                                 float yLevel, glm::vec3& hitPoint);
+    bool intersectXZPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
+                          float yLevel, glm::vec3& hitPoint);
 
 private:
-    Camera* camera;
+    RayPicker(); // private constructor
+    Camera* camera = nullptr;
 };

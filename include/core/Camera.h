@@ -17,7 +17,8 @@ class Camera {
 
         glm::mat4 getViewProjection() const { return projection * view; }
         glm::mat4 getInverseViewProjection() const { return glm::inverse(projection * view); }
-
+        glm::vec3 getPosition() const { return position; }
+        
     private:
         glm::vec3 position;
         glm::vec3 cameraFront;

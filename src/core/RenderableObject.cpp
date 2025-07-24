@@ -3,7 +3,7 @@
 #include "core/Vertex.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
-
+#include "util.h"
 
 RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* shader, Shader* shaderShadow)
     : RenderableObjectBase(triangles, shader)
@@ -23,8 +23,7 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
         glUniform1i(glGetUniformLocation(shader->getID(), "textureSampler"), 0);
     }
 
-
-    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 model = getModelMatrix();
     // move object down by 0.5 on Y, such that the floor can be initialized at the beginning
     // ensure the object is above the floor
     // model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); 
@@ -114,3 +113,29 @@ bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int w
 
     return false;
 }
+
+
+bool RenderableObject::isRayIntersecting(const glm::vec3& rayOrigin, const glm::vec3& rayDirection) {
+    // Compute AABB from model-transformed bounding box
+    glm::vec3 minBounds(FLT_MAX), maxBounds(-FLT_MAX);
+
+    for (const Tri& tri : tris) {
+        for (const glm::vec3& vertex : { tri.v0.position, tri.v1.position, tri.v2.position }) {
+            glm::vec4 worldPos = modelMatrix * glm::vec4(vertex, 1.0f);
+            glm::vec3 wp = glm::vec3(worldPos);
+            minBounds = glm::min(minBounds, wp);
+            maxBounds = glm::max(maxBounds, wp);
+        }
+    }
+
+    float t;
+    return rayIntersectsAABB(rayOrigin, rayDirection, minBounds, maxBounds, t);
+}
+
+
+
+//Setters
+void RenderableObject::setPosition(const glm::vec3& pos) 
+{
+    position = pos;
+};

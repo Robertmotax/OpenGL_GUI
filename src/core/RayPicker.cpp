@@ -1,8 +1,21 @@
 #include "core/RayPicker.h"
 #include <glm/gtc/matrix_inverse.hpp>
 
+RayPicker::RayPicker() {}
+
+RayPicker& RayPicker::getInstance() {
+    static RayPicker instance; // created only once, thread-safe in C++
+    return instance;
+}
+
+void RayPicker::setCamera(Camera* cam) {
+    camera = cam;
+}
+
 bool RayPicker::screenPosToWorldRay(double mouseX, double mouseY, int screenWidth, int screenHeight,
                                     glm::vec3& rayOrigin, glm::vec3& rayDirection) const {
+    if (!camera) return false;
+
     float x = (2.0f * mouseX) / screenWidth - 1.0f;
     float y = 1.0f - (2.0f * mouseY) / screenHeight;
 

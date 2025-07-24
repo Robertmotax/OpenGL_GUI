@@ -8,6 +8,7 @@
 #include "core/LightSource.h"
 #include "core/Tri.h"
 #include "core/Camera.h"
+#include "core/RayPicker.h"
 #include "core/Texture.h"
 #include "core/MouseClickHandler.h"
 #include <glm/ext/matrix_transform.hpp>
@@ -84,6 +85,7 @@ int main() {
     float aspect = (float)width / (float)height;
 
     Camera camera(aspect);
+    RayPicker::getInstance().setCamera(&camera);
 
     Shader shaderUI(vertexPathUI, fragmentPathUI);
     Shader shader(vertexPath, fragmentPath);
@@ -226,6 +228,8 @@ int main() {
 
     // Set the mouse handler as user pointer so lambda can access it
     glfwSetWindowUserPointer(window, &mouseClickHandler);
+
+    
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS); 
 
