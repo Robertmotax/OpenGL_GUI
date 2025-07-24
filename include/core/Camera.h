@@ -14,7 +14,6 @@ class Camera {
         void updateCameraVectors();
         void updateProjectionMatrix(float aspectRatio);
         void updateKeyControl(float deltaTime, GLFWwindow* window);
-
         glm::mat4 getViewProjection() const { return projection * view; }
         glm::mat4 getInverseViewProjection() const { return glm::inverse(projection * view); }
 
@@ -38,4 +37,6 @@ class Camera {
         // Helper function to clamp angles
         // This ensures that yaw and pitch stay within reasonable limits
         void clampAngles();
+
+        bool isSpeedBoosted = false;
 };
