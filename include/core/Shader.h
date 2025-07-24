@@ -1,9 +1,11 @@
 #pragma once
-
+#define GLM_ENABLE_EXPERIMENTAL
 #include <string>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 class Shader {
 public:
@@ -14,9 +16,9 @@ public:
     void use() const;
 
     void setVec3(const std::string& name, const glm::vec3& value) {
-    GLint loc = glGetUniformLocation(shaderID, name.c_str());
-    if (loc != -1)
-        glUniform3fv(loc, 1, glm::value_ptr(value));
+        GLint loc = glGetUniformLocation(shaderID, name.c_str());
+        if (loc != -1)
+            glUniform3fv(loc, 1, glm::value_ptr(value));
     }
 
     void setFloat(const std::string& name, float value) {
@@ -30,6 +32,7 @@ public:
         if (loc != -1)
             glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(mat));
     }
+
 
     void setInt(const std::string& name, int value) {
         GLint loc = glGetUniformLocation(shaderID, name.c_str());

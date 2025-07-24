@@ -149,26 +149,26 @@ int main() {
     );
 
     floor.emplace_back(
-        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
         Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
         Vertex{{-10.0f,  0.0f,  -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
     );
 
     floor.emplace_back(
-        Vertex{{-10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
         Vertex{{-10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
         Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
     );
 
     floor.emplace_back(
-        Vertex{{ 10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
         Vertex{{-10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
         Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
     );
 
     floor.emplace_back(
-        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
         Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
         Vertex{{ 10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
     );
 
@@ -180,8 +180,8 @@ int main() {
 
     floor.emplace_back(
         Vertex{{ 10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
     );
     
 
@@ -201,7 +201,7 @@ int main() {
     );
 
     std::vector<LightSource> lights = {
-        LightSource(glm::vec3(2.5f, 2.0f, 2.5f), glm::normalize(glm::vec3(-1.0f, 0.0f, -1.0f)), glm::vec3(1.0f, 0.8f, 0.6f), 0.75f),   // Warm light
+        LightSource(glm::vec3(2.5f, 2.0f, 2.5f), glm::vec3(1.0f, 0.8f, 0.6f), 1.0f, 25.0f),   // Warm light
     };
 
     auto* obj1 = new RenderableObject(tris, &shader, &shaderShadow);
@@ -247,79 +247,88 @@ int main() {
     glDepthFunc(GL_LESS); 
 
     for (auto& light : lights) {
-        light.initShadowMap();
+        light.initShadowCubemap();
     }
-
+    shader.use();
     glDisable(GL_CULL_FACE);
     glm::vec3 cubePos = {0.0f, 0.0f, 0.0f};
     glm::mat4 model = glm::translate(glm::mat4(1.0f), cubePos);
-    shader.setMat4("model", model);
+    shader.setMat4("uModel", model);
     while (!glfwWindowShouldClose(window)) {
-        // 1. Time and window size
-        float deltaTime = computeDeltaTime(); // Your own time logic
+        float deltaTime = computeDeltaTime();
         int width, height;
         glfwGetWindowSize(window, &width, &height);
         float aspect = (float)width / height;
-
-        // 2. Update camera (position, rotation, etc.)
-        camera.updateKeyControl(deltaTime, window);
-        camera.updateProjectionMatrix(aspect); // If aspect changes
-
-        
         glEnable(GL_DEPTH_TEST);
-        for (int i = 0; i < lights.size(); ++i) {
-            lights[i].computeLightSpaceMatrix();
-
-            glViewport(0, 0, lights[i].SHADOW_WIDTH, lights[i].SHADOW_HEIGHT);
-            glBindFramebuffer(GL_FRAMEBUFFER, lights[i].shadowMapFBO);
+        glDisable(GL_CULL_FACE);
+        // 1. For each light, update shadow transforms and render shadow cubemap
+        for (LightSource& light : lights) {
+            glViewport(0, 0, light.SHADOW_WIDTH, light.SHADOW_HEIGHT);
+            glBindFramebuffer(GL_FRAMEBUFFER, light.shadowMapFBO);
             glClear(GL_DEPTH_BUFFER_BIT);
-            for (auto* obj : sceneObjects)
-                obj->drawDepthOnly(lights[i].lightSpaceMatrix);  // <<--- Pass the matrix
+            light.computeShadowTransforms();
+            for (int face = 0; face < 6; ++face) {
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+                                    light.shadowCubemap, 0);
+                glClear(GL_DEPTH_BUFFER_BIT);
+
+                for (auto* obj : sceneObjects) {
+                    obj->drawDepthOnly(light.shadowTransforms[face], light.position, light.farPlane);
+                }
+            }
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
-        
-        // 5. Clear
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Optional but helpful
+
+        // 2. Render scene normally with all lights and shadows
+        glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        shader.use();
-
-        // Bind shadow maps for sampling (IMPORTANT: do it here, not above)
-        for (int i = 0; i < lights.size(); ++i) {
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, lights[i].shadowMapTex);
-            shader.setInt(("uShadowMaps[" + std::to_string(i) + "]").c_str(), i);
-            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            std::cerr << "ERROR::FRAMEBUFFER:: Shadow map framebuffer not complete!\n";
-        }
-
-        // Set light uniforms, camera, etc. here
-        for (int i = 0; i < lights.size(); ++i) {
-            shader.setVec3(("lightPositions[" + std::to_string(i) + "]").c_str(), lights[i].position);
-            shader.setVec3(("lightColors[" + std::to_string(i) + "]").c_str(), lights[i].color);
-            shader.setFloat(("lightIntensities[" + std::to_string(i) + "]").c_str(), lights[i].intensity);
-            shader.setMat4(("lightSpaceMatrices[" + std::to_string(i) + "]").c_str(), lights[i].lightSpaceMatrix);
-        }
-        shader.setInt("uNumLights", (int)lights.size());
-
-        // 6. Render
+        camera.updateKeyControl(deltaTime, window);
+        camera.updateProjectionMatrix(aspect);
         viewProj = camera.getViewProjection();
+        
+
+        shader.use();
+        // Pass number of lights
+        glUniform1i(glGetUniformLocation(shader.getID(), "uNumLights"), (int)lights.size());
+
+        // Bind each light's data and shadow map to the shader
+        for (int i = 0; i < lights.size(); ++i) {
+            const LightSource& light = lights[i];
+            std::string prefix = "uLights[" + std::to_string(i) + "]";
+
+            // Light position
+            glUniform3fv(glGetUniformLocation(shader.getID(), (prefix + ".position").c_str()), 1, glm::value_ptr(light.position));
+            // Light color
+            glUniform3fv(glGetUniformLocation(shader.getID(), (prefix + ".color").c_str()), 1, glm::value_ptr(light.color));
+            // Intensity
+            glUniform1f(glGetUniformLocation(shader.getID(), (prefix + ".intensity").c_str()), light.intensity);
+            // Far plane
+            glUniform1f(glGetUniformLocation(shader.getID(), (prefix + ".farPlane").c_str()), light.farPlane);
+
+            // Bind shadow cubemap to texture units starting from 1 (or some offset)
+            glActiveTexture(GL_TEXTURE1 + i);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, light.shadowCubemap);
+            glUniform1i(glGetUniformLocation(shader.getID(), (prefix + ".shadowMap").c_str()), 1 + i);
+        }
+
+        // Render all objects
         for (auto* obj : sceneObjects)
             obj->draw(viewProj, lights);
+
+        // Render UI
         for (auto* obj : uiObjects)
-            obj->draw(viewProj, {});  // No lights needed
-        
-        // 7. Events
+            obj->draw(viewProj, lights);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        // Handle inputs
-        // Close window if pressed escape
+        // Exit if ESC pressed
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
     }
-
 
     for (auto* obj : sceneObjects)
         delete obj;
