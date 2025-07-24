@@ -20,12 +20,12 @@
 #include "../external/stb_image.h"
 
 
-const char* vertexPath = "shaders/vertex.glsl";
-const char* fragmentPath = "shaders/fragment.glsl";
-const char* vertexPathUI = "shaders/vertexUI.glsl";
-const char* fragmentPathUI = "shaders/fragmentUI.glsl";
-const char* vertexPathShadow = "shaders/vertexShadow.glsl";
-const char* fragmentPathShadow = "shaders/fragmentShadow.glsl";
+const char* vertexPath = "shaders/main.vert";
+const char* fragmentPath = "shaders/main.frag";
+const char* vertexPathUI = "shaders/UI.vert";
+const char* fragmentPathUI = "shaders/UI.frag";
+const char* vertexPathShadow = "shaders/shadow.vert";
+const char* fragmentPathShadow = "shaders/shadow.frag";
 
 //load new textures
 Texture alaskanMalamutTexture;
@@ -92,56 +92,116 @@ int main() {
 
     //triangles for the scene objects
     tris.emplace_back(
-        Vertex{{-5.0f, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}},  // Red
-        Vertex{{ 0.0f, 1.0f, 0.0f}, {0.0f, 0.5f, 0.0f}},  // Green
-        Vertex{{ 0.5f, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}}   // Blue
+        Vertex{{ 0.0f, 1.0f,  0.0f}, {0.2f, 1.0f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{-0.5f, 0.2f,  0.5f}, {0.2f, 1.0f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ 0.5f, 0.2f,  0.5f}, {0.2f, 1.0f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
     );
 
     tris.emplace_back(
-        Vertex{{-5.0f, 0.0f, 0.0f}, {0.5f, 0.0f, 0.0f}},  // Red
-        Vertex{{ 0.0f,  1.0f, 0.0f}, {0.5f, 0.0f, 0.0f}},  // Green
-        Vertex{{-0.5f,  0.0f, -5.0f}, {0.5f, 0.0f, 0.0f}}   // Cyan
+        Vertex{{ 0.0f,  1.0f,  0.0f}, {1.0f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{-0.5f,  0.2f,  0.5f}, {1.0f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{-0.5f,  0.2f, -0.5f}, {1.0f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}  // Cyan
     );
 
     tris.emplace_back(
-        Vertex{{ 0.5f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.5f}},   // Blue
-        Vertex{{ 0.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 0.5f}},  // Green
-        Vertex{{ 0.5f, 0.0f, -10.0f}, {0.0f, 0.0f, 0.5f}}
+        Vertex{{ 0.0f,  1.0f,  0.0f}, {0.2f, 0.2f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ 0.5f,  0.2f,  0.5f}, {0.2f, 0.2f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ 0.5f,  0.2f, -0.5f}, {0.2f, 0.2f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
     );
 
     // minimalistic floor design to represent the ground
     std::vector<Tri> floor;
 
     floor.emplace_back(
-        Vertex{{-50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f}},   // Dark Gray
-        Vertex{{ 50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f}},   // Dark Gray
-        Vertex{{ 50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f}}    // Dark Gray
+        Vertex{{ 10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}     // Dark Gray
     );
 
     floor.emplace_back(
-        Vertex{{-50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f}},   // Dark Gray
-        Vertex{{ 50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f}},   // Dark Gray
-        Vertex{{-50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f}}   // Dark Gray
+        Vertex{{-10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}    // Dark Gray
     );
+
+    floor.emplace_back(
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f,  0.0f,  -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{-10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+    
 
     // the UI sidebar maade to place all the components
     std::vector<Tri> sideUI;
     
     sideUI.emplace_back(
-        Vertex{{ -0.6f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}},
-        Vertex{{ -0.6f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 0.0f}},
-        Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 0.0f}}
+        Vertex{{ -0.6f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ -0.6f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
     );
 
     sideUI.emplace_back(
-        Vertex{{ -0.6f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}},
-        Vertex{{ -1.0f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 1.0f}},
-        Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 0.0f}}
+        Vertex{{ -0.6f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ -1.0f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
     );
 
     std::vector<LightSource> lights = {
-        LightSource(glm::vec3(1.0f, 1.0f, 2.0f), glm::vec3(1.0f, 0.8f, 0.6f), 1.0f),   // Warm light
-        LightSource(glm::vec3(-1.5f, 1.0f, 1.5f), glm::vec3(0.4f, 0.7f, 1.0f), 0.7f)   // Cool light
+        LightSource(glm::vec3(2.5f, 2.0f, 2.5f), glm::normalize(glm::vec3(-1.0f, 0.0f, -1.0f)), glm::vec3(1.0f, 0.8f, 0.6f), 0.75f),   // Warm light
     };
 
     auto* obj1 = new RenderableObject(tris, &shader, &shaderShadow);
@@ -186,6 +246,14 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS); 
 
+    for (auto& light : lights) {
+        light.initShadowMap();
+    }
+
+    glDisable(GL_CULL_FACE);
+    glm::vec3 cubePos = {0.0f, 0.0f, 0.0f};
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), cubePos);
+    shader.setMat4("model", model);
     while (!glfwWindowShouldClose(window)) {
         // 1. Time and window size
         float deltaTime = computeDeltaTime(); // Your own time logic
@@ -197,39 +265,51 @@ int main() {
         camera.updateKeyControl(deltaTime, window);
         camera.updateProjectionMatrix(aspect); // If aspect changes
 
+        
+        glEnable(GL_DEPTH_TEST);
+        for (int i = 0; i < lights.size(); ++i) {
+            lights[i].computeLightSpaceMatrix();
 
-        // 3. Recalculate matrices (important!)
-        glm::mat4 viewProj = camera.getViewProjection();
-        viewProjInverse = glm::inverse(viewProj);
-
-        for (auto& light : lights) {
-            glm::mat4 lightView = glm::lookAt(light.position, glm::vec3(0), glm::vec3(0, 1, 0));
-            glm::mat4 lightProj = glm::ortho(-10.f, 10.f, -10.f, 10.f, 1.f, 20.f);
-            light.lightSpaceMatrix = lightProj * lightView;
-
-            glViewport(0, 0, 1024, 1024);
-            glBindFramebuffer(GL_FRAMEBUFFER, light.shadowMapFBO);
+            glViewport(0, 0, lights[i].SHADOW_WIDTH, lights[i].SHADOW_HEIGHT);
+            glBindFramebuffer(GL_FRAMEBUFFER, lights[i].shadowMapFBO);
             glClear(GL_DEPTH_BUFFER_BIT);
-
-            shaderShadow.use();
-            glUniformMatrix4fv(glGetUniformLocation(shaderShadow.getID(), "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(light.lightSpaceMatrix));
-
             for (auto* obj : sceneObjects)
-                obj->drawDepthOnly();
+                obj->drawDepthOnly(lights[i].lightSpaceMatrix);  // <<--- Pass the matrix
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
-
+        
         // 5. Clear
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Optional but helpful
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        shader.use();
+
+        // Bind shadow maps for sampling (IMPORTANT: do it here, not above)
+        for (int i = 0; i < lights.size(); ++i) {
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_2D, lights[i].shadowMapTex);
+            shader.setInt(("uShadowMaps[" + std::to_string(i) + "]").c_str(), i);
+            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            std::cerr << "ERROR::FRAMEBUFFER:: Shadow map framebuffer not complete!\n";
+        }
+
+        // Set light uniforms, camera, etc. here
+        for (int i = 0; i < lights.size(); ++i) {
+            shader.setVec3(("lightPositions[" + std::to_string(i) + "]").c_str(), lights[i].position);
+            shader.setVec3(("lightColors[" + std::to_string(i) + "]").c_str(), lights[i].color);
+            shader.setFloat(("lightIntensities[" + std::to_string(i) + "]").c_str(), lights[i].intensity);
+            shader.setMat4(("lightSpaceMatrices[" + std::to_string(i) + "]").c_str(), lights[i].lightSpaceMatrix);
+        }
+        shader.setInt("uNumLights", (int)lights.size());
+
         // 6. Render
+        viewProj = camera.getViewProjection();
         for (auto* obj : sceneObjects)
             obj->draw(viewProj, lights);
-
         for (auto* obj : uiObjects)
             obj->draw(viewProj, {});  // No lights needed
-
+        
         // 7. Events
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -14,30 +14,21 @@ RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* sh
 void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const {
     shader->use();
 
-    glm::mat4 model = glm::mat4(1.0f);
-    // move object down by 0.5 on Y, such that the floor can be initialized at the beginning
-    // ensure the object is above the floor
-    // model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); 
+    glm::mat4 model = getModelMatrix();; // Use your actual transform
 
-    glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uModel"), 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uVP"), 1, GL_FALSE, glm::value_ptr(viewProj));
+    GLuint shaderID = shader->getID();
+
+    glUniformMatrix4fv(glGetUniformLocation(shaderID, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(shaderID, "uVP"), 1, GL_FALSE, glm::value_ptr(viewProj));
 
     for (int i = 0; i < (int)lights.size(); ++i) {
-        std::string posName = "uLightPositions[" + std::to_string(i) + "]";
-        std::string colName = "uLightColors[" + std::to_string(i) + "]";
-        std::string intName = "uLightIntensities[" + std::to_string(i) + "]";
-        glUniform3fv(glGetUniformLocation(shader->getID(), posName.c_str()), 1, glm::value_ptr(lights[i].position));
-        glUniform3fv(glGetUniformLocation(shader->getID(), colName.c_str()), 1, glm::value_ptr(lights[i].color));
-        glUniform1f(glGetUniformLocation(shader->getID(), intName.c_str()), lights[i].intensity);
-
-        glActiveTexture(GL_TEXTURE1 + i);
-        glBindTexture(GL_TEXTURE_2D, lights[i].shadowMapTex);
-        
-        std::string uniformName = "shadowMaps[" + std::to_string(i) + "]";
-        glUniform1i(glGetUniformLocation(shader->getID(), uniformName.c_str()), 1 + i);
-
-        std::string matName = "lightSpaceMatrices[" + std::to_string(i) + "]";
-        glUniformMatrix4fv(glGetUniformLocation(shader->getID(), matName.c_str()), 1, GL_FALSE, glm::value_ptr(lights[i].lightSpaceMatrix));
+    // Set up texture if enabled and available
+        if (useTexture && texture) {
+            texture->useTexture(); // bind only when required
+            glUniform1i(glGetUniformLocation(shader->getID(), "uUseTexture"), 0);
+        }
+        // If texture is not used, set uniform to false
+        glUniform1i(glGetUniformLocation(shader->getID(), "uUseTexture"), useTexture ? 1 : 0); 
     }
 
     glBindVertexArray(vao);
@@ -50,11 +41,13 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
     }
 }
 
-void RenderableObject::drawDepthOnly() const {
-    shaderShadow->use();
 
-    glm::mat4 model = glm::mat4(1.0f); // Your model transform
-    glUniformMatrix4fv(glGetUniformLocation(shaderShadow->getID(), "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+void RenderableObject::drawDepthOnly(glm::mat4 lightSpaceMatrix) const {
+    shaderShadow->use();
+    glPolygonOffset(1.5f, 3.0f);    
+    glm::mat4 model = getModelMatrix();
+    shaderShadow->setMat4("uModel", model);
+    glUniformMatrix4fv(glGetUniformLocation(shaderShadow->getID(), "uLightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, vertexCount);
