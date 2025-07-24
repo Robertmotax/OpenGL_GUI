@@ -15,6 +15,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 
 // This library used for texture loading
 #define STB_IMAGE_IMPLEMENTATION
@@ -32,22 +34,20 @@ const char* fragmentPathShadow = "shaders/fragmentShadow.glsl";
 Texture alaskanMalamutTexture;
 Texture darknessTexture;
 
+Texture grassLandTexture;
 
+// Global variables for the scene
 glm::mat4 viewProj;
 glm::mat4 viewProjInverse;
 
 std::vector<RenderableObject*> sceneObjects;
 std::vector<RenderableObjectStatic*> uiObjects;
 
-inline float computeDeltaTime() {
-    static float lastTime = glfwGetTime();
-    float currentTime = glfwGetTime();
-    float deltaTime = currentTime - lastTime;
-    lastTime = currentTime;
-    return deltaTime;
-}
 
 int main() {
+    //random seed for number generator
+    srand((unsigned int)time(nullptr));
+
     glfwInit();
 
 #if defined(PLATFORM_OSX)
@@ -78,6 +78,7 @@ int main() {
 
     glViewport(0, 0, 800, 600);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    //glClearColor(0.53f, 0.81f, 0.98f, 1.0f);  // Nice sky blue (RGB)
 
     int width, height;
     glfwGetWindowSize(window, &width, &height);
@@ -114,15 +115,15 @@ int main() {
     std::vector<Tri> floor;
 
     floor.emplace_back(
-        Vertex{{-50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f}},   // Dark Gray
-        Vertex{{ 50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f}},   // Dark Gray
-        Vertex{{ 50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f}}    // Dark Gray
+        Vertex{{-50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f},   {0.0f, 1.0f}},   // Dark Gray
+        Vertex{{ 50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f},   {0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f},   {1.0f, 1.0f}}    // Dark Gray
     );
 
     floor.emplace_back(
-        Vertex{{-50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f}},   // Dark Gray
-        Vertex{{ 50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f}},   // Dark Gray
-        Vertex{{-50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f}}   // Dark Gray
+        Vertex{{-50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f},   {0.0f, 1.0f}},   // Dark Gray
+        Vertex{{ 50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f},   {0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f},   {1.0f, 1.0f}}   // Dark Gray
     );
 
     // the UI sidebar maade to place all the components
@@ -140,12 +141,14 @@ int main() {
         Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 0.0f}}
     );
 
-    //All possible tiles for the UI sidebar
-    std::vector<Tri>  tile1 = makeTile(0.1f, -0.2f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-    std::vector<Tri>  tile2 = makeTile(-0.25f, -0.55f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-    std::vector<Tri>  tile3 = makeTile(-0.6f, -0.9f, {0.5f, 0.5f, 0.5f}, {0.0f, 1.0f}, {1.0f, 0.0f});
+    //All possible tiles for the UI sidebar for texture selection on the object
+    std::vector<Tri>  tile1 = makeTile(0.2f, 0.1f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
+    std::vector<Tri>  tile2 = makeTile(0.09f, -0.01f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
+    std::vector<Tri>  tile3 = makeTile(-0.02f, -0.12f, {0.5f, 0.5f, 0.5f}, {0.0f, 1.0f}, {1.0f, 0.0f});
+    std::vector<Tri> grassTiles = makeTile(-0.2f, -0.25f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
 
 
+    //All possible tiles for the UI sidebar for texture selection for floor design
     std::vector<LightSource> lights = {
         LightSource(glm::vec3(1.0f, 1.0f, 2.0f), glm::vec3(1.0f, 0.8f, 0.6f), 1.0f),   // Warm light
         LightSource(glm::vec3(-1.5f, 1.0f, 1.5f), glm::vec3(0.4f, 0.7f, 1.0f), 0.7f)   // Cool light
@@ -159,26 +162,31 @@ int main() {
     auto* tile1Obj = new RenderableObjectStatic(tile1, &shaderUI);
     auto* tile2Obj = new RenderableObjectStatic(tile2, &shaderUI);
     auto* tile3Obj = new RenderableObjectStatic(tile3, &shaderUI);
+    auto* grassTileObj = new RenderableObjectStatic(grassTiles, &shaderUI);
+
 
     //since we load the texture is within the constructor, we must initialize after creating the window
     darknessTexture = Texture("textures/darkness.jpg"); 
     alaskanMalamutTexture = Texture("textures/alaskan-malamut.jpg");
-
+    grassLandTexture = Texture("textures/grass-texture.jpg");
+    
     //Assign textures to the buttons for preview
     tile1Obj->setTexture(&alaskanMalamutTexture);
     tile1Obj->enableTexture(true);
-
     tile2Obj->setTexture(&darknessTexture);
     tile2Obj->enableTexture(true);
-
     tile3Obj->setTexture(nullptr); // No texture for the third tile -- assumed this is to remove texture
     tile3Obj->enableTexture(false); 
 
+    //for the floor
+    grassTileObj->setTexture(&grassLandTexture);
+    grassTileObj->enableTexture(true);
 
-    obj1->setOnClick([]() {
+
+    obj1->setOnClick([&]() {
         std::cout << "Scene Object!\n";
     });
-    sidebarObj->setOnClick([]() {
+    sidebarObj->setOnClick([&]() {
         std::cout << "SideBar!\n";
     });
 
@@ -201,6 +209,18 @@ int main() {
         std::cout << "Texture removed!\n";
     });
 
+    grassTileObj->setOnClick([&]() {
+        // std::vector<Tri> grassMesh = makeTile(0.05f, -0.05f, {1,1,1}, {0,1}, {1,0});
+
+        // auto grassObjs = spawnPatches(grassMesh, &shader, &shaderShadow, &grassLandTexture, 600);
+
+        // // add to sceneObjects
+        // sceneObjects.insert(sceneObjects.end(), grassObjs.begin(), grassObjs.end());
+        floorObj->setTexture(&grassLandTexture);
+        floorObj->enableTexture(true);
+        std::cout << "Spawned grass patches!\n";
+    });
+
     sceneObjects.push_back(obj1);
     sceneObjects.push_back(floorObj);
     uiObjects.push_back(sidebarObj);
@@ -208,6 +228,8 @@ int main() {
     uiObjects.push_back(tile1Obj);
     uiObjects.push_back(tile2Obj);
     uiObjects.push_back(tile3Obj);
+    uiObjects.push_back(grassTileObj);
+
 
     std::vector<RenderableObjectBase*> allObjects;
     allObjects.insert(allObjects.end(), sceneObjects.begin(), sceneObjects.end());
@@ -239,7 +261,6 @@ int main() {
         // 2. Update camera (position, rotation, etc.)
         camera.updateKeyControl(deltaTime, window);
         camera.updateProjectionMatrix(aspect); // If aspect changes
-
 
         // 3. Recalculate matrices (important!)
         glm::mat4 viewProj = camera.getViewProjection();

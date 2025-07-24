@@ -26,6 +26,9 @@ public:
     void setOnClick(std::function<void()> callback);
     std::function<void()> onClick;
 
+    // Set the model matrix for transformations
+    void setModelMatrix(const glm::mat4& mat) { model = mat; }
+
 protected:
     void computeBounds();
 
@@ -37,4 +40,5 @@ protected:
     bool useTexture = false; // controlled from UI or logic
     std::vector<Vertex> flattenedVertices;  // needed for OpenGL and bounds
     glm::vec3 minBounds, maxBounds;
+    glm::mat4 model = glm::mat4(1.0f); // Model matrix for transformations
 };
