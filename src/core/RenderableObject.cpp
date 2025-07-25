@@ -91,14 +91,15 @@ void RenderableObject::drawDepthOnly(const glm::mat4& shadowMatrix, const glm::v
 }
 
 
-bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int winHeight, glm::mat4 viewProjInverse) {
-    // 1. Convert screen space to normalized device coordinates (NDC)
+bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int winHeight, const glm::mat4& viewProjInverse, float& outDistance) {
+    glm::mat4 modelMatrix = getModelMatrix();
+    // Step 1: Convert mouse coords to Normalized Device Coordinates (NDC)
     float x = (2.0f * mouseX) / winWidth - 1.0f;
-    float y = 1.0f - (2.0f * mouseY) / winHeight; // Invert Y
+    float y = 1.0f - (2.0f * mouseY) / winHeight; // Flip Y
     glm::vec4 ndcNear(x, y, -1.0f, 1.0f);
     glm::vec4 ndcFar(x, y, 1.0f, 1.0f);
 
-    // 2. Convert to world space using inverse view-projection
+    // Step 2: Convert to world space ray
     glm::vec4 worldNear = viewProjInverse * ndcNear;
     glm::vec4 worldFar = viewProjInverse * ndcFar;
     worldNear /= worldNear.w;
@@ -106,18 +107,19 @@ bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int w
 
     glm::vec3 rayOrigin = glm::vec3(worldNear);
     glm::vec3 rayDir = glm::normalize(glm::vec3(worldFar - worldNear));
+    float closestT = FLT_MAX;
+    bool hit = false;
 
-    // 3. Ray-triangle intersection test
     for (const Tri& tri : tris) {
-        const glm::vec3& v0 = tri.v0.position;
-        const glm::vec3& v1 = tri.v1.position;
-        const glm::vec3& v2 = tri.v2.position;
+        glm::vec3 v0 = glm::vec3(modelMatrix * glm::vec4(tri.v0.position, 1.0f));
+        glm::vec3 v1 = glm::vec3(modelMatrix * glm::vec4(tri.v1.position, 1.0f));
+        glm::vec3 v2 = glm::vec3(modelMatrix * glm::vec4(tri.v2.position, 1.0f));
 
         glm::vec3 edge1 = v1 - v0;
         glm::vec3 edge2 = v2 - v0;
         glm::vec3 h = glm::cross(rayDir, edge2);
         float a = glm::dot(edge1, h);
-        if (fabs(a) < 1e-6f) continue;  // Parallel
+        if (fabs(a) < 1e-6f) continue;
 
         float f = 1.0f / a;
         glm::vec3 s = rayOrigin - v0;
@@ -129,10 +131,17 @@ bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int w
         if (v < 0.0f || u + v > 1.0f) continue;
 
         float t = f * glm::dot(edge2, q);
-        if (t > 0.001f) return true; // Intersection
+        if (t > 0.001f && t < closestT) {
+            closestT = t;
+            hit = true;
+        }
     }
 
-    return false;
+    if (hit) {
+        outDistance = closestT;
+    }
+
+    return hit;
 }
 
 

@@ -1,6 +1,8 @@
 #include "core/MouseClickHandler.h"
 #include "core/RayPicker.h"
 #include <iostream>
+#include <core/RenderableObject.h>
+#include <core/RenderableObjectStatic.h>
 
 void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -11,53 +13,39 @@ void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int act
             int width, height;
             glfwGetWindowSize(window, &width, &height);
 
-            // Get the inverse viewProj matrix from camera
             glm::mat4 invVP = glm::inverse(camera->getViewProjection());
 
             glm::vec3 rayOrigin, rayDirection;
             RayPicker::getInstance().screenPosToWorldRay(xpos, ypos, width, height, rayOrigin, rayDirection);
 
-            for (auto& obj : *allObjects) {
-                if (obj->isClicked((float)xpos, (float)ypos, width, height, invVP)) {
-                    if (obj->onClick) {  //verify if onClick is set
-                        obj->onClick();
+        RenderableObjectBase* closestObject = nullptr;
+        float closestDistance = FLT_MAX;
 
-                        if (obj->isDraggable()) {
-                            setSelectedDraggableObject(static_cast<RenderableObject*>(obj));
-                            isDragging = true;
-                            std::cout << "Object selected and dragging started.\n";
-                            return;
-                        }
-                    } else {
-                        std::cerr << "Warning: onClick not set for clicked object.\n";
+        bool uiClick = false;
+        for (auto& obj : *allObjects) {
+            float dist;
+            if (obj->isClicked((float)xpos, (float)ypos, width, height, invVP, dist)) {
+                if(auto* staticObj = dynamic_cast<RenderableObjectStatic*>(obj))
+                {
+                    if(closestObject == nullptr || closestObject->position.z <= staticObj->position.z){
+                        closestObject = staticObj;
+                        uiClick = true;
                     }
+                }
+                if (dist < closestDistance && !uiClick) {
+                    closestDistance = dist;
+                    if(auto* sceneObj = dynamic_cast<RenderableObject*>(obj))
+                        closestObject = sceneObj;
                 }
             }
         }
-        else if (action == GLFW_RELEASE) {
-            isDragging = false;
-            selectedDraggableObject = nullptr;
-            std::cout << "Dragging ended.\n";
+
+        if (closestObject && closestObject->onClick) {
+            std::cout << "Clicked on " << closestObject->getName() << std::endl;
+            closestObject->onClick();
+        } else if (closestObject) {
+            std::cerr << "Warning: onClick not set for clicked object.\n";
         }
     }
 }
 
-void MouseClickHandler::handleMouseMove(GLFWwindow* window, double xpos, double ypos) {
-    if (!isDragging || !selectedDraggableObject) return;
-
-    int width, height;
-    glfwGetWindowSize(window, &width, &height);
-
-    glm::vec3 rayOrigin, rayDir; // ray that is being "flashed" by the cursor and camera position
-    RayPicker::getInstance().screenPosToWorldRay(xpos, ypos, width, height, rayOrigin, rayDir);
-
-    glm::vec3 hitPoint;
-    if (RayPicker::getInstance().intersectXZPlane(rayOrigin, rayDir, selectedDraggableObject->getPosition().y, hitPoint)) {
-        selectedDraggableObject->setPosition(hitPoint);
-    }
-}
-
-void MouseClickHandler::setSelectedDraggableObject(RenderableObject* object) 
-{
-    selectedDraggableObject = object;
-}

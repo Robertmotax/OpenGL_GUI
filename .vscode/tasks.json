@@ -14,6 +14,8 @@
         "src/core/Camera.cpp",
         "src/core/MouseClickHandler.cpp",
         "src/core/Texture.cpp",
+        "src/singleton/TextureManage.cpp",
+        "src/ui/Sidebar.cpp",
         "-Iinclude",
         "-IC:/vcpkg/installed/x64-mingw-static/include",
         "-LC:/vcpkg/installed/x64-mingw-static/lib",
