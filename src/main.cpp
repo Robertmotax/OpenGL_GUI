@@ -25,10 +25,10 @@
 #include <ui/Sidebar.h>
 
 
-const char* vertexPath = "shaders/vertex.glsl";
-const char* fragmentPath = "shaders/fragment.glsl";
-const char* vertexPathShadow = "shaders/vertexShadow.glsl";
-const char* fragmentPathShadow = "shaders/fragmentShadow.glsl";
+const char* vertexPath = "shaders/main.vert";
+const char* fragmentPath = "shaders/main.frag";
+const char* vertexPathShadow = "shaders/shadow.vert";
+const char* fragmentPathShadow = "shaders/shadow.frag";
 
 //load new textures
 Texture alaskanMalamutTexture;
@@ -98,38 +98,97 @@ int main() {
 
     //triangles for the scene objects
     tris.emplace_back(
-        Vertex{{-5.0f, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}, {0.0f, 1.0f}},  // Red
-        Vertex{{ 0.0f, 1.0f, 0.0f}, {0.0f, 0.5f, 0.0f}, {0.0f, 0.0f}},  // Green
-        Vertex{{ 0.5f, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}, {1.0f, 1.0f}}   // Blue
+        Vertex{{ 0.0f, 1.0f,  0.0f}, {0.2f, 1.0f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{-0.5f, 0.2f,  0.5f}, {0.2f, 1.0f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ 0.5f, 0.2f,  0.5f}, {0.2f, 1.0f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
     );
 
     tris.emplace_back(
-        Vertex{{-5.0f, 0.0f, 0.0f}, {0.5f, 0.0f, 0.0f},   {0.0f, 1.0f}},  // Red
-        Vertex{{ 0.0f,  1.0f, 0.0f}, {0.5f, 0.0f, 0.0f},  {0.0f, 0.0f}},  // Green
-        Vertex{{-0.5f,  0.0f, -5.0f}, {0.5f, 0.0f, 0.0f}, {1.0f, 1.0f}}   // Cyan
+        Vertex{{-0.5f,  0.2f,  0.5f}, {1.0f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ 0.0f,  1.0f,  0.0f}, {1.0f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{-0.5f,  0.2f, -0.5f}, {1.0f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}  // Cyan
     );
 
     tris.emplace_back(
-        Vertex{{ 0.5f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.5f},   {0.0f, 1.0f}},   // Blue
-        Vertex{{ 0.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 0.5f},  {0.0f, 0.0f}},  // Green
-        Vertex{{ 0.5f, 0.0f, -10.0f}, {0.0f, 0.0f, 0.5f}, {1.0f, 1.0f}}
+        Vertex{{ 0.0f,  1.0f,  0.0f}, {0.2f, 0.2f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ 0.5f,  0.2f,  0.5f}, {0.2f, 0.2f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ 0.5f,  0.2f, -0.5f}, {0.2f, 0.2f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
     );
 
     // minimalistic floor design to represent the ground
     std::vector<Tri> floor;
 
     floor.emplace_back(
-        Vertex{{-50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f},   {0.0f, 1.0f}},   // Dark Gray
-        Vertex{{ 50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f},   {0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f},   {1.0f, 1.0f}}    // Dark Gray
+        Vertex{{ 10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}     // Dark Gray
     );
 
     floor.emplace_back(
-        Vertex{{-50.0f, 0.0f,  50.0f}, {0.2f, 0.2f, 0.2f},   {0.0f, 1.0f}},   // Dark Gray
-        Vertex{{ 50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f},   {0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f},   {1.0f, 1.0f}}   // Dark Gray
+        Vertex{{-10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}    // Dark Gray
     );
 
+    floor.emplace_back(
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f,  0.0f,  -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{-10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{-10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
+
+    floor.emplace_back(
+        Vertex{{ 10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
+        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
+    );
 
     //All possible tiles for the UI sidebar for texture selection on the object
     std::vector<Tri>  tile1 = makeTile(0.2f, 0.1f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
@@ -140,8 +199,8 @@ int main() {
 
     //All possible tiles for the UI sidebar for texture selection for floor design
     std::vector<LightSource> lights = {
-        LightSource(glm::vec3(1.0f, 1.0f, 2.0f), glm::vec3(1.0f, 0.8f, 0.6f), 1.0f),   // Warm light
-        LightSource(glm::vec3(-1.5f, 1.0f, 1.5f), glm::vec3(0.4f, 0.7f, 1.0f), 0.7f)   // Cool light
+        LightSource(glm::vec3(2.5f, 2.0f, 2.5f), glm::vec3(1.0f, 0.8f, 0.6f), 1.0f, 25.0f),   // Warm light
+        LightSource(glm::vec3(-2.5f, 2.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 2.0f, 25.0f),   // Warm light
     };
 
     auto* obj1 = new RenderableObject(tris, &shader, &shaderShadow);
@@ -206,43 +265,75 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS); 
 
+    for (auto& light : lights) {
+        light.initShadowCubemap();
+    }
+    shader.use();
+    glDisable(GL_CULL_FACE);
+    glm::vec3 cubePos = {0.0f, 0.0f, 0.0f};
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), cubePos);
+    shader.setMat4("uModel", model);
     while (!glfwWindowShouldClose(window)) {
-        // 1. Time and window size
-        float deltaTime = computeDeltaTime(); // Your own time logic
+        float deltaTime = computeDeltaTime();
         int width, height;
         glfwGetWindowSize(window, &width, &height);
         float aspect = (float)width / height;
-
-        // 2. Update camera (position, rotation, etc.)
-        camera.updateKeyControl(deltaTime, window);
-        camera.updateProjectionMatrix(aspect); // If aspect changes
-
-        // 3. Recalculate matrices (important!)
-        glm::mat4 viewProj = camera.getViewProjection();
-        viewProjInverse = glm::inverse(viewProj);
-
-        for (auto& light : lights) {
-            glm::mat4 lightView = glm::lookAt(light.position, glm::vec3(0), glm::vec3(0, 1, 0));
-            glm::mat4 lightProj = glm::ortho(-10.f, 10.f, -10.f, 10.f, 1.f, 20.f);
-            light.lightSpaceMatrix = lightProj * lightView;
-
-            glViewport(0, 0, 1024, 1024);
+        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        // 1. For each light, update shadow transforms and render shadow cubemap
+        for (LightSource& light : lights) {
+            glViewport(0, 0, light.SHADOW_WIDTH, light.SHADOW_HEIGHT);
             glBindFramebuffer(GL_FRAMEBUFFER, light.shadowMapFBO);
             glClear(GL_DEPTH_BUFFER_BIT);
+            light.computeShadowTransforms();
+            for (int face = 0; face < 6; ++face) {
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+                                    light.shadowCubemap, 0);
+                glClear(GL_DEPTH_BUFFER_BIT);
 
-            shaderShadow.use();
-            glUniformMatrix4fv(glGetUniformLocation(shaderShadow.getID(), "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(light.lightSpaceMatrix));
-
-            for (auto* obj : sceneObjects)
-                obj->drawDepthOnly();
+                for (auto* obj : sceneObjects) {
+                    obj->drawDepthOnly(light.shadowTransforms[face], light.position, light.farPlane);
+                }
+            }
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
 
-        // 5. Clear
+        // 2. Render scene normally with all lights and shadows
+        glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // 6. Render
+        camera.updateKeyControl(deltaTime, window);
+        camera.updateProjectionMatrix(aspect);
+        viewProj = camera.getViewProjection();
+        
+
+        shader.use();
+        // Pass number of lights
+        glUniform1i(glGetUniformLocation(shader.getID(), "uNumLights"), (int)lights.size());
+
+        // Bind each light's data and shadow map to the shader
+        for (int i = 0; i < lights.size(); ++i) {
+            const LightSource& light = lights[i];
+            std::string prefix = "uLights[" + std::to_string(i) + "]";
+
+            // Light position
+            glUniform3fv(glGetUniformLocation(shader.getID(), (prefix + ".position").c_str()), 1, glm::value_ptr(light.position));
+            // Light color
+            glUniform3fv(glGetUniformLocation(shader.getID(), (prefix + ".color").c_str()), 1, glm::value_ptr(light.color));
+            // Intensity
+            glUniform1f(glGetUniformLocation(shader.getID(), (prefix + ".intensity").c_str()), light.intensity);
+            // Far plane
+            glUniform1f(glGetUniformLocation(shader.getID(), (prefix + ".farPlane").c_str()), light.farPlane);
+
+            // Bind shadow cubemap to texture units starting from 1 (or some offset)
+            glActiveTexture(GL_TEXTURE1 + i);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, light.shadowCubemap);
+            glUniform1i(glGetUniformLocation(shader.getID(), (prefix + ".shadowMap").c_str()), 1 + i);
+        }
+
+        // Render all objects
         for (auto* obj : sceneObjects)
             obj->draw(viewProj, lights);
 
@@ -272,12 +363,10 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        // Handle inputs
-        // Close window if pressed escape
+        // Exit if ESC pressed
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
     }
-
 
     for (auto* obj : sceneObjects)
         delete obj;
