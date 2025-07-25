@@ -1,5 +1,8 @@
 // Sidebar.cpp
 #include "ui/Sidebar.h"
+#include "core/util.h"
+#include "core/Texture.h"
+#include "singleton/TextureManager.h"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -87,7 +90,6 @@ Sidebar::Sidebar()
     uiElements.push_back(transYDown);
     uiElements.push_back(transZUp);
     uiElements.push_back(transZDown);
-
 
     //Set clickable objects for rotation
     std::vector<Tri> rotateXUp;
