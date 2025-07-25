@@ -1,3 +1,5 @@
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 #include "core/RenderableObject.h"
 #include <iostream>
 #include "core/Vertex.h"
@@ -14,61 +16,80 @@ RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* sh
 void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const {
     shader->use();
 
-    // If texture is not used, set uniform to false
-    glUniform1i(glGetUniformLocation(shader->getID(), "useTexture"), useTexture ? 1 : 0); 
+    glm::mat4 model = getModelMatrix();
+    GLuint shaderID = shader->getID();
 
-    // Set up texture if enabled and available
+    glUniformMatrix4fv(glGetUniformLocation(shaderID, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(shaderID, "uVP"), 1, GL_FALSE, glm::value_ptr(viewProj));
+
+    // --- Texture 2D binding ---
     if (useTexture && texture) {
-        texture->useTexture(); // bind only when required
-        glUniform1i(glGetUniformLocation(shader->getID(), "textureSampler"), 0);
+        glUniform1i(glGetUniformLocation(shaderID, "uUseTexture"), 1);
+        texture->useTexture();
+        glUniform1i(glGetUniformLocation(shaderID, "uTexture"), 0);
+    } else {
+        glUniform1i(glGetUniformLocation(shaderID, "uUseTexture"), 0);
     }
 
-    glm::mat4 model = getModelMatrix();
-    // move object down by 0.5 on Y, such that the floor can be initialized at the beginning
-    // ensure the object is above the floor
-    // model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); 
-
-    glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uModel"), 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uVP"), 1, GL_FALSE, glm::value_ptr(viewProj));
+    // --- Shadow cubemap lights ---
+    glUniform1i(glGetUniformLocation(shaderID, "uNumLights"), (int)lights.size());
+    
+    // Start from stored position
+    glm::mat4 modelTransformed = glm::translate(model, position);
 
     for (int i = 0; i < (int)lights.size(); ++i) {
-        std::string posName = "uLightPositions[" + std::to_string(i) + "]";
-        std::string colName = "uLightColors[" + std::to_string(i) + "]";
-        std::string intName = "uLightIntensities[" + std::to_string(i) + "]";
-        glUniform3fv(glGetUniformLocation(shader->getID(), posName.c_str()), 1, glm::value_ptr(lights[i].position));
-        glUniform3fv(glGetUniformLocation(shader->getID(), colName.c_str()), 1, glm::value_ptr(lights[i].color));
-        glUniform1f(glGetUniformLocation(shader->getID(), intName.c_str()), lights[i].intensity);
+        const LightSource& light = lights[i];
+
+        std::string idx = std::to_string(i);
+        glUniform3fv(glGetUniformLocation(shaderID, ("lightPositions[" + idx + "]").c_str()), 1, glm::value_ptr(light.position));
+        glUniform3fv(glGetUniformLocation(shaderID, ("lightColors[" + idx + "]").c_str()), 1, glm::value_ptr(light.color));
+        glUniform1f(glGetUniformLocation(shaderID, ("lightIntensities[" + idx + "]").c_str()), light.intensity);
+        glUniform1f(glGetUniformLocation(shaderID, ("farPlanes[" + idx + "]").c_str()), light.farPlane);
 
         glActiveTexture(GL_TEXTURE1 + i);
-        glBindTexture(GL_TEXTURE_2D, lights[i].shadowMapTex);
-        
-        std::string uniformName = "shadowMaps[" + std::to_string(i) + "]";
-        glUniform1i(glGetUniformLocation(shader->getID(), uniformName.c_str()), 1 + i);
-
-        std::string matName = "lightSpaceMatrices[" + std::to_string(i) + "]";
-        glUniformMatrix4fv(glGetUniformLocation(shader->getID(), matName.c_str()), 1, GL_FALSE, glm::value_ptr(lights[i].lightSpaceMatrix));
+        glBindTexture(GL_TEXTURE_CUBE_MAP, light.shadowCubemap);
+        glUniform1i(glGetUniformLocation(shaderID, ("shadowMaps[" + idx + "]").c_str()), 1 + i);
     }
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     glBindVertexArray(0);
 
+    // Optional: debug OpenGL errors
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
         std::cerr << "OpenGL error: " << err << std::endl;
     }
 }
 
-void RenderableObject::drawDepthOnly() const {
+
+void RenderableObject::drawDepthOnly(const glm::mat4& shadowMatrix, const glm::vec3& lightPos, float farPlane) const {
+    if (!shaderShadow) {
+        std::cerr << "shaderShadow is null!\n";
+        return;
+    }
+    //std::cout << glm::to_string(shadowMatrix) << std::endl;
+
     shaderShadow->use();
 
-    glm::mat4 model = glm::mat4(1.0f); // Your model transform
-    glUniformMatrix4fv(glGetUniformLocation(shaderShadow->getID(), "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+    //std::cout << "Setting uShadowMatrix uniform\n";
+    shaderShadow->setMat4("uShadowMatrix", shadowMatrix);
+
+    //std::cout << "Setting uFarPlane uniform\n";
+    shaderShadow->setFloat("uFarPlane", farPlane);
+
+    //std::cout << "Setting uLightPos uniform\n";
+    shaderShadow->setVec3("uLightPos", lightPos);
+
+    //std::cout << "Setting uModel uniform\n";
+    glm::mat4 modelMatrix = getModelMatrix();
+    shaderShadow->setMat4("uModel", modelMatrix);
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     glBindVertexArray(0);
 }
+
 
 bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int winHeight, glm::mat4 viewProjInverse) {
     // 1. Convert screen space to normalized device coordinates (NDC)

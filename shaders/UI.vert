@@ -1,8 +1,8 @@
-#version 330
+#version 420 core
 
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
-layout (location = 2) in vec2 aTexCoord;
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aColor;
+layout(location = 2) in vec2 aTexCoord;
 
 out vec3 vColor;
 out vec2 vTexCoord;
@@ -16,7 +16,6 @@ void main() {
     if (isNDC == 1) {
         pos.z = -0.9;  // Near the front of the screen in NDC
     }
-
     gl_Position = pos;
     vColor = aColor;
     vTexCoord = aTexCoord;

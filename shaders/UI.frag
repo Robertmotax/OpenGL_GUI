@@ -1,10 +1,11 @@
-#version 330
+#version 420 core
+
+in vec3 vColor;
+in vec2 vTexCoord;
 
 uniform bool useTexture;
 uniform sampler2D textureSampler;
 
-in vec3 vColor;
-in vec2 vTexCoord;
 out vec4 FragColor;
 
 void main() {

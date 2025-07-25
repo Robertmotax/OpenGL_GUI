@@ -24,11 +24,35 @@ public:
 
     //Enable clicking on the object
     void setOnClick(std::function<void()> callback);
-    std::function<void()> onClick;
+    std::function<void()> onClick = {};
 
-    //Getters and setters
-    glm::mat4 getModelMatrix() const { return modelMatrix; }
-    void setModelMatrix(glm::mat4& model);
+    glm::vec3 position = glm::vec3(0.0f);
+    glm::vec3 rotation = glm::vec3(0.0f);
+    glm::vec3 scale = glm::vec3(1.0f);
+
+    glm::mat4 getModelMatrix() const {
+        glm::mat4 model = glm::mat4(1.0f);
+
+        // Translate
+        model = glm::translate(model, position);
+
+        // Rotate (apply in order: X, Y, Z)
+        model = glm::rotate(model, rotation.x, glm::vec3(1, 0, 0));
+        model = glm::rotate(model, rotation.y, glm::vec3(0, 1, 0));
+        model = glm::rotate(model, rotation.z, glm::vec3(0, 0, 1));
+
+        // Scale
+        model = glm::scale(model, scale);
+
+        return model;
+    }
+
+    //getters and setters
+    void setPosition(const glm::vec3& pos) { position = pos; }
+    glm::vec3 getPosition() const { return position; }
+
+    // Set the model matrix for transformations
+    void setModelMatrix(const glm::mat4& mat) { model = mat; }
 
 protected:
     void computeBounds();
@@ -41,5 +65,5 @@ protected:
     bool useTexture = false; // controlled from UI or logic
     std::vector<Vertex> flattenedVertices;  // needed for OpenGL and bounds
     glm::vec3 minBounds, maxBounds;
-    glm::mat4 modelMatrix = glm::mat4(1.0f);
+    glm::mat4 model = glm::mat4(1.0f); // Model matrix for transformations
 };

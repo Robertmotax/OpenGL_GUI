@@ -6,7 +6,7 @@
 static const glm::vec3 WORLD_UP(0.0f, 1.0f, 0.0f);
 
 Camera::Camera(float aspectRatio)
-    : position(0.0f, 0.0f, 3.0f),   // Camera positioned back to see scene
+    : position(0.0f, 0.1f, 3.0f),   // Camera positioned back to see scene
       fov(45.0f)                    // Initialize FOV here
 {
     worldUp = WORLD_UP; // Default up vector for y-axis alignment 
@@ -51,6 +51,14 @@ void Camera::updateCameraVectors() {
 void Camera::updateKeyControl(float deltaTime, GLFWwindow* window) {
     glm::vec3 moveDir(0.0f);
 
+    if ((glfwGetKey(window, GLFW_KEY_LEFT_ALT) || glfwGetKey(window, GLFW_KEY_RIGHT_ALT)) == GLFW_PRESS) {
+        isSpeedBoosted = !isSpeedBoosted;
+        if (isSpeedBoosted) { // if it's true
+            movementSpeed *= 5.0f;
+        } else {
+            movementSpeed = 2.50f; //default
+        }
+    }
     // WASD for X/Y movement
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) moveDir.z -= 1.0f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) moveDir.z += 1.0f;
