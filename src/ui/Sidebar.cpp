@@ -1,5 +1,8 @@
 // Sidebar.cpp
 #include "ui/Sidebar.h"
+#include "core/util.h"
+#include "core/Texture.h"
+#include "singleton/TextureManager.h"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -85,7 +88,6 @@ Sidebar::Sidebar()
     uiElements.push_back(transYDown);
     uiElements.push_back(transZUp);
     uiElements.push_back(transZDown);
-
 
     //Set clickable objects for rotation
     std::vector<Tri> rotateXUp;
@@ -212,11 +214,79 @@ Sidebar::Sidebar()
     uiElements.push_back(sclYDown);
     uiElements.push_back(sclZUp);
     uiElements.push_back(sclZDown);
+
+    //load texture
+    setTextureTileSelection(uiElements);
 }
 
 void Sidebar::setSelectedObject(RenderableObject* obj) {
     selectedObject = obj;
     std::cout << "Selected obj is now " << obj->getName();
+}
+
+/** 
+ *  @brief Initializes and configures the UI sidebar's texture selection tiles. 
+ * The user can choose from a number of static renderable objects (tiles) created by this function.
+ * A distinct texture * loaded from the global TextureManager singleton is displayed by each tile.
+ * Using custom geometry from * `makeTile()`, Each tile is given a texture and is enabled or disabled appropriately. 
+ * The supplied `uiElements` container,
+ * which * is subsequently used for rendering and interaction management, receives these tiles after setup.
+ * 
+ * @param uiElements A vector that contains the sidebar's user interface elements is referenced; 
+ */
+void Sidebar::setTextureTileSelection(std::vector<RenderableObjectStatic*>& uiElements) 
+{
+    //All possible tiles for the UI sidebar for texture selection on the object
+    std::vector<Tri> tile1 = makeTile(-1.00f, -0.9f, 0.0f, -0.1f, 0.0f, {1.0f, 1.0f, 1.0f});
+    std::vector<Tri> tile2 = makeTile(-0.85f, -0.75f, 0.0f, -0.1f, 0.0f, {1.0f, 1.0f, 1.0f});
+    std::vector<Tri> tile3 = makeTile(-1.00f, -0.9f, -0.11f, -0.22f, 0.0f, {0.5f, 0.5f, 0.5f});
+    std::vector<Tri> grassTile = makeTile(-0.85f, -0.75f, -0.11f, -0.22f, 0.0f, {0.5f, 0.5f, 0.5f});
+
+    //texture renderable static
+    RenderableObjectStatic* alaskanTileObj = new RenderableObjectStatic(tile1, shaderUI);
+    RenderableObjectStatic* darknessTileObj = new RenderableObjectStatic(tile2, shaderUI);
+    RenderableObjectStatic* removeTileObj = new RenderableObjectStatic(tile3, shaderUI);
+    RenderableObjectStatic* grassTileObj = new RenderableObjectStatic(grassTile, shaderUI);
+
+    //Set texture enabling and showcasing the texture on screen
+    alaskanTileObj->setTexture( TextureManager::getInstance().getTexture("alaskanMalamut"));
+    alaskanTileObj->enableTexture(true);
+    darknessTileObj->setTexture( TextureManager::getInstance().getTexture("darkness"));
+    darknessTileObj->enableTexture(true);
+    removeTileObj->setTexture(nullptr); // No texture for the third tile -- assumed this is to remove texture
+    removeTileObj->enableTexture(false); 
+    grassTileObj->setTexture(TextureManager::getInstance().getTexture("grassland"));
+    grassTileObj->enableTexture(true);
+    //set the onclick function
+    alaskanTileObj->setOnClick([&]() {
+        if (selectedObject){
+            selectedObject->setTexture(TextureManager::getInstance().getTexture("alaskanMalamut"));
+            selectedObject->enableTexture(true);
+        }
+    });
+    darknessTileObj->setOnClick([&]() {
+        if (selectedObject){
+            selectedObject->setTexture(TextureManager::getInstance().getTexture("darkness"));
+            selectedObject->enableTexture(true);
+        }
+    });
+    removeTileObj->setOnClick([&]() {
+        if (selectedObject){
+            selectedObject->setTexture(nullptr);
+            selectedObject->enableTexture(false);
+        }
+    });
+    grassTileObj->setOnClick([&]() {
+        if (selectedObject){
+            selectedObject->setTexture(TextureManager::getInstance().getTexture("grassland"));
+            selectedObject->enableTexture(true);
+        }
+    });
+
+    uiElements.push_back(alaskanTileObj);
+    uiElements.push_back(darknessTileObj);
+    uiElements.push_back(removeTileObj);
+    uiElements.push_back(grassTileObj); 
 }
 
 void Sidebar::render() {

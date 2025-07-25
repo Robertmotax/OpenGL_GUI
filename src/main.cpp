@@ -9,6 +9,7 @@
 #include "core/Tri.h"
 #include "core/Camera.h"
 #include "core/Texture.h"
+#include <singleton/TextureManager.h>
 #include "core/MouseClickHandler.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -30,13 +31,6 @@ const char* vertexPath = "shaders/main.vert";
 const char* fragmentPath = "shaders/main.frag";
 const char* vertexPathShadow = "shaders/shadow.vert";
 const char* fragmentPathShadow = "shaders/shadow.frag";
-
-//load new textures
-Texture alaskanMalamutTexture;
-Texture darknessTexture;
-Texture jupiterTexture;
-Texture uranusTexture;
-Texture grassLandTexture;
 
 // Global variables for the scene
 glm::mat4 viewProj;
@@ -94,7 +88,7 @@ int main() {
 
     Shader shader(vertexPath, fragmentPath);
     Shader shaderShadow(vertexPathShadow, fragmentPathShadow);
-
+    TextureManager::getInstance().loadTextures(); //important to place this after createWindow
     std::vector<Tri> tris;
 
     //triangles for the scene objects
@@ -191,13 +185,6 @@ int main() {
         Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
     );
 
-    //All possible tiles for the UI sidebar for texture selection on the object
-    std::vector<Tri>  tile1 = makeTile(0.2f, 0.1f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-    std::vector<Tri>  tile2 = makeTile(0.09f, -0.01f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-    std::vector<Tri>  tile3 = makeTile(-0.02f, -0.12f, {0.5f, 0.5f, 0.5f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-    std::vector<Tri> grassTiles = makeTile(-0.2f, -0.25f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-
-
     //All possible tiles for the UI sidebar for texture selection for floor design
     std::vector<LightSource> lights = {
         LightSource(glm::vec3(2.5f, 2.0f, 2.5f), glm::vec3(1.0f, 0.8f, 0.6f), 1.0f, 25.0f),   // Warm light
@@ -209,15 +196,6 @@ int main() {
     obj1->setName("Prism");
     floorObj->setName("BigCube");
 
-
-    //since we load the texture is within the constructor, we must initialize after creating the window
-    darknessTexture = Texture("textures/darkness.jpg"); 
-    alaskanMalamutTexture = Texture("textures/alaskan-malamut.jpg");
-    jupiterTexture = Texture("textures/jupiter_surface.jpg");
-    uranusTexture = Texture("textures/uranus_surface.jpg");
-
-    grassLandTexture = Texture("textures/grass-texture.jpg");
-
     sceneObjects.push_back(obj1);
     //creation of spherical ball objects
     for (int i = 0; i < 10; ++i) {
@@ -228,9 +206,9 @@ int main() {
         // Randomly assign texture: 0 or 1
         int randomNum = rand() % 2; // 0 or 1
         if (randomNum == 0) {
-            ball->setTexture(&jupiterTexture);
+            ball->setTexture(TextureManager::getInstance().getTexture("jupiter"));
         } else {
-            ball->setTexture(&uranusTexture);
+            ball->setTexture(TextureManager::getInstance().getTexture("uranus"));
         }
         ball->enableTexture(true);
 
