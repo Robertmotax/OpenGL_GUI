@@ -65,7 +65,5 @@ protected:
     bool useTexture = false; // controlled from UI or logic
     std::vector<Vertex> flattenedVertices;  // needed for OpenGL and bounds
     glm::vec3 minBounds, maxBounds;
-
-    glm::vec3 position=  glm::vec3(0.0f);  // Default origin position; // position of the object based on the xyz- opengl coordinates
     glm::mat4 model = glm::mat4(1.0f); // Model matrix for transformations
 };
