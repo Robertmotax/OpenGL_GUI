@@ -9,7 +9,6 @@
 #include "core/Tri.h"
 #include "core/Camera.h"
 #include "core/Texture.h"
-#include <singleton/TextureManager.h>
 #include "core/MouseClickHandler.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -88,7 +87,6 @@ int main() {
 
     Shader shader(vertexPath, fragmentPath);
     Shader shaderShadow(vertexPathShadow, fragmentPathShadow);
-    TextureManager::getInstance().loadTextures(); //important to place this after createWindow
     std::vector<Tri> tris;
 
     //triangles for the scene objects
@@ -202,15 +200,6 @@ int main() {
         float z = -1.0f + (i * 0.8f);
         auto* ball = new RenderableObject(generateSphericalBalls(0.45f, 16, 12), &shader, &shaderShadow);
         ball->setPosition(glm::vec3(-8.0f + i, 0.4f, z));
-
-        // Randomly assign texture: 0 or 1
-        int randomNum = rand() % 2; // 0 or 1
-        if (randomNum == 0) {
-            ball->setTexture(TextureManager::getInstance().getTexture("jupiter"));
-        } else {
-            ball->setTexture(TextureManager::getInstance().getTexture("uranus"));
-        }
-        ball->enableTexture(true);
 
         sceneObjects.push_back(ball);
         animatedBalls.push_back(ball);

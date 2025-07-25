@@ -2,7 +2,6 @@
 #include "ui/Sidebar.h"
 #include "core/util.h"
 #include "core/Texture.h"
-#include "singleton/TextureManager.h"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -218,10 +217,10 @@ Sidebar::Sidebar()
     uiElements.push_back(sclZDown);
 
     //Adding texture selection
-    float tileSize = 0.1f;
+    float tileSize = 0.075f;
     int columnCount = 4;
     int index = 0;
-    float xInit = -1.0f;
+    float xInit = -0.975f;
     float yInit = -0.5f;
 
     for (const auto& entry : fs::directory_iterator("textures")) {
@@ -239,18 +238,19 @@ Sidebar::Sidebar()
 
         std::vector<Tri> quad = {
             Tri(
-                Vertex{{xStart,         yStart,          0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-                Vertex{{xStart + tileSize, yStart,      0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+                Vertex{{xStart,yStart, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+                Vertex{{xStart + tileSize, yStart, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
                 Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}
             ),
             Tri(
-                Vertex{{xStart,         yStart,          0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+                Vertex{{xStart, yStart, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
                 Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
-                Vertex{{xStart,         yStart - tileSize, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}
+                Vertex{{xStart, yStart - tileSize, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}
             )
         };
 
         auto* button = new RenderableObjectStatic(quad, shaderUI);
+        button->position = glm::vec3(0.0f, 0.0f, 0.1f);
         button->setTexture(texture);
         button->enableTexture(true);
 

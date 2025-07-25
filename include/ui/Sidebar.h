@@ -12,7 +12,6 @@ public:
     Sidebar();
     void render();
     void setSelectedObject(RenderableObject* obj);
-    void setTextureTileSelection(std::vector<RenderableObjectStatic*>& uiElements);
 
     std::vector<RenderableObjectStatic*> uiElements;
 private:
