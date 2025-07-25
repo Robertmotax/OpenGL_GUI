@@ -6,7 +6,7 @@
 static const glm::vec3 WORLD_UP(0.0f, 1.0f, 0.0f);
 
 Camera::Camera(float aspectRatio)
-    : position(0.0f, 0.0f, 3.0f),   // Camera positioned back to see scene
+    : position(0.0f, 0.1f, 3.0f),   // Camera positioned back to see scene
       fov(45.0f)                    // Initialize FOV here
 {
     worldUp = WORLD_UP; // Default up vector for y-axis alignment 

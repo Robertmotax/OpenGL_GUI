@@ -105,6 +105,18 @@ void Shader::compileShader(const char* vertexCode, const char* fragmentCode)
 		return;
 	}
 
+    GLint numUniforms = 0;
+    glGetProgramiv(shaderID, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+    for (GLint i = 0; i < numUniforms; ++i) {
+        char name[256];
+        GLsizei length = 0;
+        GLint size = 0;
+        GLenum type = 0;
+        glGetActiveUniform(shaderID, i, sizeof(name), &length, &size, &type, name);
+        std::cout << "Uniform #" << i << ": " << name << ", type: " << type << ", size: " << size << std::endl;
+    }
+
 	glValidateProgram(shaderID);
 	glGetProgramiv(shaderID, GL_VALIDATE_STATUS, &result);
 	if (!result)
@@ -120,6 +132,9 @@ Shader::~Shader() {
 }
 
 void Shader::use() const {
+    if (shaderID == 0) {
+        std::cerr << "Warning: Trying to use shader program with ID 0\n";
+    }
     glUseProgram(shaderID);
 }
 
