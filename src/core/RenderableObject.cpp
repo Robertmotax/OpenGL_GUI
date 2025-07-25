@@ -142,7 +142,7 @@ bool RenderableObject::isRayIntersecting(const glm::vec3& rayOrigin, const glm::
 
     for (const Tri& tri : tris) {
         for (const glm::vec3& vertex : { tri.v0.position, tri.v1.position, tri.v2.position }) {
-            glm::vec4 worldPos = modelMatrix * glm::vec4(vertex, 1.0f);
+            glm::vec4 worldPos = model * glm::vec4(vertex, 1.0f);
             glm::vec3 wp = glm::vec3(worldPos);
             minBounds = glm::min(minBounds, wp);
             maxBounds = glm::max(maxBounds, wp);

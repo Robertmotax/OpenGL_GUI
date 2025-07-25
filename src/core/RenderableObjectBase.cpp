@@ -51,9 +51,3 @@ void RenderableObjectBase::enableTexture(bool enable) {
 void RenderableObjectBase::setOnClick(std::function<void()> callback) {
     onClick = callback;
 }
-
-//Setters
-void RenderableObjectBase::setModelMatrix(glm::mat4& model)
-{
-    modelMatrix = model;    
-}
