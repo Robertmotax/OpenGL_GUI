@@ -8,7 +8,7 @@
 #include "core/LightSource.h"
 #include "core/Tri.h"
 #include "core/Camera.h"
-#include "core/RayPicker.h"
+#include <singleton/RayPicker.h>
 #include "core/Texture.h"
 #include <singleton/TextureManager.h>
 #include "core/MouseClickHandler.h"

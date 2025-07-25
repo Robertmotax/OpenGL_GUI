@@ -1,51 +1,34 @@
-#include "core/MouseClickHandler.h"
-#include "core/RayPicker.h"
-#include <iostream>
-#include <core/RenderableObject.h>
-#include <core/RenderableObjectStatic.h>
+#pragma once
 
-void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        if (action == GLFW_PRESS) {
-            double xpos, ypos;
-            glfwGetCursorPos(window, &xpos, &ypos);
+#include <glm/glm.hpp>
+#include <memory>
+#include <vector>
+#include "Camera.h"
+#include "RenderableObjectBase.h"
 
-            int width, height;
-            glfwGetWindowSize(window, &width, &height);
+class RayPicker {
+public:
+    static RayPicker& getInstance();
 
-            glm::mat4 invVP = glm::inverse(camera->getViewProjection());
+    RayPicker(const RayPicker&) = delete;
+    RayPicker& operator=(const RayPicker&) = delete;
+    RayPicker(RayPicker&&) = delete;
+    RayPicker& operator=(RayPicker&&) = delete;
 
-            glm::vec3 rayOrigin, rayDirection;
-            RayPicker::getInstance().screenPosToWorldRay(xpos, ypos, width, height, rayOrigin, rayDirection);
+    void setCamera(Camera* cam);
 
-        RenderableObjectBase* closestObject = nullptr;
-        float closestDistance = FLT_MAX;
+    bool screenPosToWorldRay(double mouseX, double mouseY, int screenWidth, int screenHeight,
+                             glm::vec3& rayOrigin, glm::vec3& rayDirection) const;
 
-        bool uiClick = false;
-        for (auto& obj : *allObjects) {
-            float dist;
-            if (obj->isClicked((float)xpos, (float)ypos, width, height, invVP, dist)) {
-                if(auto* staticObj = dynamic_cast<RenderableObjectStatic*>(obj))
-                {
-                    if(closestObject == nullptr || closestObject->position.z <= staticObj->position.z){
-                        closestObject = staticObj;
-                        uiClick = true;
-                    }
-                }
-                if (dist < closestDistance && !uiClick) {
-                    closestDistance = dist;
-                    if(auto* sceneObj = dynamic_cast<RenderableObject*>(obj))
-                        closestObject = sceneObj;
-                }
-            }
-        }
+    bool intersectXZPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
+                          float yLevel, glm::vec3& hitPoint);
 
-        if (closestObject && closestObject->onClick) {
-            std::cout << "Clicked on " << closestObject->getName() << std::endl;
-            closestObject->onClick();
-        } else if (closestObject) {
-            std::cerr << "Warning: onClick not set for clicked object.\n";
-        }
-    }
-}
+    // Only for non-static objects
+    RenderableObjectBase* pickObject(double mouseX, double mouseY, int screenWidth, int screenHeight,
+                                     const std::vector<RenderableObjectBase*>& objects,
+                                     float& outDistance) const;
 
+private:
+    RayPicker(); // private constructor
+    Camera* camera = nullptr;
+};
