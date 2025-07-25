@@ -12,12 +12,12 @@ public:
 
     void handleMouseClick(GLFWwindow* window, int button, int action, int mods);
     void handleMouseMove(GLFWwindow* window, double xpos, double ypos);
-    void setRenderableObject(RenderableObject* object);
+    void setSelectedDraggableObject(RenderableObject* object);
 
 private:
     Camera* camera;
     std::vector<RenderableObjectBase*>* allObjects;
     //use to define the raycasting
-    RenderableObject* selectedObject = nullptr;
+    RenderableObject* selectedDraggableObject = nullptr;
     bool isDragging = false;
 };

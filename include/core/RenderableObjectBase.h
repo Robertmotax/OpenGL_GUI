@@ -18,6 +18,9 @@ public:
 
     virtual void draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const = 0;
     virtual bool isClicked(float mouseX, float mouseY, int winWidth, int winHeight, glm::mat4 viewProjInverse) = 0;
+    // Draggable by the mouse click handler and move it according to the mouse position
+    virtual bool isDraggable() const { return false; }
+
     //Texture purposes 
     void setTexture(Texture* texture);
     void enableTexture(bool enable);

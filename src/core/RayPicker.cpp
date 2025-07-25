@@ -4,7 +4,7 @@
 RayPicker::RayPicker() {}
 
 RayPicker& RayPicker::getInstance() {
-    static RayPicker instance; // created only once, thread-safe in C++
+    static RayPicker instance; // created only once singleton, thread-safe in C++
     return instance;
 }
 
@@ -31,9 +31,13 @@ bool RayPicker::screenPosToWorldRay(double mouseX, double mouseY, int screenWidt
 
 bool RayPicker::intersectXZPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
                                  float yLevel, glm::vec3& hitPoint) {
+    //if the object is lower than current y-plane, which could affect mouse capture                              
     if (fabs(rayDir.y) < 0.0001f) return false;
+
     float t = (yLevel - rayOrigin.y) / rayDir.y;
-    if (t < 0) return false;
+    if (t < 0)
+        return false;
+    //new position    
     hitPoint = rayOrigin + t * rayDir;
     return true;
 }

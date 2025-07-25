@@ -58,6 +58,9 @@ inline auto makeTile = [](float top, float bottom, glm::vec3 color, glm::vec2 uv
     };
 };
 
+
+
+
 /**
  * generate shperical balls
  */
@@ -101,7 +104,7 @@ inline std::vector<Tri> generateSphericalBalls(float radius, int segments, int r
  * * CURRENTLY NOT USED -- COULD BE USEFUL IN THE FUTURE IF WE WISH TO SPAWN A LOT OF OBJECTS
  * * This function generates a specified number of patches at random positions within a defined range.
  */
-std::vector<RenderableObject*> spawnPatches(
+inline std::vector<RenderableObject*> spawnPatches(
     const std::vector<Tri>& Mesh, 
     Shader* shader, Shader* shadowShader, 
     Texture* texture,
@@ -130,7 +133,7 @@ std::vector<RenderableObject*> spawnPatches(
 
 
 // Simple ray-AABB test using slab method
-bool rayIntersectsAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
+inline bool rayIntersectsAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
                        const glm::vec3& aabbMin, const glm::vec3& aabbMax, float& tHit) {
     float tMin = 0.0f;
     float tMax = 1e6f;

@@ -48,6 +48,9 @@ std::vector<RenderableObjectStatic*> uiObjects;
 std::vector<RenderableObject*> animatedBalls;
 std::vector<float> ballDirections;
 
+//selected scene object to be used
+RenderableObject* selectedSceneObject = nullptr;
+
 
 int main() {
     //random seed for number generator
@@ -75,6 +78,8 @@ int main() {
         glfwTerminate();
         return -1;
     }
+
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
     glfwMakeContextCurrent(window);
 
     glewExperimental = true;
@@ -120,7 +125,14 @@ int main() {
         Vertex{{ 0.5f,  0.2f, -0.5f}, {0.2f, 0.2f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
     );
 
+    tris.emplace_back(
+        Vertex{{ 0.0f,  1.0f,  0.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{-0.5f,  0.2f, -0.5f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ 0.5f,  0.2f, -0.5f}, {0.3f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
+    );
+
     // minimalistic floor design to represent the ground
+    //requires 12 triangles for 6 squares for 36 vertices
     std::vector<Tri> floor;
 
     floor.emplace_back(
@@ -240,7 +252,6 @@ int main() {
     alaskanMalamutTexture = Texture("textures/alaskan-malamut.jpg");
     jupiterTexture = Texture("textures/jupiter_surface.jpg");
     uranusTexture = Texture("textures/uranus_surface.jpg");
-
     grassLandTexture = Texture("textures/grass-texture.jpg");
     
     //Assign textures to the buttons for preview
@@ -250,8 +261,6 @@ int main() {
     tile2Obj->enableTexture(true);
     tile3Obj->setTexture(nullptr); // No texture for the third tile -- assumed this is to remove texture
     tile3Obj->enableTexture(false); 
-
-    //for the floor
     grassTileObj->setTexture(&grassLandTexture);
     grassTileObj->enableTexture(true);
 
@@ -283,12 +292,6 @@ int main() {
     });
 
     grassTileObj->setOnClick([&]() {
-        // std::vector<Tri> grassMesh = makeTile(0.05f, -0.05f, {1,1,1}, {0,1}, {1,0});
-
-        // auto grassObjs = spawnPatches(grassMesh, &shader, &shaderShadow, &grassLandTexture, 600);
-
-        // // add to sceneObjects
-        // sceneObjects.insert(sceneObjects.end(), grassObjs.begin(), grassObjs.end());
         floorObj->setTexture(&grassLandTexture);
         floorObj->enableTexture(true);
         std::cout << "Spawned grass patches!\n";
@@ -339,6 +342,13 @@ int main() {
         MouseClickHandler* handler = static_cast<MouseClickHandler*>(glfwGetWindowUserPointer(window));
         if (handler)
             handler->handleMouseClick(window, button, action, mods);
+    });
+
+
+    glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
+        MouseClickHandler* mouseHandler = static_cast<MouseClickHandler*>(glfwGetWindowUserPointer(window));
+        if (mouseHandler)
+            mouseHandler->handleMouseMove(window, xpos, ypos);
     });
 
     // Set the mouse handler as user pointer so lambda can access it

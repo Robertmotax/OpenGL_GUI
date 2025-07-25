@@ -5,7 +5,7 @@
 #include "core/Vertex.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
-#include "util.h"
+#include "core/util.h"
 
 RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* shader, Shader* shaderShadow)
     : RenderableObjectBase(triangles, shader)
@@ -152,11 +152,3 @@ bool RenderableObject::isRayIntersecting(const glm::vec3& rayOrigin, const glm::
     float t;
     return rayIntersectsAABB(rayOrigin, rayDirection, minBounds, maxBounds, t);
 }
-
-
-
-//Setters
-void RenderableObject::setPosition(const glm::vec3& pos) 
-{
-    position = pos;
-};

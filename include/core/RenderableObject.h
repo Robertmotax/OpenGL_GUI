@@ -9,13 +9,10 @@ class RenderableObject : public RenderableObjectBase {
         bool isClicked(float mouseX, float mouseY, int winWidth, int winHeight, glm::mat4 viewProjInverse) override;
         void drawDepthOnly(const glm::mat4& shadowMatrix, const glm::vec3& lightPos, float farPlane) const;
         virtual bool isRayIntersecting(const glm::vec3& rayOrigin, const glm::vec3& rayDirection);
-
-        //Getters and setters
-        void setPosition(const glm::vec3& pos);
-        glm::vec3 getPosition() const { return position; };
+        // Draggable by the mouse click handler and move it according to the mouse position
+        bool isDraggable() const override { return true; }  // default: draggable
 
     private:
         Shader *shaderShadow;
-        glm::vec3 position;
 
 };
