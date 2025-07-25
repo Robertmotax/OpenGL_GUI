@@ -13,7 +13,7 @@ public:
     std::vector<RenderableObjectStatic*> uiElements;
 private:
     RenderableObject* selectedObject = nullptr;
-    const char* vertexPathUI = "shaders/vertexUI.glsl";
-    const char* fragmentPathUI = "shaders/fragmentUI.glsl";
+    const char* vertexPathUI = "shaders/UI.vert";
+    const char* fragmentPathUI = "shaders/UI.frag";
     Shader *shaderUI = nullptr;
 };

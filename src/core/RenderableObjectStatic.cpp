@@ -6,6 +6,7 @@
 RenderableObjectStatic::RenderableObjectStatic(const std::vector<Tri>& triangles, Shader* shader)
     : RenderableObjectBase(triangles, shader)
 {
+    name = "staticObj" + id;
     // Cache uniform locations once when the object is created
     useTextureLocation = glGetUniformLocation(shader->getID(), "useTexture");
     textureSamplerLocation = glGetUniformLocation(shader->getID(), "textureSampler");
@@ -45,7 +46,8 @@ void RenderableObjectStatic::draw(const glm::mat4& viewProj, const std::vector<L
 }
 
 
-bool RenderableObjectStatic::isClicked(float mouseX, float mouseY, int winWidth, int winHeight, glm::mat4 /*unused*/) {
+bool RenderableObjectStatic::isClicked(float mouseX, float mouseY, int winWidth, int winHeight, const glm::mat4& viewProjInverse, float& outDistance)
+{
     // Convert mouse coordinates to NDC
     float x_ndc = (2.0f * mouseX) / winWidth - 1.0f;
     float y_ndc = 1.0f - (2.0f * mouseY) / winHeight; // Invert Y

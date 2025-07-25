@@ -18,6 +18,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <functional>
 
 // This library used for texture loading
 #define STB_IMAGE_IMPLEMENTATION
@@ -44,7 +45,7 @@ glm::mat4 viewProjInverse;
 std::vector<RenderableObject*> sceneObjects;
 std::vector<RenderableObject*> animatedBalls;
 std::vector<float> ballDirections;
-Sidebar *sidebar = new Sidebar();
+Sidebar *sidebar;
 
 int main() {
     //random seed for number generator
@@ -205,6 +206,8 @@ int main() {
 
     auto* obj1 = new RenderableObject(tris, &shader, &shaderShadow);
     auto* floorObj = new RenderableObject(floor, &shader, &shaderShadow);
+    obj1->setName("Prism");
+    floorObj->setName("BigCube");
 
 
     //since we load the texture is within the constructor, we must initialize after creating the window
@@ -214,11 +217,6 @@ int main() {
     uranusTexture = Texture("textures/uranus_surface.jpg");
 
     grassLandTexture = Texture("textures/grass-texture.jpg");
-
-
-    obj1->setOnClick([&]() {
-        std::cout << "Scene Object!\n";
-    });
 
     sceneObjects.push_back(obj1);
     //creation of spherical ball objects
@@ -243,7 +241,7 @@ int main() {
     }
     sceneObjects.push_back(floorObj);
 
-    
+    sidebar = new Sidebar();
 
     std::vector<RenderableObjectBase*> allObjects;
     allObjects.insert(allObjects.end(), sceneObjects.begin(), sceneObjects.end());
@@ -273,6 +271,13 @@ int main() {
     glm::vec3 cubePos = {0.0f, 0.0f, 0.0f};
     glm::mat4 model = glm::translate(glm::mat4(1.0f), cubePos);
     shader.setMat4("uModel", model);
+
+    for(RenderableObject*obj : sceneObjects)
+    {
+        obj->setOnClick([obj]() {
+            sidebar->setSelectedObject(obj);
+        });
+    }
     while (!glfwWindowShouldClose(window)) {
         float deltaTime = computeDeltaTime();
         int width, height;

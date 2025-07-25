@@ -1,12 +1,16 @@
 #include "core/RenderableObjectBase.h"
 #include <iostream>
 #include "core/Vertex.h"
+int RenderableObjectBase::lastId = 0;
 
 RenderableObjectBase::RenderableObjectBase(const std::vector<Tri>& triangles, Shader* shader)
     : tris(triangles), shader(shader)
 {
-// Flatten triangles into vertices
-    for (const auto& tri : tris) {
+    id = ++lastId;
+    name = "obj" + id;
+    // Flatten triangles into vertices
+    for (const auto &tri : tris)
+    {
         flattenedVertices.push_back(tri.v0);
         flattenedVertices.push_back(tri.v1);
         flattenedVertices.push_back(tri.v2);

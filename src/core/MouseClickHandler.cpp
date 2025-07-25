@@ -1,5 +1,7 @@
 #include "core/MouseClickHandler.h"
 #include <iostream>
+#include <core/RenderableObject.h>
+#include <core/RenderableObjectStatic.h>
 
 void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
@@ -9,17 +11,36 @@ void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int act
         int width, height;
         glfwGetWindowSize(window, &width, &height);
 
-        // Get the inverse viewProj matrix from camera
         glm::mat4 invVP = glm::inverse(camera->getViewProjection());
 
+        RenderableObjectBase* closestObject = nullptr;
+        float closestDistance = FLT_MAX;
+
+        bool uiClick = false;
         for (auto& obj : *allObjects) {
-            if (obj->isClicked((float)xpos, (float)ypos, width, height, invVP)) {
-                if (obj->onClick) {  //verify if onClick is set
-                    obj->onClick();
-                } else {
-                    std::cerr << "Warning: onClick not set for clicked object.\n";
+            float dist;
+            if (obj->isClicked((float)xpos, (float)ypos, width, height, invVP, dist)) {
+                if(auto* staticObj = dynamic_cast<RenderableObjectStatic*>(obj))
+                {
+                    if(closestObject == nullptr || closestObject->position.z <= staticObj->position.z){
+                        closestObject = staticObj;
+                        uiClick = true;
+                    }
+                }
+                if (dist < closestDistance && !uiClick) {
+                    closestDistance = dist;
+                    if(auto* sceneObj = dynamic_cast<RenderableObject*>(obj))
+                        closestObject = sceneObj;
                 }
             }
         }
+
+        if (closestObject && closestObject->onClick) {
+            std::cout << "Clicked on " << closestObject->getName() << std::endl;
+            closestObject->onClick();
+        } else if (closestObject) {
+            std::cerr << "Warning: onClick not set for clicked object.\n";
+        }
     }
 }
+
