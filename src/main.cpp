@@ -22,12 +22,11 @@
 // This library used for texture loading
 #define STB_IMAGE_IMPLEMENTATION
 #include "../external/stb_image.h"
+#include <ui/Sidebar.h>
 
 
 const char* vertexPath = "shaders/vertex.glsl";
 const char* fragmentPath = "shaders/fragment.glsl";
-const char* vertexPathUI = "shaders/vertexUI.glsl";
-const char* fragmentPathUI = "shaders/fragmentUI.glsl";
 const char* vertexPathShadow = "shaders/vertexShadow.glsl";
 const char* fragmentPathShadow = "shaders/fragmentShadow.glsl";
 
@@ -43,10 +42,9 @@ glm::mat4 viewProj;
 glm::mat4 viewProjInverse;
 
 std::vector<RenderableObject*> sceneObjects;
-std::vector<RenderableObjectStatic*> uiObjects;
 std::vector<RenderableObject*> animatedBalls;
 std::vector<float> ballDirections;
-
+Sidebar *sidebar = new Sidebar();
 
 int main() {
     //random seed for number generator
@@ -93,7 +91,6 @@ int main() {
 
     Camera camera(aspect);
 
-    Shader shaderUI(vertexPathUI, fragmentPathUI);
     Shader shader(vertexPath, fragmentPath);
     Shader shaderShadow(vertexPathShadow, fragmentPathShadow);
 
@@ -133,20 +130,6 @@ int main() {
         Vertex{{-50.0f, 0.0f, -50.0f}, {0.2f, 0.2f, 0.2f},   {1.0f, 1.0f}}   // Dark Gray
     );
 
-    // the UI sidebar maade to place all the components
-    std::vector<Tri> sideUI;
-    
-    sideUI.emplace_back(
-        Vertex{{ -0.6f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}},
-        Vertex{{ -0.6f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 0.0f}},
-        Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 0.0f}}
-    );
-
-    sideUI.emplace_back(
-        Vertex{{ -0.6f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}},
-        Vertex{{ -1.0f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 1.0f}},
-        Vertex{{ -1.0f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 0.0f}}
-    );
 
     //All possible tiles for the UI sidebar for texture selection on the object
     std::vector<Tri>  tile1 = makeTile(0.2f, 0.1f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
@@ -163,13 +146,6 @@ int main() {
 
     auto* obj1 = new RenderableObject(tris, &shader, &shaderShadow);
     auto* floorObj = new RenderableObject(floor, &shader, &shaderShadow);
-    auto* sidebarObj = new RenderableObjectStatic(sideUI, &shaderUI);
-
-    //_________________________________________________________
-    auto* tile1Obj = new RenderableObjectStatic(tile1, &shaderUI);
-    auto* tile2Obj = new RenderableObjectStatic(tile2, &shaderUI);
-    auto* tile3Obj = new RenderableObjectStatic(tile3, &shaderUI);
-    auto* grassTileObj = new RenderableObjectStatic(grassTiles, &shaderUI);
 
 
     //since we load the texture is within the constructor, we must initialize after creating the window
@@ -179,56 +155,10 @@ int main() {
     uranusTexture = Texture("textures/uranus_surface.jpg");
 
     grassLandTexture = Texture("textures/grass-texture.jpg");
-    
-    //Assign textures to the buttons for preview
-    tile1Obj->setTexture(&alaskanMalamutTexture);
-    tile1Obj->enableTexture(true);
-    tile2Obj->setTexture(&darknessTexture);
-    tile2Obj->enableTexture(true);
-    tile3Obj->setTexture(nullptr); // No texture for the third tile -- assumed this is to remove texture
-    tile3Obj->enableTexture(false); 
-
-    //for the floor
-    grassTileObj->setTexture(&grassLandTexture);
-    grassTileObj->enableTexture(true);
 
 
     obj1->setOnClick([&]() {
         std::cout << "Scene Object!\n";
-    });
-    sidebarObj->setOnClick([&]() {
-        std::cout << "SideBar!\n";
-    });
-
-    // Assign click handlers for the tiles texture selection
-    tile1Obj->setOnClick([obj1]() {
-        obj1->setTexture(&alaskanMalamutTexture);
-        obj1->enableTexture(true);
-        std::cout << "Assigned Alaskan Malamut Texture!\n";
-    });
-
-    tile2Obj->setOnClick([obj1]() {
-        obj1->setTexture(&darknessTexture);
-        obj1->enableTexture(true);
-        std::cout << "Assigned Darkness Texture!\n";
-    });
-    //remove texture selection
-    tile3Obj->setOnClick([obj1]() {
-        obj1->setTexture(nullptr);
-        obj1->enableTexture(false);
-        std::cout << "Texture removed!\n";
-    });
-
-    grassTileObj->setOnClick([&]() {
-        // std::vector<Tri> grassMesh = makeTile(0.05f, -0.05f, {1,1,1}, {0,1}, {1,0});
-
-        // auto grassObjs = spawnPatches(grassMesh, &shader, &shaderShadow, &grassLandTexture, 600);
-
-        // // add to sceneObjects
-        // sceneObjects.insert(sceneObjects.end(), grassObjs.begin(), grassObjs.end());
-        floorObj->setTexture(&grassLandTexture);
-        floorObj->enableTexture(true);
-        std::cout << "Spawned grass patches!\n";
     });
 
     sceneObjects.push_back(obj1);
@@ -252,20 +182,13 @@ int main() {
         // Alternate directions: even = +1 (left->right), odd = -1 (right->left)
         ballDirections.push_back((i % 2 == 0) ? 1.0f : -1.0f);
     }
-
-
     sceneObjects.push_back(floorObj);
-    uiObjects.push_back(sidebarObj);
-    //Push each tile objects to UI list of clickable objects
-    uiObjects.push_back(tile1Obj);
-    uiObjects.push_back(tile2Obj);
-    uiObjects.push_back(tile3Obj);
-    uiObjects.push_back(grassTileObj);
 
+    
 
     std::vector<RenderableObjectBase*> allObjects;
     allObjects.insert(allObjects.end(), sceneObjects.begin(), sceneObjects.end());
-    allObjects.insert(allObjects.end(), uiObjects.begin(), uiObjects.end());
+    allObjects.insert(allObjects.end(), sidebar->uiElements.begin(), sidebar->uiElements.end());
 
     // Mouse click handler expects pointer access
     MouseClickHandler mouseClickHandler(&camera, &allObjects);
@@ -323,9 +246,7 @@ int main() {
         for (auto* obj : sceneObjects)
             obj->draw(viewProj, lights);
 
-        for (auto* obj : uiObjects)
-            obj->draw(viewProj, {});  // No lights needed
-
+        sidebar->render();
 
         // Animate balls moving left to right and right-to-left
         // Enable them in zigzag pattern
@@ -360,8 +281,9 @@ int main() {
 
     for (auto* obj : sceneObjects)
         delete obj;
-    for (auto* obj : uiObjects)
+    for (auto* obj : sidebar->uiElements)
         delete obj;
+    delete sidebar;
 
     glfwDestroyWindow(window);
     glfwTerminate();
