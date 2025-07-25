@@ -13,6 +13,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <cstdlib> 
 #include <iostream>
 #include <vector>
 #include <cstdlib>
@@ -33,7 +34,8 @@ const char* fragmentPathShadow = "shaders/shadow.frag";
 //load new textures
 Texture alaskanMalamutTexture;
 Texture darknessTexture;
-
+Texture jupiterTexture;
+Texture uranusTexture;
 Texture grassLandTexture;
 
 // Global variables for the scene
@@ -42,6 +44,8 @@ glm::mat4 viewProjInverse;
 
 std::vector<RenderableObject*> sceneObjects;
 std::vector<RenderableObjectStatic*> uiObjects;
+std::vector<RenderableObject*> animatedBalls;
+std::vector<float> ballDirections;
 
 
 int main() {
@@ -49,6 +53,9 @@ int main() {
     srand((unsigned int)time(nullptr));
 
     glfwInit();
+
+    // Seed once before the loop
+    srand(static_cast<unsigned int>(time(nullptr)));
 
 #if defined(PLATFORM_OSX)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -229,6 +236,9 @@ int main() {
     //since we load the texture is within the constructor, we must initialize after creating the window
     darknessTexture = Texture("textures/darkness.jpg"); 
     alaskanMalamutTexture = Texture("textures/alaskan-malamut.jpg");
+    jupiterTexture = Texture("textures/jupiter_surface.jpg");
+    uranusTexture = Texture("textures/uranus_surface.jpg");
+
     grassLandTexture = Texture("textures/grass-texture.jpg");
     
     //Assign textures to the buttons for preview
@@ -283,6 +293,28 @@ int main() {
     });
 
     sceneObjects.push_back(obj1);
+    //creation of spherical ball objects
+    for (int i = 0; i < 10; ++i) {
+        float z = -1.0f + (i * 0.8f);
+        auto* ball = new RenderableObject(generateSphericalBalls(0.45f, 16, 12), &shader, &shaderShadow);
+        ball->setPosition(glm::vec3(-8.0f + i, 0.4f, z));
+
+        // Randomly assign texture: 0 or 1
+        int randomNum = rand() % 2; // 0 or 1
+        if (randomNum == 0) {
+            ball->setTexture(&jupiterTexture);
+        } else {
+            ball->setTexture(&uranusTexture);
+        }
+        ball->enableTexture(true);
+
+        sceneObjects.push_back(ball);
+        animatedBalls.push_back(ball);
+        // Alternate directions: even = +1 (left->right), odd = -1 (right->left)
+        ballDirections.push_back((i % 2 == 0) ? 1.0f : -1.0f);
+    }
+
+
     sceneObjects.push_back(floorObj);
     uiObjects.push_back(sidebarObj);
     //Push each tile objects to UI list of clickable objects
@@ -388,6 +420,28 @@ int main() {
         for (auto* obj : uiObjects)
             obj->draw(viewProj, lights);
 
+
+        // Animate balls moving left to right and right-to-left
+        // Enable them in zigzag pattern
+        for (int i = 0; i < (int)animatedBalls.size(); ++i) {
+            glm::vec3 pos = animatedBalls[i]->getPosition();
+
+            pos.x += deltaTime * 1.5f * ballDirections[i]; // move in current direction
+
+            // Check boundaries and flip direction if needed
+            if (pos.x > 10.0f) {
+                pos.x = 10.0f;           // clamp position at boundary
+                ballDirections[i] = -1;  // flip direction to left
+            }
+            else if (pos.x < -10.0f) {
+                pos.x = -10.0f;
+                ballDirections[i] = 1;   // flip direction to right
+            }
+
+            animatedBalls[i]->setPosition(pos);
+        }
+
+        // 7. Events
         glfwSwapBuffers(window);
         glfwPollEvents();
 

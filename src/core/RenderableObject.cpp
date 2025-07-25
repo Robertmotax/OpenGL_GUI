@@ -33,6 +33,9 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
 
     // --- Shadow cubemap lights ---
     glUniform1i(glGetUniformLocation(shaderID, "uNumLights"), (int)lights.size());
+    
+    // Start from stored position
+    glm::mat4 modelTransformed = glm::translate(model, position);
 
     for (int i = 0; i < (int)lights.size(); ++i) {
         const LightSource& light = lights[i];
