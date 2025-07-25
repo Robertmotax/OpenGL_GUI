@@ -191,12 +191,6 @@ int main() {
         Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
     );
 
-    //All possible tiles for the UI sidebar for texture selection on the object
-    std::vector<Tri>  tile1 = makeTile(0.2f, 0.1f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-    std::vector<Tri>  tile2 = makeTile(0.09f, -0.01f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-    std::vector<Tri>  tile3 = makeTile(-0.02f, -0.12f, {0.5f, 0.5f, 0.5f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-    std::vector<Tri> grassTiles = makeTile(-0.2f, -0.25f, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f});
-
 
     //All possible tiles for the UI sidebar for texture selection for floor design
     std::vector<LightSource> lights = {
@@ -208,15 +202,6 @@ int main() {
     auto* floorObj = new RenderableObject(floor, &shader, &shaderShadow);
     obj1->setName("Prism");
     floorObj->setName("BigCube");
-
-
-    //since we load the texture is within the constructor, we must initialize after creating the window
-    darknessTexture = Texture("textures/darkness.jpg"); 
-    alaskanMalamutTexture = Texture("textures/alaskan-malamut.jpg");
-    jupiterTexture = Texture("textures/jupiter_surface.jpg");
-    uranusTexture = Texture("textures/uranus_surface.jpg");
-
-    grassLandTexture = Texture("textures/grass-texture.jpg");
 
     sceneObjects.push_back(obj1);
     //creation of spherical ball objects

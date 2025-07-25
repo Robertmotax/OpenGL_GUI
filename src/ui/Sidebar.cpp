@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <functional>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 Sidebar::Sidebar() 
 {
@@ -212,6 +214,85 @@ Sidebar::Sidebar()
     uiElements.push_back(sclYDown);
     uiElements.push_back(sclZUp);
     uiElements.push_back(sclZDown);
+
+    //Adding texture selection
+    float tileSize = 0.1f;
+    int columnCount = 4;
+    int index = 0;
+    float xInit = -1.0f;
+    float yInit = -0.5f;
+
+    for (const auto& entry : fs::directory_iterator("textures")) {
+        if (!entry.is_regular_file()) continue;
+        if (entry.path().extension() != ".jpg") continue;
+
+        std::string path = entry.path().string();
+        Texture* texture = new Texture(path.c_str());
+
+        int row = index / columnCount;
+        int col = index % columnCount;
+
+        float xStart = xInit + col * tileSize;
+        float yStart = yInit - row * tileSize;
+
+        std::vector<Tri> quad = {
+            Tri(
+                Vertex{{xStart,         yStart,          0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+                Vertex{{xStart + tileSize, yStart,      0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}
+            ),
+            Tri(
+                Vertex{{xStart,         yStart,          0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+                Vertex{{xStart,         yStart - tileSize, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}
+            )
+        };
+
+        auto* button = new RenderableObjectStatic(quad, shaderUI);
+        button->setTexture(texture);
+        button->enableTexture(true);
+
+        button->setOnClick([this, texture, path]() {
+            if(selectedObject)
+            {
+                selectedObject->setTexture(texture);
+                selectedObject->enableTexture(true);
+                std::cout << "Assigned Texture " << path << " to " << selectedObject->getName() << "\n";
+            }
+        });
+
+        uiElements.push_back(button);
+        ++index;
+    }
+
+    int row = index / columnCount;
+    int col = index % columnCount;
+
+    float xStart = xInit + col * tileSize;
+    float yStart = yInit - row * tileSize;
+
+    std::vector<Tri> grayQuad = {
+        Tri(
+            Vertex{{xStart, yStart, 0.0f}, {0.6f, 0.6f, 0.6f}, {0.0f, 1.0f}},
+            Vertex{{xStart + tileSize, yStart, 0.0f}, {0.6f, 0.6f, 0.6f}, {1.0f, 1.0f}},
+            Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, {0.6f, 0.6f, 0.6f}, {1.0f, 0.0f}}
+        ),
+        Tri(
+            Vertex{{xStart, yStart, 0.0f}, {0.6f, 0.6f, 0.6f}, {0.0f, 1.0f}},
+            Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, {0.6f, 0.6f, 0.6f}, {1.0f, 0.0f}},
+            Vertex{{xStart, yStart - tileSize, 0.0f}, {0.6f, 0.6f, 0.6f}, {0.0f, 0.0f}}
+        )
+    };
+
+    auto* noTextureButton = new RenderableObjectStatic(grayQuad, shaderUI);
+    noTextureButton->enableTexture(false); // No texture = clear
+    noTextureButton->setOnClick([&]() {
+        selectedObject->setTexture(nullptr);
+        selectedObject->enableTexture(false);
+        std::cout << "Texture removed from " << selectedObject->getName() << "\n";
+    });
+    uiElements.push_back(noTextureButton);
+
 }
 
 void Sidebar::setSelectedObject(RenderableObject* obj) {
