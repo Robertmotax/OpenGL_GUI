@@ -23,11 +23,10 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
         glUniform1i(glGetUniformLocation(shader->getID(), "textureSampler"), 0);
     }
 
-    // move object down by 0.5 on Y, such that the floor can be initialized at the beginning
-    // ensure the object is above the floor
-    // model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); 
+    // Start from stored position
+    glm::mat4 modelTransformed = glm::translate(model, position);
 
-    glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uModel"), 1, GL_FALSE, glm::value_ptr(modelTransformed));
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "uVP"), 1, GL_FALSE, glm::value_ptr(viewProj));
 
     for (int i = 0; i < (int)lights.size(); ++i) {
