@@ -31,7 +31,7 @@ void main() {
     vec3 baseColor = Color;
 
     if (uUseTexture) {
-        baseColor *= texture(uTexture, TexCoord).rgb;
+        baseColor = texture(uTexture, TexCoord).rgb;
     }
 
     vec3 lighting = vec3(0.0);
