@@ -10,6 +10,7 @@
 #include "core/Tri.h"
 #include "core/Texture.h"
 #include "core/LightSource.h"
+#include <string>
 
 class RenderableObjectBase {
 public:
@@ -17,7 +18,10 @@ public:
     virtual ~RenderableObjectBase();
 
     virtual void draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const = 0;
-    virtual bool isClicked(float mouseX, float mouseY, int winWidth, int winHeight, glm::mat4 viewProjInverse) = 0;
+    virtual bool isClicked(float mouseX, float mouseY, int winWidth, int winHeight, const glm::mat4& viewProjInverse, float& outDistance) = 0;
+    // Draggable by the mouse click handler and move it according to the mouse position
+    virtual bool isDraggable() const { return false; }
+
     //Texture purposes 
     void setTexture(Texture* texture);
     void enableTexture(bool enable);
@@ -50,13 +54,19 @@ public:
     //getters and setters
     void setPosition(const glm::vec3& pos) { position = pos; }
     glm::vec3 getPosition() const { return position; }
+    void setName(const std::string objName) { name = objName; }
+    std::string getName() const { return name; }
 
     // Set the model matrix for transformations
     void setModelMatrix(const glm::mat4& mat) { model = mat; }
 
+    
 protected:
     void computeBounds();
 
+    std::string name;
+    int id;
+    static int lastId;
     GLuint vao = 0, vbo = 0;
     int vertexCount = 0;
     Shader* shader = nullptr;

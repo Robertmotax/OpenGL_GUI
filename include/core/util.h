@@ -37,26 +37,25 @@ inline float computeDeltaTime() {
 /**
  * * Helper function to create a tile for the UI sidebar.
  */
-inline auto makeTile = [](float top, float bottom, glm::vec3 color, glm::vec2 uvTopLeft, glm::vec2 uvBottomRight) -> std::vector<Tri> {
+/**
+ * Helper function to create a UI tile with customizable bounds and UVs.
+ */
+inline auto makeTile = [](float left, float right, float top, float bottom, float z, glm::vec3 color) -> std::vector<Tri> {
     return {
-        // Create two triangles for the tile
-        // Each triangle is defined by three vertices
-        // Each triangle is composed of its position, color, and texture coordinates
-        // First triangle
-
-        {   
-            Vertex{{-0.6f, top, 0.0f}, color, uvTopLeft},
-            Vertex{{-0.6f, bottom, 0.0f}, color, {uvTopLeft.x, uvBottomRight.y}},
-            Vertex{{-1.0f, bottom, 0.0f}, color, uvBottomRight}
+        Tri{
+            Vertex{{left,  top,    z}, color, {0.0f, 1.0f}},
+            Vertex{{left,  bottom, z}, color, {0.0f, 0.0f}},
+            Vertex{{right, bottom, z}, color, {1.0f, 0.0f}}
         },
-        // Second triangle
-        {
-            Vertex{{-0.6f, top, 0.0f}, color, uvTopLeft},
-            Vertex{{-1.0f, top, 0.0f}, color, {uvBottomRight.x, uvTopLeft.y}},
-            Vertex{{-1.0f, bottom, 0.0f}, color, uvBottomRight}
+        Tri{
+            Vertex{{left,  top,    z}, color, {0.0f, 1.0f}},
+            Vertex{{right, top,    z}, color, {1.0f, 1.0f}},
+            Vertex{{right, bottom, z}, color, {1.0f, 0.0f}}
         }
     };
 };
+
+
 
 /**
  * generate shperical balls
@@ -101,7 +100,7 @@ inline std::vector<Tri> generateSphericalBalls(float radius, int segments, int r
  * * CURRENTLY NOT USED -- COULD BE USEFUL IN THE FUTURE IF WE WISH TO SPAWN A LOT OF OBJECTS
  * * This function generates a specified number of patches at random positions within a defined range.
  */
-std::vector<RenderableObject*> spawnPatches(
+inline std::vector<RenderableObject*> spawnPatches(
     const std::vector<Tri>& Mesh, 
     Shader* shader, Shader* shadowShader, 
     Texture* texture,
@@ -126,4 +125,30 @@ std::vector<RenderableObject*> spawnPatches(
         grassList.push_back(grassObj);
     }
     return grassList;
+}
+
+
+// Simple ray-AABB test using slab method
+inline bool rayIntersectsAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
+                       const glm::vec3& aabbMin, const glm::vec3& aabbMax, float& tHit) {
+    float tMin = 0.0f;
+    float tMax = 1e6f;
+
+    for (int i = 0; i < 3; ++i) {
+        if (fabs(rayDir[i]) < 1e-6) {
+            if (rayOrigin[i] < aabbMin[i] || rayOrigin[i] > aabbMax[i])
+                return false;
+        } else {
+            float ood = 1.0f / rayDir[i];
+            float t1 = (aabbMin[i] - rayOrigin[i]) * ood;
+            float t2 = (aabbMax[i] - rayOrigin[i]) * ood;
+            if (t1 > t2) std::swap(t1, t2);
+            tMin = std::max(tMin, t1);
+            tMax = std::min(tMax, t2);
+            if (tMin > tMax) return false;
+        }
+    }
+
+    tHit = tMin; //closest
+    return true;
 }
