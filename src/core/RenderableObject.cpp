@@ -1,5 +1,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
+#include <singleton/RayPicker.h>
 #include "core/RenderableObject.h"
 #include <iostream>
 #include "core/Vertex.h"
@@ -93,20 +94,33 @@ void RenderableObject::drawDepthOnly(const glm::mat4& shadowMatrix, const glm::v
 
 bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int winHeight, const glm::mat4& viewProjInverse, float& outDistance) {
     glm::mat4 modelMatrix = getModelMatrix();
-    // Step 1: Convert mouse coords to Normalized Device Coordinates (NDC)
-    float x = (2.0f * mouseX) / winWidth - 1.0f;
-    float y = 1.0f - (2.0f * mouseY) / winHeight; // Flip Y
-    glm::vec4 ndcNear(x, y, -1.0f, 1.0f);
-    glm::vec4 ndcFar(x, y, 1.0f, 1.0f);
+    float closestT = FLT_MAX;
+    bool hit = false;
 
-    // Step 2: Convert to world space ray
-    glm::vec4 worldNear = viewProjInverse * ndcNear;
-    glm::vec4 worldFar = viewProjInverse * ndcFar;
-    worldNear /= worldNear.w;
-    worldFar /= worldFar.w;
+    //get origin (camera position) and object's position (direction)
+    glm::vec3 rayOrigin, rayDir;
+    RayPicker::getInstance().screenPosToWorldRay(mouseX, mouseY, winWidth, winHeight, rayOrigin, rayDir);
+    
+    //modify distance helper -- returns boolean
+    return isRayIntersecting(rayOrigin, rayDir, outDistance);
+}
 
-    glm::vec3 rayOrigin = glm::vec3(worldNear);
-    glm::vec3 rayDir = glm::normalize(glm::vec3(worldFar - worldNear));
+
+/**
+ * @brief Checks if a ray intersects this renderable object's mesh (per-triangle intersection).
+ * 
+ * This method transforms each triangle into world space using the object's model matrix
+ * and performs an accurate ray-triangle intersection test (Möller–Trumbore algorithm).
+ * 
+ * @author Marcus Sharma
+ * @param rayOrigin     The origin point of the ray in world space.
+ * @param rayDirection  The normalized direction of the ray in world space.
+ * @param outDistance   If hit, will store the distance to the closest intersected triangle.
+ * @return true if the ray intersects any triangle of the object, false otherwise.
+ */
+bool RenderableObject::isRayIntersecting(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, float& outDistance) {
+    glm::mat4 modelMatrix = getModelMatrix();
+    //3: Accurate per-triangle intersection (narrow-phase)
     float closestT = FLT_MAX;
     bool hit = false;
 
@@ -117,7 +131,7 @@ bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int w
 
         glm::vec3 edge1 = v1 - v0;
         glm::vec3 edge2 = v2 - v0;
-        glm::vec3 h = glm::cross(rayDir, edge2);
+        glm::vec3 h = glm::cross(rayDirection, edge2);
         float a = glm::dot(edge1, h);
         if (fabs(a) < 1e-6f) continue;
 
@@ -127,7 +141,7 @@ bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int w
         if (u < 0.0f || u > 1.0f) continue;
 
         glm::vec3 q = glm::cross(s, edge1);
-        float v = f * glm::dot(rayDir, q);
+        float v = f * glm::dot(rayDirection, q);
         if (v < 0.0f || u + v > 1.0f) continue;
 
         float t = f * glm::dot(edge2, q);
@@ -142,22 +156,4 @@ bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int w
     }
 
     return hit;
-}
-
-
-bool RenderableObject::isRayIntersecting(const glm::vec3& rayOrigin, const glm::vec3& rayDirection) {
-    // Compute AABB from model-transformed bounding box
-    glm::vec3 minBounds(FLT_MAX), maxBounds(-FLT_MAX);
-
-    for (const Tri& tri : tris) {
-        for (const glm::vec3& vertex : { tri.v0.position, tri.v1.position, tri.v2.position }) {
-            glm::vec4 worldPos = model * glm::vec4(vertex, 1.0f);
-            glm::vec3 wp = glm::vec3(worldPos);
-            minBounds = glm::min(minBounds, wp);
-            maxBounds = glm::max(maxBounds, wp);
-        }
-    }
-
-    float t;
-    return rayIntersectsAABB(rayOrigin, rayDirection, minBounds, maxBounds, t);
 }

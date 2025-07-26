@@ -15,17 +15,22 @@ void RayPicker::setCamera(Camera* cam) {
 bool RayPicker::screenPosToWorldRay(double mouseX, double mouseY, int screenWidth, int screenHeight,
                                     glm::vec3& rayOrigin, glm::vec3& rayDirection) const {
     if (!camera) return false;
-
+    //Convert mouse coords to Normalized Device Coordinates (NDC)
     float x = (2.0f * mouseX) / screenWidth - 1.0f;
-    float y = 1.0f - (2.0f * mouseY) / screenHeight;
+    float y = 1.0f - (2.0f * mouseY) / screenHeight; // Flip-y
+    glm::vec4 ndcNear(x, y, -1.0f, 1.0f);
+    glm::vec4 ndcFar(x, y, 1.0f, 1.0f);
 
-    glm::vec4 clipCoords = glm::vec4(x, y, -1.0f, 1.0f);
+    //Convert to World Space Ray
     glm::mat4 invVP = glm::inverse(camera->getViewProjection());
-    glm::vec4 worldPos = invVP * clipCoords;
-    worldPos /= worldPos.w;
+    glm::vec4 worldNear = invVP * ndcNear;
+    glm::vec4 worldFar = invVP * ndcFar;
+    worldNear /= worldNear.w;
+    worldFar /= worldFar.w;
 
-    rayOrigin = camera->getPosition();
-    rayDirection = glm::normalize(glm::vec3(worldPos) - rayOrigin);
+    //Return ray origin 
+    rayOrigin = glm::vec3(worldNear);
+    rayDirection = glm::normalize(glm::vec3(worldFar - worldNear));
     return true;
 }
 

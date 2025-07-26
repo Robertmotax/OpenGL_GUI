@@ -15,10 +15,6 @@ void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int act
 
             glm::mat4 invVP = glm::inverse(camera->getViewProjection());
 
-            //Ray-picking
-            glm::vec3 rayOrigin, rayDir;
-            RayPicker::getInstance().screenPosToWorldRay(xpos, ypos, width, height, rayOrigin, rayDir);
-
             RenderableObjectBase* closestObject = nullptr;
             float closestDistance = FLT_MAX;
 

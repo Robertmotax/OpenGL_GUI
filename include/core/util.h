@@ -149,6 +149,6 @@ inline bool rayIntersectsAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDi
         }
     }
 
-    tHit = tMin;
+    tHit = tMin; //closest
     return true;
 }
