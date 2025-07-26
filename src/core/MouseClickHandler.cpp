@@ -1,34 +1,83 @@
-#pragma once
+#include "core/MouseClickHandler.h"
+#include <iostream>
+#include <singleton/RayPicker.h>
+#include <core/RenderableObject.h>
+#include <core/RenderableObjectStatic.h>
 
-#include <glm/glm.hpp>
-#include <memory>
-#include <vector>
-#include "Camera.h"
-#include "RenderableObjectBase.h"
+void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
 
-class RayPicker {
-public:
-    static RayPicker& getInstance();
+            int width, height;
+            glfwGetWindowSize(window, &width, &height);
 
-    RayPicker(const RayPicker&) = delete;
-    RayPicker& operator=(const RayPicker&) = delete;
-    RayPicker(RayPicker&&) = delete;
-    RayPicker& operator=(RayPicker&&) = delete;
+            glm::mat4 invVP = glm::inverse(camera->getViewProjection());
 
-    void setCamera(Camera* cam);
+            //Ray-picking
+            glm::vec3 rayOrigin, rayDir;
+            RayPicker::getInstance().screenPosToWorldRay(xpos, ypos, width, height, rayOrigin, rayDir);
 
-    bool screenPosToWorldRay(double mouseX, double mouseY, int screenWidth, int screenHeight,
-                             glm::vec3& rayOrigin, glm::vec3& rayDirection) const;
+            RenderableObjectBase* closestObject = nullptr;
+            float closestDistance = FLT_MAX;
 
-    bool intersectXZPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
-                          float yLevel, glm::vec3& hitPoint);
+            bool uiClick = false;
+            for (auto& obj : *allObjects) {
+                float dist;
+                if (obj->isClicked((float)xpos, (float)ypos, width, height, invVP, dist)) {
+                    //Mainly to avoid static objects being affected
+                    if(auto* staticObj = dynamic_cast<RenderableObjectStatic*>(obj))
+                    {
+                        if(closestObject == nullptr || closestObject->position.z <= staticObj->position.z){
+                            closestObject = staticObj;
+                            uiClick = true;
+                        }
+                    }
 
-    // Only for non-static objects
-    RenderableObjectBase* pickObject(double mouseX, double mouseY, int screenWidth, int screenHeight,
-                                     const std::vector<RenderableObjectBase*>& objects,
-                                     float& outDistance) const;
+                    //Mainly for non-static 
+                    if (dist < closestDistance && !uiClick) {
+                        closestDistance = dist;
+                        if(auto* sceneObj = dynamic_cast<RenderableObject*>(obj)) {
+                            closestObject = sceneObj;
+                            setSelectedDraggableObject(sceneObj);
+                            isDragging = true;
+                        }
+                    }
+                }
+            }
 
-private:
-    RayPicker(); // private constructor
-    Camera* camera = nullptr;
-};
+            if (closestObject && closestObject->onClick) {
+                std::cout << "Clicked on " << closestObject->getName() << std::endl;
+                closestObject->onClick();
+            } else if (closestObject) {
+                std::cerr << "Warning: onClick not set for clicked object.\n";
+            }
+        }
+        else if (action == GLFW_RELEASE) {
+            //manually reset it to false and nullptr, even if non-static is selected
+            isDragging = false;
+            setSelectedDraggableObject(nullptr);
+        }
+    }
+}
+
+void MouseClickHandler::handleMouseMove(GLFWwindow* window, double xpos, double ypos) {
+    if (!isDragging || !selectedDraggableObject) return;
+
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+
+    glm::vec3 rayOrigin, rayDir;
+    RayPicker::getInstance().screenPosToWorldRay(xpos, ypos, width, height, rayOrigin, rayDir);
+
+    glm::vec3 hitPoint;
+    if (RayPicker::getInstance().intersectXZPlane(rayOrigin, rayDir, selectedDraggableObject->getPosition().y, hitPoint)) {
+        selectedDraggableObject->setPosition(hitPoint);
+    }
+}
+
+void MouseClickHandler::setSelectedDraggableObject(RenderableObject* object) 
+{
+    selectedDraggableObject = object;
+}

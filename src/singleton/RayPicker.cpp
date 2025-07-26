@@ -41,37 +41,3 @@ bool RayPicker::intersectXZPlane(const glm::vec3& rayOrigin, const glm::vec3& ra
     hitPoint = rayOrigin + t * rayDir;
     return true;
 }
-
-
-RenderableObjectBase* RayPicker::pickObject(double mouseX, double mouseY, int screenWidth, int screenHeight,
-                                            const std::vector<RenderableObjectBase*>& objects, float& outDistance) const
-{
-    glm::vec3 rayOrigin, rayDirection;
-    if (!screenPosToWorldRay(mouseX, mouseY, screenWidth, screenHeight, rayOrigin, rayDirection)) {
-        return nullptr;
-    }
-
-    RenderableObjectBase* closest = nullptr;
-    float closestDist = FLT_MAX;
-
-    for (auto* obj : objects) {
-        // Ignore static objects (i.e. sidebar)
-        if (dynamic_cast<RenderableObjectStatic*>(obj)) {
-            continue;
-        }
-
-        glm::vec3 min = obj->getAABBMin();
-        glm::vec3 max = obj->getAABBMax();
-
-        float hitDist;
-        if (rayIntersectsAABB(rayOrigin, rayDirection, min, max, hitDist)) {
-            if (hitDist < closestDist) {
-                closestDist = hitDist;
-                closest = obj;
-            }
-        }
-    }
-
-    outDistance = closestDist;
-    return closest;
-}

@@ -238,8 +238,7 @@ int main() {
         if (handler)
             handler->handleMouseClick(window, button, action, mods);
     });
-
-
+    // Set mouse cursor callback to a lambda that calls your handler
     glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
         MouseClickHandler* mouseHandler = static_cast<MouseClickHandler*>(glfwGetWindowUserPointer(window));
         if (mouseHandler)

@@ -3,8 +3,8 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
-#include "Camera.h"
-#include "RenderableObjectBase.h"
+#include "core/Camera.h"
+#include "core/RenderableObjectBase.h"
 
 class RayPicker {
 public:
@@ -23,34 +23,6 @@ public:
 
     bool intersectXZPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
                           float yLevel, glm::vec3& hitPoint);
-
-    RenderableObjectBase* RayPicker::pickObject(double mouseX, double mouseY, int screenWidth, int screenHeight,
-                    const std::vector<RenderableObjectBase*>& objects, float& outDistance) const
-    {
-        glm::vec3 rayOrigin, rayDirection;
-        if (!screenPosToWorldRay(mouseX, mouseY, screenWidth, screenHeight, rayOrigin, rayDirection)) {
-            return nullptr;
-        }
-
-        RenderableObjectBase* closest = nullptr;
-        float closestDist = FLT_MAX;
-
-        for (auto* obj : objects) {
-            glm::vec3 min = obj->getAABBMin(); // You need to implement these functions per object
-            glm::vec3 max = obj->getAABBMax();
-
-            float hitDist;
-            if (rayIntersectsAABB(rayOrigin, rayDirection, min, max, hitDist)) {
-                if (hitDist < closestDist) {
-                    closestDist = hitDist;
-                    closest = obj;
-                }
-            }
-        }
-
-        outDistance = closestDist;
-        return closest;
-    }
 
 private:
     RayPicker(); // private constructor
