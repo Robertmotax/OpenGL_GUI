@@ -21,8 +21,8 @@ public:
     bool screenPosToWorldRay(double mouseX, double mouseY, int screenWidth, int screenHeight,
                              glm::vec3& rayOrigin, glm::vec3& rayDirection) const;
 
-    bool intersectXZPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
-                          float yLevel, glm::vec3& hitPoint);
+    bool intersectPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const glm::vec3& planePoint, 
+                        const glm::vec3& planeNormal, glm::vec3& hitPoint);
 
 private:
     RayPicker(); // private constructor

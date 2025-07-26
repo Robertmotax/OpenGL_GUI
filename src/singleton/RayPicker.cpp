@@ -34,15 +34,14 @@ bool RayPicker::screenPosToWorldRay(double mouseX, double mouseY, int screenWidt
     return true;
 }
 
-bool RayPicker::intersectXZPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
-                                 float yLevel, glm::vec3& hitPoint) {
-    //if the object is lower than current y-plane, which could affect mouse capture                              
-    if (fabs(rayDir.y) < 0.0001f) return false;
+bool RayPicker::intersectPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
+                               const glm::vec3& planePoint, const glm::vec3& planeNormal, glm::vec3& hitPoint) {
+    float denom = glm::dot(rayDir, planeNormal);
+    if (fabs(denom) < 1e-6f) return false; // ray is parallel to the plane
 
-    float t = (yLevel - rayOrigin.y) / rayDir.y;
-    if (t < 0)
-        return false;
-    //new position    
+    float t = glm::dot(planePoint - rayOrigin, planeNormal) / denom;
+    if (t < 0.0f) return false; // intersection behind the camera
+
     hitPoint = rayOrigin + t * rayDir;
     return true;
 }

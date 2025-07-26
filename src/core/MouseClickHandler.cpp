@@ -68,10 +68,14 @@ void MouseClickHandler::handleMouseMove(GLFWwindow* window, double xpos, double 
     RayPicker::getInstance().screenPosToWorldRay(xpos, ypos, width, height, rayOrigin, rayDir);
 
     glm::vec3 hitPoint;
-    if (RayPicker::getInstance().intersectXZPlane(rayOrigin, rayDir, selectedDraggableObject->getPosition().y, hitPoint)) {
+    glm::vec3 objectPos = selectedDraggableObject->getPosition();
+    glm::vec3 cameraForward = glm::normalize(camera->getCameraFront() - camera->getPosition()); // Assuming you have camera access
+
+    if (RayPicker::getInstance().intersectPlane(rayOrigin, rayDir, objectPos, cameraForward, hitPoint)) {
         selectedDraggableObject->setPosition(hitPoint);
     }
 }
+
 
 void MouseClickHandler::setSelectedDraggableObject(RenderableObject* object) 
 {
