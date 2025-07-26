@@ -93,10 +93,6 @@ void RenderableObject::drawDepthOnly(const glm::mat4& shadowMatrix, const glm::v
 
 
 bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int winHeight, const glm::mat4& viewProjInverse, float& outDistance) {
-    glm::mat4 modelMatrix = getModelMatrix();
-    float closestT = FLT_MAX;
-    bool hit = false;
-
     //get origin (camera position) and object's position (direction)
     glm::vec3 rayOrigin, rayDir;
     RayPicker::getInstance().screenPosToWorldRay(mouseX, mouseY, winWidth, winHeight, rayOrigin, rayDir);
