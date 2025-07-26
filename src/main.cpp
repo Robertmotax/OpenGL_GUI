@@ -211,7 +211,7 @@ int main() {
     for (int i = 0; i < 10; ++i) {
         float z = -1.0f + (i * 0.8f);
         auto* ball = new RenderableObject(generateSphericalBalls(0.45f, 16, 12), &shader, &shaderShadow);
-        ball->setName("ball " + i);
+        ball->setName("ball " + std::to_string(i));
         ball->setPosition(glm::vec3(-8.0f + i, 0.4f, z));
 
         sceneObjects.push_back(ball);
