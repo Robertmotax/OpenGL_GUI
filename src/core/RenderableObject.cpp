@@ -168,7 +168,7 @@ void RenderableObject::updateSelfAndChildren() {
     if (parent) {
         model = parent->getModelMatrix() * localTransform;  // World = ParentWorld * Local
     } else {
-        model = getModelMatrix();
+        model = localTransform;
     }
 
     // setPosition(glm::vec3(model[3]));
