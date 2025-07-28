@@ -5,7 +5,7 @@
 **Robert Chen Student ID:40241709**  
 
 
-#OpenGL 3D Scene with GUI and Camera
+## OpenGL 3D Scene with GUI and Camera
 
 Built using only OpenGL and the necessary libraries (GLFW, GLEW, GLM, and stb_image.h), this project is a C++ OpenGL application. 
 It has the following features:
