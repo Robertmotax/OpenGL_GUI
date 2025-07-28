@@ -18,19 +18,27 @@ Mouse displacement: allows to move left to right and "forward-backward" by movin
 
 
 W – Move forward
+
 S – Move backward
+
 A – Move left (strafe)
+
 D – Move right (strafe)
 
 Space – Move up (positive y-axis)
+
 Left Shift – Move down (negative y - axis)
+
 ALT - increase cameraSpeed
 
 Rotation:
 
 Right Arrow – Rotate camera to the right (increase yaw)
+
 Left Arrow – Rotate camera to the left (decrease yaw)
+
 Up Arrow – Look up (increase pitch)
+
 Down Arrow – Look down (decrease pitch)
 
 Exit:
