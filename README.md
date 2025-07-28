@@ -52,6 +52,7 @@ Exit:
 Escape – Close the application window
 
 Interaction:
+
 Click on objects in scene to edit them using the Sidebar.
 
 The first row of arrows in the sidebar translates the clicked object, the second rotates, the third scales.
