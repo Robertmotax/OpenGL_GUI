@@ -3,6 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
+class LightSource;
 RenderableObjectStatic::RenderableObjectStatic(const std::vector<Tri>& triangles, Shader* shader)
     : RenderableObjectBase(triangles, shader)
 {
