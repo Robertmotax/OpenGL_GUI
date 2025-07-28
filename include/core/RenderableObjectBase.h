@@ -35,7 +35,8 @@ public:
     glm::vec3 scale = glm::vec3(1.0f);
 
     glm::mat4 getModelMatrix() const {
-        glm::mat4 model = glm::mat4(1.0f);
+        //glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 model = getFullModelMatrix();
 
         // Translate
         model = glm::translate(model, position);

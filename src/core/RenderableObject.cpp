@@ -166,11 +166,12 @@ void RenderableObject::setParent(RenderableObject* newParent)
 void RenderableObject::updateSelfAndChildren() {
     // Compute world transform
     if (parent) {
-        model = parent->getFullModelMatrix() * localTransform;  // World = ParentWorld * Local
+        model = parent->getModelMatrix() * localTransform;  // World = ParentWorld * Local
     } else {
-        model = localTransform;
+        model = getModelMatrix();
     }
 
+    // setPosition(glm::vec3(model[3]));
     // Update children recursively
     for (RenderableObject* child : children) {
         child->updateSelfAndChildren();

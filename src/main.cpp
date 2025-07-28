@@ -38,8 +38,8 @@ glm::mat4 viewProjInverse;
 
 std::vector<RenderableObject*> sceneObjects;
 std::vector<RenderableObject*> animatedBalls;
-// std::vector<float> ballAngles; // angle (radians) for each orbiting ball
-// std::vector<glm::vec3> ballOrbitCenters; //orbiting the center of the triangle correlated with the original triangle
+std::vector<float> ballAngles; // angle (radians) for each orbiting ball
+std::vector<float> ballRadius; //orbiting the center of the triangle correlated with the original triangle
 
 Sidebar *sidebar;
 
@@ -217,16 +217,10 @@ int main() {
         ball->setPosition(glm::vec3(-8.0f + i, 0.4f, z));
         ball->setParent(obj1); // Set initial orbit center to initial original position related to the triangle
 
-        float angle = glm::radians((float)(rand() % 360)); // random start angle
-        float radius = 3.0f + (i * 0.5f); // radius of the spherical ball
+        ballAngles.push_back(glm::radians((float)(rand() % 360))); // random start angle
+        ballRadius.push_back(3.0f + (i * 0.5f)); // radius of the spherical ball
 
-        // Local orbit transform: rotate then translate by radius
-        glm::mat4 localTransform = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0,1,0));
-        localTransform = glm::translate(localTransform, glm::vec3(radius, 0.2f, 0.0f));
-        ball->setLocalTransform(localTransform);
-
-        sceneObjects.push_back(ball);
-        animatedBalls.push_back(ball);
+        sceneObjects.push_back(ball); animatedBalls.push_back(ball);
     }
     sceneObjects.push_back(floorObj);
 
@@ -335,24 +329,26 @@ int main() {
             glUniform1i(glGetUniformLocation(shader.getID(), (prefix + ".shadowMap").c_str()), 1 + i);
         }
 
+        // Animate the ball like an orbit solar system
+        for (int i = 0; i < (int)animatedBalls.size(); ++i) {
+            ballAngles[i] += deltaTime * 0.5f; //0.5f is the speed
+
+            float maxRadius = 9.99f; // ensure it doesnt go past the vicinity of the cube
+            ballRadius[i] = std::min(maxRadius, 3.0f + (i * 0.5f));
+            // Local orbit transform: rotate then translate by radius
+            glm::mat4 orbit = glm::rotate(glm::mat4(1.0f), ballAngles[i], glm::vec3(0, 1, 0));
+            orbit = glm::translate(orbit, glm::vec3(ballRadius[i], 0.2f, 0.0f));
+            //set new local transforma for children class
+            animatedBalls[i]->setLocalTransform(orbit);
+        }
+        obj1->updateSelfAndChildren();
+
+
         // Render all objects
         for (auto* obj : sceneObjects)
             obj->draw(viewProj, lights);
 
         sidebar->render();
-
-        // Animate the ball like an orbit solar system
-        for (int i = 0; i < (int)animatedBalls.size(); ++i) {
-            float speed = 0.5f;
-            static std::vector<float> angles(animatedBalls.size(), 0.0f);
-            angles[i] += deltaTime * speed;
-
-            float radius = 3.0f + (i * 0.5f);
-            glm::mat4 localTransform = glm::rotate(glm::mat4(1.0f), angles[i], glm::vec3(0, 1, 0));
-            localTransform = glm::translate(localTransform, glm::vec3(radius, 0.2f, 0.0f));
-            animatedBalls[i]->setLocalTransform(localTransform);
-        }
-        obj1->updateSelfAndChildren();
 
         // 7. Events
         glfwSwapBuffers(window);

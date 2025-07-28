@@ -32,7 +32,7 @@ void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int act
                     }
 
                     //Mainly for non-static 
-                    if (dist < closestDistance && !uiClick) {
+                    if (dist < closestDistance && !uiClick && obj->isDraggable()) {
                         closestDistance = dist;
                         if(auto* sceneObj = dynamic_cast<RenderableObject*>(obj)) {
                             closestObject = sceneObj;
