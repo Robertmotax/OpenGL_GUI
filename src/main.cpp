@@ -123,79 +123,7 @@ int main() {
 
     // minimalistic floor design to represent the ground
     //requires 12 triangles for 6 squares for 36 vertices
-    std::vector<Tri> floor;
-
-    floor.emplace_back(
-        Vertex{{ 10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}     // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{-10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}    // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{ 10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{ 10.0f, 0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f, 0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f,  0.0f,  -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{-10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{-10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{ 10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 10.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f,  0.0f, -10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
-    );
-
-    floor.emplace_back(
-        Vertex{{ 10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{ 10.0f,  0.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},   // Dark Gray
-        Vertex{{-10.0f, 10.0f,  10.0f}, {0.2f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}   // Dark Gray
-    );
+    std::vector<Tri> floor = makeCube(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.3f, 0.3f, 0.3f), true);
 
     //All possible tiles for the UI sidebar for texture selection for floor design
     std::vector<LightSource> lights = {
@@ -235,7 +163,6 @@ int main() {
 
     // Set GLFW mouse callback to a lambda that calls your handler
     glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
-        // Retrieve the MouseClickHandler pointer stored as GLFW user pointer
         MouseClickHandler* handler = static_cast<MouseClickHandler*>(glfwGetWindowUserPointer(window));
         if (handler)
             handler->handleMouseClick(window, button, action, mods);

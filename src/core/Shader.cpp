@@ -152,13 +152,13 @@ const char* Shader::loadShaderSource(const char* filepath) {
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
 
-    char* buffer = new char[size + 1]; // +1 for null terminator
+    char* buffer = new char[size + 1];
     if (!file.read(buffer, size)) {
         std::cerr << "Failed to read shader file: " << filepath << std::endl;
         delete[] buffer;
         return nullptr;
     }
 
-    buffer[size] = '\0'; // Null-terminate
-    return buffer; // Caller must delete[]
+    buffer[size] = '\0'; 
+    return buffer;
 }

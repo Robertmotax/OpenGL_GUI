@@ -44,5 +44,14 @@ void main() {
         lighting += (1.0 - shadow) * diff * light;
     }
 
+<<<<<<< Updated upstream
     FragColor = vec4(baseColor * lighting, 1.0);
+=======
+    if(uUseTexture)
+    {
+        FragColor = vec4(baseColor * lighting, 1.0);
+        return;
+    }
+    FragColor = vec4(ambient + baseColor * lighting, 1.0);
+>>>>>>> Stashed changes
 }

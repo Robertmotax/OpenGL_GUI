@@ -97,7 +97,6 @@ bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int w
     glm::vec3 rayOrigin, rayDir;
     RayPicker::getInstance().screenPosToWorldRay(mouseX, mouseY, winWidth, winHeight, rayOrigin, rayDir);
     
-    //modify distance helper -- returns boolean
     return isRayIntersecting(rayOrigin, rayDir, outDistance);
 }
 
@@ -171,7 +170,6 @@ void RenderableObject::updateSelfAndChildren() {
         model = localTransform;
     }
 
-    // setPosition(glm::vec3(model[3]));
     // Update children recursively
     for (RenderableObject* child : children) {
         child->updateSelfAndChildren();
