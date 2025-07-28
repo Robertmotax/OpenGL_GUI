@@ -152,3 +152,39 @@ inline bool rayIntersectsAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDi
     tHit = tMin; //closest
     return true;
 }
+
+// Generate a cube RenderableObject
+inline std::vector<Tri> makeCube(const glm::vec3& scale, const glm::vec3& color) {
+    std::vector<Tri> cube;
+
+    auto V = [&](glm::vec3 p) -> Vertex {
+        glm::vec3 pos = p * scale;
+        return Vertex{ pos, color, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+    };
+
+    // Front face
+    cube.emplace_back(V({-0.5f, -0.5f,  0.5f}), V({ 0.5f, -0.5f,  0.5f}), V({ 0.5f,  0.5f,  0.5f}));
+    cube.emplace_back(V({-0.5f, -0.5f,  0.5f}), V({ 0.5f,  0.5f,  0.5f}), V({-0.5f,  0.5f,  0.5f}));
+
+    // Back face
+    cube.emplace_back(V({ 0.5f, -0.5f, -0.5f}), V({-0.5f, -0.5f, -0.5f}), V({-0.5f,  0.5f, -0.5f}));
+    cube.emplace_back(V({ 0.5f, -0.5f, -0.5f}), V({-0.5f,  0.5f, -0.5f}), V({ 0.5f,  0.5f, -0.5f}));
+
+    // Left face
+    cube.emplace_back(V({-0.5f, -0.5f, -0.5f}), V({-0.5f, -0.5f,  0.5f}), V({-0.5f,  0.5f,  0.5f}));
+    cube.emplace_back(V({-0.5f, -0.5f, -0.5f}), V({-0.5f,  0.5f,  0.5f}), V({-0.5f,  0.5f, -0.5f}));
+
+    // Right face
+    cube.emplace_back(V({ 0.5f, -0.5f,  0.5f}), V({ 0.5f, -0.5f, -0.5f}), V({ 0.5f,  0.5f, -0.5f}));
+    cube.emplace_back(V({ 0.5f, -0.5f,  0.5f}), V({ 0.5f,  0.5f, -0.5f}), V({ 0.5f,  0.5f,  0.5f}));
+
+    // Top face
+    cube.emplace_back(V({-0.5f,  0.5f,  0.5f}), V({ 0.5f,  0.5f,  0.5f}), V({ 0.5f,  0.5f, -0.5f}));
+    cube.emplace_back(V({-0.5f,  0.5f,  0.5f}), V({ 0.5f,  0.5f, -0.5f}), V({-0.5f,  0.5f, -0.5f}));
+
+    // Bottom face
+    cube.emplace_back(V({-0.5f, -0.5f, -0.5f}), V({ 0.5f, -0.5f, -0.5f}), V({ 0.5f, -0.5f,  0.5f}));
+    cube.emplace_back(V({-0.5f, -0.5f, -0.5f}), V({ 0.5f, -0.5f,  0.5f}), V({-0.5f, -0.5f,  0.5f}));
+
+    return cube;
+}

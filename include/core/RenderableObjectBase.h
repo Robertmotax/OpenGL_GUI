@@ -12,6 +12,7 @@
 #include "core/LightSource.h"
 #include <string>
 
+class LightSource;
 class RenderableObjectBase {
 public:
     RenderableObjectBase(const std::vector<Tri>& triangles, Shader* shader);

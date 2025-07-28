@@ -2,16 +2,19 @@
 #include <glm/gtx/string_cast.hpp>
 #include <singleton/RayPicker.h>
 #include "core/RenderableObject.h"
+#include "core/LightSource.h"
 #include <iostream>
 #include "core/Vertex.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
 #include "core/util.h"
 
-RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* shader, Shader* shaderShadow)
+class LightSource;
+RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* shader, Shader* shaderShadow, bool unlit)
     : RenderableObjectBase(triangles, shader)
 {
     this->shaderShadow = shaderShadow;
+    isUnlit = unlit;
 }
 
 void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const {
@@ -31,25 +34,31 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
     } else {
         glUniform1i(glGetUniformLocation(shaderID, "uUseTexture"), 0);
     }
-
-    // --- Shadow cubemap lights ---
-    glUniform1i(glGetUniformLocation(shaderID, "uNumLights"), (int)lights.size());
+    glUniform1i(glGetUniformLocation(shaderID, "uIsUnlit"), isUnlit ? 1 : 0);
     
     // Start from stored position
     glm::mat4 modelTransformed = glm::translate(model, position);
 
-    for (int i = 0; i < (int)lights.size(); ++i) {
-        const LightSource& light = lights[i];
+    // --- Shadow cubemap lights ---
+    if (!isUnlit)
+    {
+        glUniform1i(glGetUniformLocation(shaderID, "uNumLights"), (int)lights.size());
 
-        std::string idx = std::to_string(i);
-        glUniform3fv(glGetUniformLocation(shaderID, ("lightPositions[" + idx + "]").c_str()), 1, glm::value_ptr(light.position));
-        glUniform3fv(glGetUniformLocation(shaderID, ("lightColors[" + idx + "]").c_str()), 1, glm::value_ptr(light.color));
-        glUniform1f(glGetUniformLocation(shaderID, ("lightIntensities[" + idx + "]").c_str()), light.intensity);
-        glUniform1f(glGetUniformLocation(shaderID, ("farPlanes[" + idx + "]").c_str()), light.farPlane);
+        for (int i = 0; i < (int)lights.size(); ++i) {
+            const LightSource& light = lights[i];
+            std::string idx = std::to_string(light.id);
 
-        glActiveTexture(GL_TEXTURE1 + i);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, light.shadowCubemap);
-        glUniform1i(glGetUniformLocation(shaderID, ("shadowMaps[" + idx + "]").c_str()), 1 + i);
+            glUniform3fv(glGetUniformLocation(shaderID, ("lightPositions[" + idx + "]").c_str()), 1, glm::value_ptr(*light.position));
+            glUniform3fv(glGetUniformLocation(shaderID, ("lightColors[" + idx + "]").c_str()), 1, glm::value_ptr(*light.color));
+            glUniform1f(glGetUniformLocation(shaderID, ("lightIntensities[" + idx + "]").c_str()), length(*light.intensity));
+            glUniform1f(glGetUniformLocation(shaderID, ("farPlanes[" + idx + "]").c_str()), light.farPlane);
+
+            glActiveTexture(GL_TEXTURE1 + i);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, light.getShadowCubemap());
+            glUniform1i(glGetUniformLocation(shaderID, ("shadowMaps[" + idx + "]").c_str()), 1 + i);
+        }
+    } else {
+        glUniform1i(glGetUniformLocation(shaderID, "uNumLights"), 0);
     }
 
     glBindVertexArray(vao);

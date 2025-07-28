@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderableObjectBase.h"
 
+class LightSource;
 class RenderableObjectStatic : public RenderableObjectBase {
 public:
     RenderableObjectStatic(const std::vector<Tri> &triangles, Shader *shader);

@@ -29,6 +29,11 @@ void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int act
                             closestObject = staticObj;
                             uiClick = true;
                         }
+                        else if(!uiClick)
+                        {
+                            closestObject = staticObj;
+                            uiClick = true;
+                        }
                     }
 
                     //Mainly for non-static 
@@ -75,7 +80,6 @@ void MouseClickHandler::handleMouseMove(GLFWwindow* window, double xpos, double 
         selectedDraggableObject->setPosition(hitPoint);
     }
 }
-
 
 void MouseClickHandler::setSelectedDraggableObject(RenderableObject* object) 
 {
