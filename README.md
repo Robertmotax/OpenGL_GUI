@@ -3,7 +3,7 @@
 Built using only OpenGL and the necessary libraries (GLFW, GLEW, GLM, and stb_image.h), this project is a C++ OpenGL application. 
 It has the following features:
 - An interactive 3D camera that uses arrow keys and WASD
-A modular shader system for real-time rendering; basic GUI integration (e.g., FPS, debug info display)
+A modular shader system for real-time rendering; basic GUI integration for vertex movement directly to the user
 Texture support (via stb_image)
 The lighting system, which includes point, directional, and ambient lights
 Rendering of custom objects (floor, cubes, etc.)
@@ -14,13 +14,17 @@ The camera allows free movement and rotation within the 3D scene using the keybo
 
 Movement:
 
+Mouse displacement: allows to move left to right and "forward-backward" by moving mouse up and down.
+
+
 W – Move forward
 S – Move backward
 A – Move left (strafe)
 D – Move right (strafe)
 
-Space – Move up
-Left Shift – Move down
+Space – Move up (positive y-axis)
+Left Shift – Move down (negative y - axis)
+ALT - increase cameraSpeed
 
 Rotation:
 
