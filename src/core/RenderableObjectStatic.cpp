@@ -3,6 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
+class LightSource;
 RenderableObjectStatic::RenderableObjectStatic(const std::vector<Tri>& triangles, Shader* shader)
     : RenderableObjectBase(triangles, shader)
 {
@@ -17,8 +18,8 @@ RenderableObjectStatic::RenderableObjectStatic(const std::vector<Tri>& triangles
 }
 
 void RenderableObjectStatic::draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const {
-    glDisable(GL_DEPTH_TEST);    // Ignore depth test
-    glDepthMask(GL_FALSE);       // Prevent writing to depth buffer
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
 
     shader->use();
 
@@ -27,7 +28,7 @@ void RenderableObjectStatic::draw(const glm::mat4& viewProj, const std::vector<L
 
     // Set up texture if enabled and available
     if (useTexture && texture) {
-        texture->useTexture(); // bind only when required
+        texture->useTexture();
         glUniform1i(textureSamplerLocation, 0);
     }
 
@@ -50,7 +51,7 @@ bool RenderableObjectStatic::isClicked(float mouseX, float mouseY, int winWidth,
 {
     // Convert mouse coordinates to NDC
     float x_ndc = (2.0f * mouseX) / winWidth - 1.0f;
-    float y_ndc = 1.0f - (2.0f * mouseY) / winHeight; // Invert Y
+    float y_ndc = 1.0f - (2.0f * mouseY) / winHeight;
     glm::vec2 p(x_ndc, y_ndc);
 
     // //Debug output

@@ -29,6 +29,11 @@ void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int act
                             closestObject = staticObj;
                             uiClick = true;
                         }
+                        else if(!uiClick)
+                        {
+                            closestObject = staticObj;
+                            uiClick = true;
+                        }
                     }
 
                     //Mainly for non-static 
@@ -69,13 +74,12 @@ void MouseClickHandler::handleMouseMove(GLFWwindow* window, double xpos, double 
 
     glm::vec3 hitPoint;
     glm::vec3 objectPos = selectedDraggableObject->getPosition();
-    glm::vec3 cameraForward = glm::normalize(camera->getCameraFront() - camera->getPosition()); // Assuming you have camera access
+    glm::vec3 cameraForward = glm::normalize(camera->getCameraFront() - camera->getPosition());
 
     if (RayPicker::getInstance().intersectPlane(rayOrigin, rayDir, objectPos, cameraForward, hitPoint)) {
         selectedDraggableObject->setPosition(hitPoint);
     }
 }
-
 
 void MouseClickHandler::setSelectedDraggableObject(RenderableObject* object) 
 {

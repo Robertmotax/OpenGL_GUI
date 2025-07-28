@@ -37,9 +37,6 @@ inline float computeDeltaTime() {
 /**
  * * Helper function to create a tile for the UI sidebar.
  */
-/**
- * Helper function to create a UI tile with customizable bounds and UVs.
- */
 inline auto makeTile = [](float left, float right, float top, float bottom, float z, glm::vec3 color) -> std::vector<Tri> {
     return {
         Tri{
@@ -88,8 +85,8 @@ inline std::vector<Tri> generateSphericalBalls(float radius, int segments, int r
             glm::vec2 uv3 = glm::vec2((float)(j + 1) / segments, (float)(i + 1) / rings);
             glm::vec2 uv4 = glm::vec2((float)j / segments, (float)(i + 1) / rings);
 
-            tris.emplace_back(Vertex{p1, color, uv1}, Vertex{p2, color, uv2}, Vertex{p3, color, uv3});
-            tris.emplace_back(Vertex{p1, color, uv1}, Vertex{p3, color, uv3}, Vertex{p4, color, uv4});
+            tris.emplace_back(Vertex{p2, color, uv2}, Vertex{p1, color, uv1}, Vertex{p3, color, uv3});
+            tris.emplace_back(Vertex{p3, color, uv3}, Vertex{p1, color, uv1}, Vertex{p4, color, uv4});
         }
     }
     return tris;
@@ -151,4 +148,68 @@ inline bool rayIntersectsAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDi
 
     tHit = tMin; //closest
     return true;
+}
+
+// Generate a cube RenderableObject
+inline std::vector<Tri> makeCube(const glm::vec3& scale, const glm::vec3& color, bool inv = false) {
+    std::vector<Tri> cube;
+
+    auto V = [&](glm::vec3 p) -> Vertex {
+        glm::vec3 pos = p * scale;
+        return Vertex{ pos, color, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+    };
+
+    if(!inv)
+    {
+        // Front face
+        cube.emplace_back(V({-0.5f, -0.5f,  0.5f}), V({ 0.5f, -0.5f,  0.5f}), V({ 0.5f,  0.5f,  0.5f}));
+        cube.emplace_back(V({-0.5f, -0.5f,  0.5f}), V({ 0.5f,  0.5f,  0.5f}), V({-0.5f,  0.5f,  0.5f}));
+
+        // Back face
+        cube.emplace_back(V({ 0.5f, -0.5f, -0.5f}), V({-0.5f, -0.5f, -0.5f}), V({-0.5f,  0.5f, -0.5f}));
+        cube.emplace_back(V({ 0.5f, -0.5f, -0.5f}), V({-0.5f,  0.5f, -0.5f}), V({ 0.5f,  0.5f, -0.5f}));
+
+        // Left face
+        cube.emplace_back(V({-0.5f, -0.5f, -0.5f}), V({-0.5f, -0.5f,  0.5f}), V({-0.5f,  0.5f,  0.5f}));
+        cube.emplace_back(V({-0.5f, -0.5f, -0.5f}), V({-0.5f,  0.5f,  0.5f}), V({-0.5f,  0.5f, -0.5f}));
+
+        // Right face
+        cube.emplace_back(V({ 0.5f, -0.5f,  0.5f}), V({ 0.5f, -0.5f, -0.5f}), V({ 0.5f,  0.5f, -0.5f}));
+        cube.emplace_back(V({ 0.5f, -0.5f,  0.5f}), V({ 0.5f,  0.5f, -0.5f}), V({ 0.5f,  0.5f,  0.5f}));
+
+        // Top face
+        cube.emplace_back(V({-0.5f,  0.5f,  0.5f}), V({ 0.5f,  0.5f,  0.5f}), V({ 0.5f,  0.5f, -0.5f}));
+        cube.emplace_back(V({-0.5f,  0.5f,  0.5f}), V({ 0.5f,  0.5f, -0.5f}), V({-0.5f,  0.5f, -0.5f}));
+
+        // Bottom face
+        cube.emplace_back(V({-0.5f, -0.5f, -0.5f}), V({ 0.5f, -0.5f, -0.5f}), V({ 0.5f, -0.5f,  0.5f}));
+        cube.emplace_back(V({-0.5f, -0.5f, -0.5f}), V({ 0.5f, -0.5f,  0.5f}), V({-0.5f, -0.5f,  0.5f}));
+    }
+    else{
+        // Front face
+        cube.emplace_back(V({ 0.5f, -0.5f,  0.5f}), V({-0.5f, -0.5f,  0.5f}), V({ 0.5f,  0.5f,  0.5f}));
+        cube.emplace_back(V({ 0.5f,  0.5f,  0.5f}), V({-0.5f, -0.5f,  0.5f}), V({-0.5f,  0.5f,  0.5f}));
+
+        // Back face
+        cube.emplace_back(V({-0.5f, -0.5f, -0.5f}), V({ 0.5f, -0.5f, -0.5f}), V({-0.5f,  0.5f, -0.5f}));
+        cube.emplace_back(V({-0.5f,  0.5f, -0.5f}), V({ 0.5f, -0.5f, -0.5f}), V({ 0.5f,  0.5f, -0.5f}));
+
+        // Left face
+        cube.emplace_back(V({-0.5f, -0.5f,  0.5f}), V({-0.5f, -0.5f, -0.5f}), V({-0.5f,  0.5f,  0.5f}));
+        cube.emplace_back(V({-0.5f,  0.5f,  0.5f}), V({-0.5f, -0.5f, -0.5f}), V({-0.5f,  0.5f, -0.5f}));
+
+        // Right face
+        cube.emplace_back(V({ 0.5f, -0.5f, -0.5f}), V({ 0.5f, -0.5f,  0.5f}),  V({ 0.5f,  0.5f, -0.5f}));
+        cube.emplace_back(V({ 0.5f,  0.5f, -0.5f}), V({ 0.5f, -0.5f,  0.5f}), V({ 0.5f,  0.5f,  0.5f}));
+
+        // Top face
+        cube.emplace_back(V({ 0.5f,  0.5f,  0.5f}), V({-0.5f,  0.5f,  0.5f}),  V({ 0.5f,  0.5f, -0.5f}));
+        cube.emplace_back(V({ 0.5f,  0.5f, -0.5f}), V({-0.5f,  0.5f,  0.5f}), V({-0.5f,  0.5f, -0.5f}));
+
+        // Bottom face
+        cube.emplace_back(V({ 0.5f, -0.5f, -0.5f}), V({-0.5f, -0.5f, -0.5f}), V({ 0.5f, -0.5f,  0.5f}));
+        cube.emplace_back(V({ 0.5f, -0.5f,  0.5f}), V({-0.5f, -0.5f, -0.5f}), V({-0.5f, -0.5f,  0.5f}));
+    }
+
+    return cube;
 }

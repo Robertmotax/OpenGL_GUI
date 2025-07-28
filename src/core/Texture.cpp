@@ -53,8 +53,6 @@ void Texture::loadTexture()
     else if (bitDepth == 4)
         format = GL_RGBA;
 
-	//border-parameter is legacy value
-	//byte is basically char but byte is 8-bit, char is 1-bit.
 	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, texData);
 	glGenerateMipmap(GL_TEXTURE_2D);
 

@@ -45,7 +45,7 @@ RenderableObjectBase::~RenderableObjectBase() {
 }
 
 void RenderableObjectBase::setTexture(Texture* texture) {
-    this->texture = texture; // Store the texture for later use
+    this->texture = texture;
 }
 
 void RenderableObjectBase::enableTexture(bool enable) {
