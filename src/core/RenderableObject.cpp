@@ -153,3 +153,27 @@ bool RenderableObject::isRayIntersecting(const glm::vec3& rayOrigin, const glm::
 
     return hit;
 }
+
+
+//Hierarchical Modelling function
+void RenderableObject::setParent(RenderableObject* newParent) 
+{
+    parent = newParent;
+    if (parent) parent->children.push_back(this);
+}
+
+
+void RenderableObject::updateSelfAndChildren() {
+    // Compute world transform
+    if (parent) {
+        model = parent->getModelMatrix() * localTransform;  // World = ParentWorld * Local
+    } else {
+        model = localTransform;
+    }
+
+    // setPosition(glm::vec3(model[3]));
+    // Update children recursively
+    for (RenderableObject* child : children) {
+        child->updateSelfAndChildren();
+    }
+}
