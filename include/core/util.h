@@ -88,8 +88,8 @@ inline std::vector<Tri> generateSphericalBalls(float radius, int segments, int r
             glm::vec2 uv3 = glm::vec2((float)(j + 1) / segments, (float)(i + 1) / rings);
             glm::vec2 uv4 = glm::vec2((float)j / segments, (float)(i + 1) / rings);
 
-            tris.emplace_back(Vertex{p1, color, uv1}, Vertex{p2, color, uv2}, Vertex{p3, color, uv3});
-            tris.emplace_back(Vertex{p1, color, uv1}, Vertex{p3, color, uv3}, Vertex{p4, color, uv4});
+            tris.emplace_back(Vertex{p2, color, uv2}, Vertex{p1, color, uv1}, Vertex{p3, color, uv3});
+            tris.emplace_back(Vertex{p3, color, uv3}, Vertex{p1, color, uv1}, Vertex{p4, color, uv4});
         }
     }
     return tris;
