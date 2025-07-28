@@ -8,6 +8,7 @@ in vec2 TexCoord;
 out vec4 FragColor;
 
 uniform bool uUseTexture;
+uniform bool uIsUnlit;
 layout(binding = 0) uniform sampler2D uTexture;
 
 uniform int uNumLights;
@@ -29,9 +30,15 @@ float ShadowCalculation(samplerCube shadowMap, vec3 fragPos, vec3 lightPos, floa
 void main() {
     vec3 norm = normalize(Normal);
     vec3 baseColor = Color;
+    vec3 ambient = 0.05 * baseColor;
 
     if (uUseTexture) {
         baseColor = texture(uTexture, TexCoord).rgb;
+    }
+
+    if (uIsUnlit) {
+        FragColor = vec4(baseColor, 1.0);
+        return;
     }
 
     vec3 lighting = vec3(0.0);
@@ -44,5 +51,5 @@ void main() {
         lighting += (1.0 - shadow) * diff * light;
     }
 
-    FragColor = vec4(baseColor * lighting, 1.0);
+    FragColor = vec4(ambient + baseColor * lighting, 1.0);
 }
