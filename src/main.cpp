@@ -38,7 +38,9 @@ glm::mat4 viewProjInverse;
 
 std::vector<RenderableObject*> sceneObjects;
 std::vector<RenderableObject*> animatedBalls;
-std::vector<float> ballDirections;
+std::vector<float> ballAngles; // angle (radians) for each orbiting ball
+std::vector<glm::vec3> ballOrbitCenters; //orbiting the center of the triangle correlated with the original triangle
+
 Sidebar *sidebar;
 
 
@@ -213,11 +215,12 @@ int main() {
         auto* ball = new RenderableObject(generateSphericalBalls(0.45f, 16, 12), &shader, &shaderShadow);
         ball->setName("ball " + std::to_string(i));
         ball->setPosition(glm::vec3(-8.0f + i, 0.4f, z));
+        // Set initial orbit center to initial original position related to the triangle
+        ballOrbitCenters.push_back(glm::vec3(-8.0f + i, 0.4f, z) - obj1->getPosition());
 
         sceneObjects.push_back(ball);
         animatedBalls.push_back(ball);
-        // Alternate directions: even = +1 (left->right), odd = -1 (right->left)
-        ballDirections.push_back((i % 2 == 0) ? 1.0f : -1.0f);
+        ballAngles.push_back(glm::radians((float)(rand() % 360))); // random start angle
     }
     sceneObjects.push_back(floorObj);
 
@@ -332,24 +335,25 @@ int main() {
 
         sidebar->render();
 
-        // Animate balls moving left to right and right-to-left
-        // Enable them in zigzag pattern
+        // Animate the ball like an orbit solar system
         for (int i = 0; i < (int)animatedBalls.size(); ++i) {
-            glm::vec3 pos = animatedBalls[i]->getPosition();
+            glm::mat4 parentModel = glm::translate(glm::mat4(1.0f), obj1->getPosition()); //translation with the parent
 
-            pos.x += deltaTime * 1.5f * ballDirections[i]; // move in current direction
+            // increment angle
+            ballAngles[i] += deltaTime * 0.5f; // control speed of the orbiting
+            // set orbit radius
+            float maxRadius = 9.9f; //ensure that it doesn't go outside the "cube box" 
+            float radius = std::min(maxRadius, 3.0f + (i * 0.5f));
 
-            // Check boundaries and flip direction if needed
-            if (pos.x > 10.0f) {
-                pos.x = 10.0f;           // clamp position at boundary
-                ballDirections[i] = -1;  // flip direction to left
-            }
-            else if (pos.x < -10.0f) {
-                pos.x = -10.0f;
-                ballDirections[i] = 1;   // flip direction to right
-            }
+            // Local orbit transform: rotate then translate by radius
+            glm::mat4 localOrbit = glm::rotate(glm::mat4(1.0f), ballAngles[i], glm::vec3(0,1,0));
+            localOrbit = glm::translate(localOrbit, glm::vec3(radius, 0.2f, 0));
+            // Ball world transform = parent transform * local orbit transform
+            glm::mat4 ballWorldTransform = parentModel * localOrbit;
 
-            animatedBalls[i]->setPosition(pos);
+            // Extract position from the transform matrix (4th column)
+            glm::vec3 ballPos = glm::vec3(ballWorldTransform[3]);
+            animatedBalls[i]->setPosition(ballPos); //set new position adjustment
         }
 
         // 7. Events
