@@ -1,6 +1,6 @@
 ## Author
 
-**Marcus Sharma Student ID:**
+**Marcus Sharma Student ID:40240069**
 
 **Robert Chen Student ID:40241709**  
 
@@ -50,6 +50,17 @@ Down Arrow – Look down (decrease pitch)
 
 Exit:
 Escape – Close the application window
+
+Interaction:
+Click on objects in scene to edit them using the Sidebar.
+
+The first row of arrows in the sidebar translates the clicked object, the second rotates, the third scales.
+
+Additionally you can manipulate textures by selecting a texture in the sidebar.
+
+Lights are represented as cubes, the rotation manipulates their color and scale manipulates their intensity.
+
+You can drag objects to move them around the scene aswell.
 
 Additional Notes
 The camera's pitch is clamped between -89° and +89° to prevent flipping.
