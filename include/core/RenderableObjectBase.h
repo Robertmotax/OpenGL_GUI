@@ -36,7 +36,8 @@ public:
     glm::vec3 scale = glm::vec3(1.0f);
 
     glm::mat4 getModelMatrix() const {
-        glm::mat4 model = glm::mat4(1.0f);
+        //glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 model = getFullModelMatrix();
 
         // Translate
         model = glm::translate(model, position);
@@ -58,7 +59,8 @@ public:
     void setName(const std::string objName) { name = objName; }
     std::string getName() const { return name; }
 
-    // Set the model matrix for transformations
+    // Get/Set the model matrix for transformations
+    glm::mat4 getFullModelMatrix() const { return model; }
     void setModelMatrix(const glm::mat4& mat) { model = mat; }
 
     
