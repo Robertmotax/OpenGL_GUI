@@ -12,7 +12,18 @@ class RenderableObject : public RenderableObjectBase {
         // Draggable by the mouse click handler and move it according to the mouse position
         bool isDraggable() const override { return true; }  // default: draggable
 
+        //Hierarchical Modelling function 
+        void setParent(RenderableObject* newParent);
+        glm::mat4 getLocalTransform() const { return localTransform; }
+        void setLocalTransform(const glm::mat4& localT) { localTransform = localT; }
+        void updateSelfAndChildren();
+
     private:
         Shader *shaderShadow;
+
+        // Hierarchical Modelling
+        RenderableObject* parent = nullptr;
+        std::vector<RenderableObject*> children;
+        glm::mat4 localTransform = glm::mat4(1.0f);
 
 };

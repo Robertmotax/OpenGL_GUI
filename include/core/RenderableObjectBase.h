@@ -57,7 +57,8 @@ public:
     void setName(const std::string objName) { name = objName; }
     std::string getName() const { return name; }
 
-    // Set the model matrix for transformations
+    // Get/Set the model matrix for transformations
+    glm::mat4 getFullModelMatrix() const { return model; }
     void setModelMatrix(const glm::mat4& mat) { model = mat; }
 
     
