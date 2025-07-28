@@ -1,5 +1,6 @@
 // Sidebar.cpp
 #include "ui/Sidebar.h"
+#include "Globals.h"
 #include "core/util.h"
 #include "core/Texture.h"
 #include <GL/glew.h>
@@ -9,9 +10,15 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-Sidebar::Sidebar() 
+Sidebar::Sidebar() {}
+
+Sidebar::~Sidebar() {}
+
+Sidebar::Sidebar(Shader* shaderShadows)
 {
     shaderUI = new Shader(vertexPathUI, fragmentPathUI);
+    shaderShadow = shaderShadows;
+
     //Set the background of the side pannel
     std::vector<Tri> sidebar;
     sidebar.emplace_back(
@@ -295,6 +302,33 @@ Sidebar::Sidebar()
     });
     uiElements.push_back(noTextureButton);
 
+    // Spawn Cube Button
+    std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(-0.95f, -0.9f), glm::vec2(0.2f, 0.08f), glm::vec3(0.2f, 0.6f, 1.0f));
+    RenderableObjectStatic* spawnCubeButton = new RenderableObjectStatic(spawnCubeTris, shaderUI);
+    spawnCubeButton->position = glm::vec3(-0.8f, -0.3f, 0.1f);
+
+            // Set onClick to spawn a random cube
+    spawnCubeButton->setOnClick([this]() {
+        float randX = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
+        float randY = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
+        float randZ = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
+
+        glm::vec3 pos(randX, randY, randZ);
+        glm::vec3 color(static_cast<float>(rand()) / RAND_MAX, 
+                        static_cast<float>(rand()) / RAND_MAX, 
+                        static_cast<float>(rand()) / RAND_MAX);
+
+        std::vector<Tri> cube = generateCubeTris(0.2f, color);
+        RenderableObject* cubeObj = new RenderableObject(cube, shaderUI, shaderShadow);
+        cubeObj->position = pos;
+
+        sceneObjects.push_back(cubeObj); // add it to the vector such that we can draw it
+
+        std::cout << "Spawned a cube at " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
+    });
+
+    // Add the newly made Button to UI elements
+    uiElements.push_back(spawnCubeButton);
 }
 
 void Sidebar::setSelectedObject(RenderableObject* obj) {

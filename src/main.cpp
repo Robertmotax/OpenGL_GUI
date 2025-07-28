@@ -1,6 +1,7 @@
 // include necessary headers
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "Globals.h"
 #include "core/util.h"
 #include "core/Shader.h"
 #include "core/RenderableObject.h"
@@ -26,7 +27,6 @@
 #include "../external/stb_image.h"
 #include <ui/Sidebar.h>
 
-
 const char* vertexPath = "shaders/main.vert";
 const char* fragmentPath = "shaders/main.frag";
 const char* vertexPathShadow = "shaders/shadow.vert";
@@ -36,8 +36,7 @@ const char* fragmentPathShadow = "shaders/shadow.frag";
 glm::mat4 viewProj;
 glm::mat4 viewProjInverse;
 
-std::vector<RenderableObject*> sceneObjects;
-std::vector<RenderableObject*> animatedBalls;
+// See Globals.h/.cpp -- ballAngles and radius are connected with animatedBalls
 std::vector<float> ballAngles; // angle (radians) for each orbiting ball
 std::vector<float> ballRadius; //orbiting the center of the triangle correlated with the original triangle
 
@@ -224,7 +223,7 @@ int main() {
     }
     sceneObjects.push_back(floorObj);
 
-    sidebar = new Sidebar();
+    sidebar = new Sidebar(&shaderShadow);
 
     std::vector<RenderableObjectBase*> allObjects;
     allObjects.insert(allObjects.end(), sceneObjects.begin(), sceneObjects.end());
