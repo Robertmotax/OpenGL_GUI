@@ -311,19 +311,25 @@ Sidebar::Sidebar(Shader* shaderShadows)
     spawnCubeButton->setOnClick([this]() {
         float randX = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
         float randY = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
-        float randZ = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
+        // float randZ = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
+        float randZ = 0.2f;    
 
         glm::vec3 pos(randX, randY, randZ);
-        glm::vec3 color(static_cast<float>(rand()) / RAND_MAX, 
-                        static_cast<float>(rand()) / RAND_MAX, 
+        glm::vec3 color(static_cast<float>(rand()) / RAND_MAX, //create random color cubes for fun
+                        static_cast<float>(rand()) / RAND_MAX,  //we can remove and make it all gray later
                         static_cast<float>(rand()) / RAND_MAX);
 
         std::vector<Tri> cube = generateCubeTris(0.2f, color);
         RenderableObject* cubeObj = new RenderableObject(cube, shaderUI, shaderShadow);
         cubeObj->position = pos;
 
-        sceneObjects.push_back(cubeObj); // add it to the vector such that we can draw it
+        cubeObj->setOnClick([this, cubeObj]() {
+            this->setSelectedObject(cubeObj);
+        });
 
+        sceneObjects.push_back(cubeObj); // add it to the vector such that we can draw it
+        allObjects.push_back(cubeObj);
+        
         std::cout << "Spawned a cube at " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
     });
 

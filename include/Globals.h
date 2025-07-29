@@ -6,3 +6,4 @@
 
 extern std::vector<RenderableObject*> sceneObjects;
 extern std::vector<RenderableObject*> animatedBalls;
+extern std::vector<RenderableObjectBase*> allObjects;

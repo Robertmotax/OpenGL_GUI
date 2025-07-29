@@ -154,7 +154,7 @@ int main() {
 
     sidebar = new Sidebar(&shaderShadow);
 
-    std::vector<RenderableObjectBase*> allObjects;
+    //set all the proper objects for mouse events
     allObjects.insert(allObjects.end(), sceneObjects.begin(), sceneObjects.end());
     allObjects.insert(allObjects.end(), sidebar->uiElements.begin(), sidebar->uiElements.end());
 
