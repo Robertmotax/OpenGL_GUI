@@ -6,18 +6,16 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <iostream>
 #include <functional>
 #include <filesystem>
 namespace fs = std::filesystem;
 
-Sidebar::Sidebar() {}
-
 Sidebar::~Sidebar() {}
 
-Sidebar::Sidebar(Shader* shaderShadows)
+Sidebar::Sidebar()
 {
     shaderUI = new Shader(vertexPathUI, fragmentPathUI);
-    shaderShadow = shaderShadows;
 
     //Set the background of the side pannel
     std::vector<Tri> sidebar;
@@ -304,38 +302,12 @@ Sidebar::Sidebar(Shader* shaderShadows)
 
     // Spawn Cube Button
     std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(-0.95f, -0.9f), glm::vec2(0.2f, 0.08f), glm::vec3(0.2f, 0.6f, 1.0f));
-    Button* spawnCubeButton = new Button(spawnCubeTris, shaderUI);
-    
+    Button* spawnCubeButton = new Button(spawnCubeTris, shaderUI, "");
+    spawnCubeButton->setName("CubeButton");
     spawnCubeButton->position = glm::vec3(-0.8f, -0.3f, 0.1f);
 
-            // Set onClick to spawn a random cube
-    spawnCubeButton->setOnClick([this]() {
-        float randX = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
-        float randY = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
-        // float randZ = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
-        float randZ = 0.2f;    
-
-        glm::vec3 pos(randX, randY, randZ);
-        glm::vec3 color(static_cast<float>(rand()) / RAND_MAX, //create random color cubes for fun
-                        static_cast<float>(rand()) / RAND_MAX,  //we can remove and make it all gray later
-                        static_cast<float>(rand()) / RAND_MAX);
-
-        std::vector<Tri> cube = generateCubeTris(0.2f, color);
-        RenderableObject* cubeObj = new RenderableObject(cube, shaderUI, shaderShadow);
-        cubeObj->position = pos;
-        cubeObj->setName("cube");
-
-        cubeObj->setOnClick([this, cubeObj]() {
-            this->setSelectedObject(cubeObj);
-        });
-
-        sceneObjects.push_back(cubeObj); // add it to the vector such that we can draw it
-        allObjects.push_back(cubeObj);
-        
-        std::cout << "Spawned a cube at " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
-    });
-
-    // Add the newly made Button to UI elements
+    // Add the newly made Button to UI elements and to vector of buttons
+    addButton(spawnCubeButton);
     uiElements.push_back(spawnCubeButton);
 }
 
@@ -344,6 +316,20 @@ void Sidebar::setSelectedObject(RenderableObject* obj) {
     std::cout << "Selected obj is now " << obj->getName();
 }
 
+//Add button to vectors of all buttons available in the scene
+void Sidebar::addButton(Button* button) 
+{
+    buttons.push_back(button);
+}
+
+// Return the specific button to search
+Button* Sidebar::getButtonByName(const std::string& name) {
+    for (auto* elem : buttons) {
+        if (elem->getName() == name)
+            return dynamic_cast<Button*>(elem);
+    }
+    return nullptr;
+}
 void Sidebar::render() {
     // Disable depth for UI rendering
     glDisable(GL_DEPTH_TEST);

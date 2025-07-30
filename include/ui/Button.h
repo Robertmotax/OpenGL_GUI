@@ -16,7 +16,7 @@ class Button : public RenderableObjectStatic {
 
         void setVisible(bool v);
         bool isVisible() const;
-        virtual void draw(const glm::mat4& parentTransform, const std::vector<LightSource>& lights);
+        //virtual void draw(const glm::mat4& parentTransform, const std::vector<LightSource>& lights);
 
 
     private:

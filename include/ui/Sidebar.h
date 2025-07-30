@@ -14,13 +14,13 @@ class Sidebar
 {
 public:
     Sidebar();
-    Sidebar(Shader* shaderShadows);
     ~Sidebar();
     void render();
     void setSelectedObject(RenderableObject* obj);
 
-    //Button
+    //Buttons
     void addButton(Button* button);
+    Button* getButtonByName(const std::string& name);
 
 
     std::vector<RenderableObjectStatic*> uiElements;
@@ -29,7 +29,6 @@ private:
     const char* vertexPathUI = "shaders/UI.vert";
     const char* fragmentPathUI = "shaders/UI.frag";
     Shader *shaderUI = nullptr;
-    Shader *shaderShadow = nullptr;
     std::vector<Button*> buttons;
 
 };

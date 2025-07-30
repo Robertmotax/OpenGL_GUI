@@ -51,39 +51,45 @@ inline std::vector<Tri> createButtonQuad(glm::vec2 position, glm::vec2 size, glm
 inline std::vector<Tri> generateCubeTris(float size = 1.0f, glm::vec3 color = {0.8f, 0.8f, 0.8f})
 {
     std::vector<Tri> tris;
-
     float hs = size * 0.5f;
 
-    glm::vec3 vertices[] = {
-        {-hs, -hs, -hs}, { hs, -hs, -hs}, { hs,  hs, -hs}, {-hs,  hs, -hs}, // back
-        {-hs, -hs,  hs}, { hs, -hs,  hs}, { hs,  hs,  hs}, {-hs,  hs,  hs}  // front
+    glm::vec3 v[] = {
+        {-hs, -hs, -hs}, { hs, -hs, -hs}, { hs,  hs, -hs}, {-hs,  hs, -hs}, // back  0–3
+        {-hs, -hs,  hs}, { hs, -hs,  hs}, { hs,  hs,  hs}, {-hs,  hs,  hs}  // front 4–7
     };
 
-    auto V = [&](int i) { return Vertex{vertices[i], color, {0,0}, {0,0,0}}; };
+    glm::vec2 uv01 = {0.0f, 1.0f};
+    glm::vec2 uv00 = {0.0f, 0.0f};
+    glm::vec2 uv10 = {1.0f, 0.0f};
+    glm::vec2 uv11 = {1.0f, 1.0f};
 
-    // Back face
-    tris.emplace_back(V(0), V(1), V(2));
-    tris.emplace_back(V(2), V(3), V(0));
+    auto V = [&](glm::vec3 pos, glm::vec2 uv) {
+        return Vertex{pos, color, uv, glm::vec3(0.0f)};
+    };
 
-    // Front face
-    tris.emplace_back(V(4), V(5), V(6));
-    tris.emplace_back(V(6), V(7), V(4));
+    // Back face (0, 1, 2, 3)
+    tris.emplace_back(V(v[0], uv01), V(v[1], uv00), V(v[2], uv10));
+    tris.emplace_back(V(v[2], uv01), V(v[3], uv00), V(v[0], uv10));
 
-    // Left face
-    tris.emplace_back(V(0), V(4), V(7));
-    tris.emplace_back(V(7), V(3), V(0));
+    // Front face (4, 5, 6, 7)
+    tris.emplace_back(V(v[4], uv01), V(v[5], uv00), V(v[6], uv10));
+    tris.emplace_back(V(v[6], uv01), V(v[7], uv00), V(v[4], uv10));
 
-    // Right face
-    tris.emplace_back(V(1), V(5), V(6));
-    tris.emplace_back(V(6), V(2), V(1));
+    // Left face (0, 4, 7, 3)
+    tris.emplace_back(V(v[0], uv01), V(v[4], uv00), V(v[7], uv10));
+    tris.emplace_back(V(v[7], uv01), V(v[3], uv00), V(v[0], uv10));
 
-    // Top face
-    tris.emplace_back(V(3), V(2), V(6));
-    tris.emplace_back(V(6), V(7), V(3));
+    // Right face (1, 5, 6, 2)
+    tris.emplace_back(V(v[1], uv01), V(v[5], uv00), V(v[6], uv10));
+    tris.emplace_back(V(v[6], uv01), V(v[2], uv00), V(v[1], uv10));
 
-    // Bottom face
-    tris.emplace_back(V(0), V(1), V(5));
-    tris.emplace_back(V(5), V(4), V(0));
+    // Top face (3, 2, 6, 7)
+    tris.emplace_back(V(v[3], uv01), V(v[2], uv00), V(v[6], uv10));
+    tris.emplace_back(V(v[6], uv01), V(v[7], uv00), V(v[3], uv10));
+
+    // Bottom face (0, 1, 5, 4)
+    tris.emplace_back(V(v[0], uv01), V(v[1], uv00), V(v[5], uv10));
+    tris.emplace_back(V(v[5], uv01), V(v[4], uv00), V(v[0], uv10));
 
     return tris;
 }

@@ -14,7 +14,7 @@ bool Button::isVisible() const {
     return visible;
 }
 
-void Button::draw(const glm::mat4& parentTransform, const std::vector<LightSource>& lights)
-{
+// void Button::draw(const glm::mat4& parentTransform, const std::vector<LightSource>& lights)
+// {
     
-}
+// }
