@@ -17,6 +17,7 @@
         "src/core/LightSource.cpp",
         "src/singleton/RayPicker.cpp",
         "src/ui/Sidebar.cpp",
+        "src/ui/Button.cpp",
         "src/globals.cpp",
         "-Iinclude",
         "-IC:/vcpkg/installed/x64-mingw-static/include",
