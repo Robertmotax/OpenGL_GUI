@@ -6,19 +6,15 @@ Button::Button(const std::vector<Tri>& tris, Shader* shader, const std::string& 
 
 Button::~Button() {}
 
-void Button::setCallback(std::function<void()> cb) {
-    onClickCallback = cb;
-}
-
-//click on the button and set a proper callback function
-void Button::click() {
-    if (onClickCallback) onClickCallback();
-}
-
 void Button::setVisible(bool v) {
     visible = v;
 }
 
 bool Button::isVisible() const {
     return visible;
+}
+
+void Button::draw(const glm::mat4& parentTransform, const std::vector<LightSource>& lights)
+{
+    
 }

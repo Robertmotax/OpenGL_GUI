@@ -304,7 +304,8 @@ Sidebar::Sidebar(Shader* shaderShadows)
 
     // Spawn Cube Button
     std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(-0.95f, -0.9f), glm::vec2(0.2f, 0.08f), glm::vec3(0.2f, 0.6f, 1.0f));
-    RenderableObjectStatic* spawnCubeButton = new RenderableObjectStatic(spawnCubeTris, shaderUI);
+    Button* spawnCubeButton = new Button(spawnCubeTris, shaderUI);
+    
     spawnCubeButton->position = glm::vec3(-0.8f, -0.3f, 0.1f);
 
             // Set onClick to spawn a random cube
@@ -322,6 +323,7 @@ Sidebar::Sidebar(Shader* shaderShadows)
         std::vector<Tri> cube = generateCubeTris(0.2f, color);
         RenderableObject* cubeObj = new RenderableObject(cube, shaderUI, shaderShadow);
         cubeObj->position = pos;
+        cubeObj->setName("cube");
 
         cubeObj->setOnClick([this, cubeObj]() {
             this->setSelectedObject(cubeObj);
