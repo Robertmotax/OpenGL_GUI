@@ -1,6 +1,7 @@
 // include necessary headers
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <ui/Sidebar.h>
 #include "core/util.h"
 #include "core/Shader.h"
 #include "core/RenderableObject.h"
@@ -21,10 +22,12 @@
 #include <ctime>
 #include <functional>
 
+/** External files used for fast modular help */
 // This library used for texture loading
 #define STB_IMAGE_IMPLEMENTATION
 #include "../external/stb_image.h"
-#include <ui/Sidebar.h>
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "../external/tiny_obj_loader.h"
 
 
 const char* vertexPath = "shaders/main.vert";
