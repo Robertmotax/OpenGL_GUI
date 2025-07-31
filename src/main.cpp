@@ -12,6 +12,7 @@
 #include <singleton/RayPicker.h>
 #include "core/Texture.h"
 #include "core/MouseClickHandler.h"
+#include "core/Model.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -34,6 +35,7 @@ const char* vertexPath = "shaders/main.vert";
 const char* fragmentPath = "shaders/main.frag";
 const char* vertexPathShadow = "shaders/shadow.vert";
 const char* fragmentPathShadow = "shaders/shadow.frag";
+const char* humanModelPath = "models/human.obj";
 
 // Global variables for the scene
 glm::mat4 viewProj;
@@ -97,6 +99,11 @@ int main() {
 
     Shader shader(vertexPath, fragmentPath);
     Shader shaderShadow(vertexPathShadow, fragmentPathShadow);
+    //_____________________________________________________________________
+    //load human model
+    Model* humanModel = new Model(humanModelPath, &shader, &shaderShadow);
+    sceneObjects.push_back(humanModel);  // store as RenderableObject*
+    //______________________________________________________________________
     std::vector<Tri> tris;
 
     //triangles for the scene objects
