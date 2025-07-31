@@ -101,8 +101,8 @@ int main() {
     Shader shaderShadow(vertexPathShadow, fragmentPathShadow);
     //_____________________________________________________________________
     //load human model
-    Model* humanModel = new Model(humanModelPath, &shader, &shaderShadow);
-    sceneObjects.push_back(humanModel);  // store as RenderableObject*
+    // Model* humanModel = new Model(humanModelPath, &shader, &shaderShadow);
+    // sceneObjects.push_back(humanModel);  // store as RenderableObject*
     //______________________________________________________________________
     std::vector<Tri> tris;
 
