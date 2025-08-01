@@ -16,8 +16,8 @@ public:
     GLuint getVAO() const { return VAO; }
 
 private:
-    bool setupModelEBO(const char* path);
-    //bool setupModelEBO(const std::string& path);
+    //bool setupModelEBO(const char* path);
+    bool setupModelEBO(const std::string& path);
     void setupBuffers();
 
     std::string filepath;
