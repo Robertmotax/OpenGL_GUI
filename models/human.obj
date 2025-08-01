@@ -1,6 +1,7 @@
 # Blender v2.70 (sub 0) OBJ File: 'Base Mesh sculpt 2.blend'
 # www.blender.org
-mtllib Base Mesh sculpt 2.mtl
+# mtllib Base Mesh sculpt 2.mtl
+
 o lowman_shoes
 v -2.046645 3.723751 0.234023
 v -2.033502 3.694018 0.320598

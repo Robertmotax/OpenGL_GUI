@@ -17,12 +17,13 @@ public:
 
 private:
     bool setupModelEBO(const char* path);
+    //bool setupModelEBO(const std::string& path);
     void setupBuffers();
 
     std::string filepath;
     int vertexCount;
 
-    std::vector<int> vertexIndices;
+    std::vector<GLuint> vertexIndices;
     std::vector<glm::vec3> temp_vertices;
     std::vector<glm::vec3> out_normals;
     std::vector<glm::vec2> out_uvs;

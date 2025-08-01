@@ -35,7 +35,7 @@ const char* vertexPath = "shaders/main.vert";
 const char* fragmentPath = "shaders/main.frag";
 const char* vertexPathShadow = "shaders/shadow.vert";
 const char* fragmentPathShadow = "shaders/shadow.frag";
-const char* humanModelPath = "models/human.obj";
+const char* humanModelPath = "models/heracles.obj";
 
 // Global variables for the scene
 glm::mat4 viewProj;
@@ -50,9 +50,6 @@ Sidebar *sidebar;
 
 
 int main() {
-    //random seed for number generator
-    srand((unsigned int)time(nullptr));
-
     glfwInit();
 
     // Seed once before the loop
@@ -101,8 +98,9 @@ int main() {
     Shader shaderShadow(vertexPathShadow, fragmentPathShadow);
     //_____________________________________________________________________
     //load human model
-    // Model* humanModel = new Model(humanModelPath, &shader, &shaderShadow);
-    // sceneObjects.push_back(humanModel);  // store as RenderableObject*
+    Model* humanModel = new Model(humanModelPath, &shader, &shaderShadow);
+    humanModel->scale = glm::vec3(0.1f); // see how to change size
+    sceneObjects.push_back(humanModel);  // store as RenderableObject*
     //______________________________________________________________________
     std::vector<Tri> tris;
 

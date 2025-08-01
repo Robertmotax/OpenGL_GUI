@@ -15,6 +15,7 @@
         "src/core/MouseClickHandler.cpp",
         "src/core/Texture.cpp",
         "src/core/LightSource.cpp",
+        "src/core/Model.cpp",
         "src/singleton/RayPicker.cpp",
         "src/ui/Sidebar.cpp",
         "-Iinclude",
