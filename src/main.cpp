@@ -35,7 +35,7 @@ const char* vertexPath = "shaders/main.vert";
 const char* fragmentPath = "shaders/main.frag";
 const char* vertexPathShadow = "shaders/shadow.vert";
 const char* fragmentPathShadow = "shaders/shadow.frag";
-const char* humanModelPath = "models/heracles.obj";
+const char* humanModelPath = "models/human.obj";
 
 // Global variables for the scene
 glm::mat4 viewProj;
