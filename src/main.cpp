@@ -169,7 +169,7 @@ int main() {
                             static_cast<float>(rand()) / RAND_MAX,  //we can remove and make it all gray later
                             static_cast<float>(rand()) / RAND_MAX);
 
-            std::vector<Tri> cube = generateCubeTris(0.2f, color);
+            std::vector<Tri> cube = generateCubeTris(0.2f, color); //assumption we can modify the textures coordinates in here
             RenderableObject* cubeObj = new RenderableObject(cube, &shader, &shaderShadow, false);
             cubeObj->position = pos;
             cubeObj->setName("cube " + std::to_string(cubeNumber++));
@@ -266,7 +266,9 @@ int main() {
             //set new local transforma for children class
             animatedBalls[i]->setLocalTransform(orbit);
         }
-        obj1->updateSelfAndChildren();
+        
+        if (obj1) //prevent dangling pointers issue 
+            obj1->updateSelfAndChildren();
 
 
         // Render all objects

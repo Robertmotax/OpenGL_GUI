@@ -3,6 +3,7 @@
 #include <singleton/RayPicker.h>
 #include "core/RenderableObject.h"
 #include "core/LightSource.h"
+#include <algorithm>
 #include <iostream>
 #include "core/Vertex.h"
 #include <glm/gtc/type_ptr.hpp>
@@ -182,5 +183,36 @@ void RenderableObject::updateSelfAndChildren() {
     // Update children recursively
     for (RenderableObject* child : children) {
         child->updateSelfAndChildren();
+    }
+}
+
+
+void RenderableObject::deleteObject()
+{
+    detachFromParent(); //if needed from hierarchicalModelling
+    cleanupRemainingData();
+}
+
+void RenderableObject::detachFromParent() 
+{
+    for (RenderableObject* child : children) {
+        child->parent = nullptr;                 // Make the children object root-level objects
+        child->model = child->localTransform;    // Reset to local transform
+    }
+    children.clear(); // Remove all links from this object
+
+    if (parent) {
+        auto& siblings = parent->children;
+        siblings.erase(std::remove(siblings.begin(), siblings.end(), this), siblings.end());
+        parent = nullptr;
+    }
+}
+void RenderableObject::cleanupRemainingData() 
+{
+    if (vao) glDeleteVertexArrays(1, &vao);
+    if (vbo) glDeleteBuffers(1, &vbo);
+    if (texture) {
+        delete texture;
+        texture = nullptr;
     }
 }

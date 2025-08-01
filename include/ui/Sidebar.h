@@ -17,7 +17,6 @@ public:
     ~Sidebar();
     void render();
     void setSelectedObject(RenderableObject* obj);
-
     //Buttons
     void addButton(Button* button);
     Button* getButtonByName(const std::string& name);
