@@ -112,9 +112,9 @@ bool loadOBJ2(
 		}
 	}
 	if (normalIndices.size() != 0)
-		out_normals.resize(temp_normals.size());
+		out_normals.resize(temp_vertices.size());
 	if (uvIndices.size() != 0)
-		out_uvs.resize(temp_normals.size());
+		out_uvs.resize(temp_vertices.size());
 	for (unsigned int i = 0; i<vertexIndices.size(); i++) {
 		int vi = vertexIndices[i];
 		if (normalIndices.size() != 0) {
