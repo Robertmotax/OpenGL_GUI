@@ -16,14 +16,14 @@ public:
     GLuint getVAO() const { return VAO; }
 
 private:
-    //bool setupModelEBO(const char* path);
-    bool setupModelEBO(const std::string& path);
+    bool setupModelEBO(const char* path); //loadOBJV2
+    //bool setupModelEBO(const std::string& path); //Assimp
     void setupBuffers();
 
     std::string filepath;
     int vertexCount;
 
-    std::vector<GLuint> vertexIndices;
+    std::vector<int> vertexIndices;
     std::vector<glm::vec3> temp_vertices;
     std::vector<glm::vec3> out_normals;
     std::vector<glm::vec2> out_uvs;
