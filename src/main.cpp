@@ -27,8 +27,6 @@
 // This library used for texture loading
 #define STB_IMAGE_IMPLEMENTATION
 #include "../external/stb_image.h"
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "../external/tiny_obj_loader.h"
 
 
 const char* vertexPath = "shaders/main.vert";

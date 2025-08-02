@@ -3,7 +3,9 @@
 #include <cstring>
 #include <cstdlib>
 #include <iostream>
-#include "../external/tiny_obj_loader.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 #include "../external/OBJloaderV2.h"  //For loading .obj files using a polygon list format
 
 Model::Model(const std::string& path, Shader* shader, Shader* shaderShadow)
@@ -120,86 +122,91 @@ void Model::setupBuffers() {
     vertexCount = static_cast<int>(vertexIndices.size());
 }
 
-// bool Model::setupModelEBO(const char* path) {
-//     //use the predefined OBJLoaderV2
-//     return loadOBJ2(path, vertexIndices, temp_vertices, out_normals, out_uvs);
-// }
-
-bool Model::setupModelEBO(const std::string& path) {
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
-
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
-    if (!warn.empty()) std::cout << "TinyOBJ warning: " << warn << std::endl;
-    if (!err.empty()) std::cerr << "TinyOBJ error: " << err << std::endl;
-    if (!ret) return false;
-
-    // For hashing
-    struct VertexHash {
-        size_t operator()(const Vertex& v) const {
-            return std::hash<float>()(v.position.x)
-                ^ std::hash<float>()(v.position.y)
-                ^ std::hash<float>()(v.position.z);
-        }
-    };
-
-    std::unordered_map<Vertex, unsigned int, VertexHash> uniqueVertices;
-
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-
-    for (const auto& shape : shapes) {
-        for (const auto& index : shape.mesh.indices) {
-            Vertex vertex{};
-
-            // Position
-            vertex.position = {
-                attrib.vertices[3 * index.vertex_index + 0],
-                attrib.vertices[3 * index.vertex_index + 1],
-                attrib.vertices[3 * index.vertex_index + 2]
-            };
-
-            // Normal
-            if (index.normal_index >= 0) {
-                vertex.normal = {
-                    attrib.normals[3 * index.normal_index + 0],
-                    attrib.normals[3 * index.normal_index + 1],
-                    attrib.normals[3 * index.normal_index + 2]
-                };
-            }
-
-            // Texcoord
-            if (index.texcoord_index >= 0) {
-                vertex.texCoord = {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    attrib.texcoords[2 * index.texcoord_index + 1]
-                };
-            }
-
-            // Add to unique map
-            if (uniqueVertices.count(vertex) == 0) {
-                uniqueVertices[vertex] = static_cast<unsigned int>(vertices.size());
-                vertices.push_back(vertex);
-            }
-
-            indices.push_back(uniqueVertices[vertex]);
-        }
-    }
-
-    // Store in class fields
-    this->vertexCount = indices.size();
-    this->vertexIndices = indices;
-    this->temp_vertices.clear();
-    this->out_normals.clear();
-    this->out_uvs.clear();
-
-    for (const auto& v : vertices) {
-        temp_vertices.push_back(v.position);
-        out_normals.push_back(v.normal);
-        out_uvs.push_back(v.texCoord);
-    }
-
-    return true;
+/**
+ * Load the model from the given path using OBJLoaderV2.
+ * Returns true if successful, false otherwise.
+ *  @brief make sure that vertexIndices is int and not GLuint
+ */
+bool Model::setupModelEBO(const char* path) {
+    //use the predefined OBJLoaderV2
+    return loadOBJ2(path, vertexIndices, temp_vertices, out_normals, out_uvs);
 }
+
+/**
+ * // Uncomment this if you want to use Assimp instead of OBJLoaderV2
+ */
+// bool Model::setupModelEBO(const std::string& path) {
+//     Assimp::Importer importer;
+
+//     const aiScene* scene = importer.ReadFile(path,
+//         aiProcess_Triangulate |
+//         aiProcess_GenSmoothNormals |
+//         aiProcess_CalcTangentSpace |
+//         aiProcess_JoinIdenticalVertices |
+//         aiProcess_ImproveCacheLocality |
+//         aiProcess_OptimizeMeshes);
+
+//     if (!scene || !scene->HasMeshes()) {
+//         std::cerr << "Assimp load error: " << importer.GetErrorString() << std::endl;
+//         return false;
+//     }
+
+//     const aiMesh* mesh = scene->mMeshes[0]; // Use the first mesh
+
+//     std::vector<Vertex> vertices;
+//     std::vector<unsigned int> indices;
+
+//     for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
+//         Vertex vertex{};
+
+//         // Position
+//         vertex.position = {
+//             mesh->mVertices[i].x,
+//             mesh->mVertices[i].y,
+//             mesh->mVertices[i].z
+//         };
+
+//         // Normal
+//         if (mesh->HasNormals()) {
+//             vertex.normal = {
+//                 mesh->mNormals[i].x,
+//                 mesh->mNormals[i].y,
+//                 mesh->mNormals[i].z
+//             };
+//         }
+
+//         // UV
+//         if (mesh->HasTextureCoords(0)) {
+//             vertex.texCoord = {
+//                 mesh->mTextureCoords[0][i].x,
+//                 mesh->mTextureCoords[0][i].y
+//             };
+//         }
+
+//         vertices.push_back(vertex);
+//     }
+
+//     for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {
+//         const aiFace& face = mesh->mFaces[i];
+//         if (face.mNumIndices != 3) continue; // Skip non-triangle faces
+
+//         indices.push_back(face.mIndices[0]);
+//         indices.push_back(face.mIndices[1]);
+//         indices.push_back(face.mIndices[2]);
+//     }
+
+//     // Store in class
+//     this->vertexCount = indices.size();
+//     this->vertexIndices = indices;
+//     this->temp_vertices.clear();
+//     this->out_normals.clear();
+//     this->out_uvs.clear();
+
+//     for (const auto& v : vertices) {
+//         temp_vertices.push_back(v.position);
+//         out_normals.push_back(v.normal);
+//         out_uvs.push_back(v.texCoord);
+//     }
+
+//     return true;
+// }
