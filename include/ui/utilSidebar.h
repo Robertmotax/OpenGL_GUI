@@ -68,8 +68,8 @@ inline std::vector<Tri> generateCubeTris(float size = 1.0f, glm::vec3 color = {0
     };
 
     // Back face (0, 1, 2, 3)
-    tris.emplace_back(V(v[0], uv01), V(v[1], uv00), V(v[2], uv10));
-    tris.emplace_back(V(v[2], uv01), V(v[3], uv00), V(v[0], uv10));
+    tris.emplace_back(V(v[1], uv00), V(v[0], uv01), V(v[2], uv10));
+    tris.emplace_back(V(v[3], uv00), V(v[2], uv01), V(v[0], uv10));
 
     // Front face (4, 5, 6, 7)
     tris.emplace_back(V(v[4], uv01), V(v[5], uv00), V(v[6], uv10));
@@ -80,12 +80,12 @@ inline std::vector<Tri> generateCubeTris(float size = 1.0f, glm::vec3 color = {0
     tris.emplace_back(V(v[7], uv01), V(v[3], uv00), V(v[0], uv10));
 
     // Right face (1, 5, 6, 2)
-    tris.emplace_back(V(v[1], uv01), V(v[5], uv00), V(v[6], uv10));
-    tris.emplace_back(V(v[6], uv01), V(v[2], uv00), V(v[1], uv10));
+    tris.emplace_back(V(v[5], uv00), V(v[1], uv01), V(v[6], uv10));
+    tris.emplace_back(V(v[2], uv00), V(v[6], uv01), V(v[1], uv10));
 
     // Top face (3, 2, 6, 7)
-    tris.emplace_back(V(v[3], uv01), V(v[2], uv00), V(v[6], uv10));
-    tris.emplace_back(V(v[6], uv01), V(v[7], uv00), V(v[3], uv10));
+    tris.emplace_back(V(v[2], uv00), V(v[3], uv01), V(v[6], uv10));
+    tris.emplace_back(V(v[7], uv00), V(v[6], uv01), V(v[3], uv10));
 
     // Bottom face (0, 1, 5, 4)
     tris.emplace_back(V(v[0], uv01), V(v[1], uv00), V(v[5], uv10));
