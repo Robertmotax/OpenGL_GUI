@@ -1,17 +1,22 @@
 // Sidebar.cpp
 #include "ui/Sidebar.h"
+#include "Globals.h"
 #include "core/util.h"
 #include "core/Texture.h"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <iostream>
 #include <functional>
 #include <filesystem>
 namespace fs = std::filesystem;
 
-Sidebar::Sidebar() 
+Sidebar::~Sidebar() {}
+
+Sidebar::Sidebar()
 {
     shaderUI = new Shader(vertexPathUI, fragmentPathUI);
+
     //Set the background of the side pannel
     std::vector<Tri> sidebar;
     sidebar.emplace_back(
@@ -295,6 +300,38 @@ Sidebar::Sidebar()
     });
     uiElements.push_back(noTextureButton);
 
+    // Spawn Cube Button
+    std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(-0.95f, -0.9f), glm::vec2(0.2f, 0.08f), glm::vec3(0.2f, 0.6f, 1.0f));
+    Button* spawnCubeButton = new Button(spawnCubeTris, shaderUI, "");
+    spawnCubeButton->setName("CubeButton");
+    spawnCubeButton->position = glm::vec3(-0.8f, -0.3f, 0.1f);
+
+    // Add the newly made Button to UI elements and to vector of buttons
+    addButton(spawnCubeButton);
+    uiElements.push_back(spawnCubeButton);
+
+    //spawn another button, this one is set for deletion
+    float xPos = -0.95f;
+    float yPos = -0.8f;
+    float width = 0.2f;
+    float height = 0.08f;
+
+    std::vector<Tri> garbageQuad = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f));
+
+    Button* deleteButton = new Button(garbageQuad, shaderUI, "");
+    deleteButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
+    deleteButton->setName("DeleteButton");
+
+    deleteButton->setOnClick([this]() {
+        if (selectedObject) {
+            std::cout << "Deleted: " << selectedObject->getName() << std::endl;
+            selectedObject->deleteObject(); // You can implement this function as needed
+            selectedObject = nullptr;
+        }
+    });
+
+    addButton(deleteButton);
+    uiElements.push_back(deleteButton);
 }
 
 void Sidebar::setSelectedObject(RenderableObject* obj) {
@@ -302,6 +339,20 @@ void Sidebar::setSelectedObject(RenderableObject* obj) {
     std::cout << "Selected obj is now " << obj->getName();
 }
 
+//Add button to vectors of all buttons available in the scene
+void Sidebar::addButton(Button* button) 
+{
+    buttons.push_back(button);
+}
+
+// Return the specific button to search
+Button* Sidebar::getButtonByName(const std::string& name) {
+    for (auto* elem : buttons) {
+        if (elem->getName() == name)
+            return dynamic_cast<Button*>(elem);
+    }
+    return nullptr;
+}
 void Sidebar::render() {
     // Disable depth for UI rendering
     glDisable(GL_DEPTH_TEST);
