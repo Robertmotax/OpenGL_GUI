@@ -1,6 +1,7 @@
 // include necessary headers
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "Globals.h"
 #include "core/util.h"
 #include "core/Shader.h"
 #include "core/RenderableObject.h"
@@ -26,7 +27,6 @@
 #include "../external/stb_image.h"
 #include <ui/Sidebar.h>
 
-
 const char* vertexPath = "shaders/main.vert";
 const char* fragmentPath = "shaders/main.frag";
 const char* vertexPathShadow = "shaders/shadow.vert";
@@ -36,8 +36,7 @@ const char* fragmentPathShadow = "shaders/shadow.frag";
 glm::mat4 viewProj;
 glm::mat4 viewProjInverse;
 
-std::vector<RenderableObject*> sceneObjects;
-std::vector<RenderableObject*> animatedBalls;
+// See Globals.h/.cpp -- ballAngles and radius are connected with animatedBalls
 std::vector<float> ballAngles; // angle (radians) for each orbiting ball
 std::vector<float> ballRadius; //orbiting the center of the triangle correlated with the original triangle
 
@@ -116,8 +115,8 @@ int main() {
     );
 
     tris.emplace_back(
-        Vertex{{ 0.0f,  1.0f,  0.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
         Vertex{{-0.5f,  0.2f, -0.5f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
+        Vertex{{ 0.0f,  1.0f,  0.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
         Vertex{{ 0.5f,  0.2f, -0.5f}, {0.3f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
     );
 
@@ -155,7 +154,37 @@ int main() {
 
     sidebar = new Sidebar();
 
-    std::vector<RenderableObjectBase*> allObjects;
+    // Get the button by name for cube generating
+    Button* cubeButton = sidebar->getButtonByName("CubeButton");
+    if (cubeButton) {
+        // Set onClick to spawn a random cube
+        (cubeButton)->setOnClick([&]() {
+            static int cubeNumber = 0;
+            float randX = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
+            float randY = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
+            float randZ = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
+
+            glm::vec3 pos(randX, randY, randZ);
+            glm::vec3 color(static_cast<float>(rand()) / RAND_MAX, //create random color cubes for fun
+                            static_cast<float>(rand()) / RAND_MAX,  //we can remove and make it all gray later
+                            static_cast<float>(rand()) / RAND_MAX);
+
+            std::vector<Tri> cube = generateCubeTris(0.2f, color); //assumption we can modify the textures coordinates in here
+            RenderableObject* cubeObj = new RenderableObject(cube, &shader, &shaderShadow, false);
+            cubeObj->position = pos;
+            cubeObj->setName("cube " + std::to_string(cubeNumber++));
+
+            sceneObjects.push_back(cubeObj); // add it to the vector such that we can draw it
+            allObjects.push_back(cubeObj);
+
+            cubeObj->setOnClick([cubeObj]() {
+                sidebar->setSelectedObject(cubeObj);
+            });
+            std::cout << "Spawned a cube at " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
+        });
+    }
+
+    //set all the proper objects for mouse events
     allObjects.insert(allObjects.end(), sceneObjects.begin(), sceneObjects.end());
     allObjects.insert(allObjects.end(), sidebar->uiElements.begin(), sidebar->uiElements.end());
 
@@ -237,7 +266,9 @@ int main() {
             //set new local transforma for children class
             animatedBalls[i]->setLocalTransform(orbit);
         }
-        obj1->updateSelfAndChildren();
+        
+        if (obj1) //prevent dangling pointers issue 
+            obj1->updateSelfAndChildren();
 
 
         // Render all objects

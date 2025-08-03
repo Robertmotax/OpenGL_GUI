@@ -6,12 +6,21 @@
 #include <core/RenderableObject.h>
 #include <unordered_map>
 #include "core/Texture.h"
+#include "ui/Button.h"
+#include "ui/utilSidebar.h"
+#include "core/Shader.h"
 
-class Sidebar {
+class Sidebar
+{
 public:
     Sidebar();
+    ~Sidebar();
     void render();
     void setSelectedObject(RenderableObject* obj);
+    //Buttons
+    void addButton(Button* button);
+    Button* getButtonByName(const std::string& name);
+
 
     std::vector<RenderableObjectStatic*> uiElements;
 private:
@@ -19,4 +28,6 @@ private:
     const char* vertexPathUI = "shaders/UI.vert";
     const char* fragmentPathUI = "shaders/UI.frag";
     Shader *shaderUI = nullptr;
+    std::vector<Button*> buttons;
+
 };
