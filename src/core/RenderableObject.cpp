@@ -207,10 +207,22 @@ void RenderableObject::detachFromParent()
         parent = nullptr;
     }
 }
+
 void RenderableObject::cleanupRemainingData() 
 {
-    if (vao) glDeleteVertexArrays(1, &vao);
-    if (vbo) glDeleteBuffers(1, &vbo);
+    // Unbind before deletion
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    if (vao) {
+        glDeleteVertexArrays(1, &vao);
+        vao = 0;  // Avoid dangling
+    }
+    if (vbo) {
+        glDeleteBuffers(1, &vbo);
+        vbo = 0;
+    }
+
     if (texture) {
         delete texture;
         texture = nullptr;
