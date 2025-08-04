@@ -39,7 +39,7 @@
           "ignoreFailures": true
         }
       ],
-      "preLaunchTask": "Build OpenGL App",
+      "preLaunchTask": "Build OpenGL App"
     }
   ]
 }

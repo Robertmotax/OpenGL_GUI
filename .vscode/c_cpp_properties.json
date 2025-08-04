@@ -7,7 +7,7 @@
                 "${workspaceFolder}/src",
                 "${workspaceFolder}/external",
                 "${workspaceFolder}/textures",
-                "C:/vcpkg/installed/x64-mingw-dynamic/include"
+                "C:/vcpkg/installed/x64-mingw-static/include"
             ],
             "browse": {
                 "path": [
@@ -15,7 +15,7 @@
                     "${workspaceFolder}/src",
                     "${workspaceFolder}/external",
                     "${workspaceFolder}/textures",
-                    "C:/vcpkg/installed/x64-mingw-dynamic/include"
+                    "C:/vcpkg/installed/x64-mingw-static/include"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             },
