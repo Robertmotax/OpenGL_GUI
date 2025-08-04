@@ -21,6 +21,13 @@ public:
     void setLocalTransform(const glm::mat4& localT) { localTransform = localT; }
     void updateSelfAndChildren();
 
+
+    //Delete object from the screen
+    void deleteObject();
+    void detachFromParent();
+    void cleanupRemainingData();
+
+
     private:
         Shader *shaderShadow;
         bool isUnlit;
