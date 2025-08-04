@@ -96,8 +96,7 @@ int main() {
     Shader shaderShadow(vertexPathShadow, fragmentPathShadow);
     //_____________________________________________________________________
     //load human model
-    Model* humanModel = new Model(humanModelPath, &shader, &shaderShadow);
-    humanModel->scale = glm::vec3(0.1f); // see how to change size
+    RenderableObject* humanModel = new RenderableObject(objToTri(humanModelPath), &shader, &shaderShadow);
     sceneObjects.push_back(humanModel);  // store as RenderableObject*
     //______________________________________________________________________
     std::vector<Tri> tris;
