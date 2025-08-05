@@ -15,8 +15,7 @@ Sidebar::~Sidebar() {}
 
 Sidebar::Sidebar()
 {
-    shaderUI = new Shader(vertexPathUI, fragmentPathUI);
-
+    shaderUI = new Shader(vertexPathUI, fragmentPathUI);  // Create background
     //Set the background of the side pannel
     std::vector<Tri> sidebar;
     sidebar.emplace_back(
@@ -31,7 +30,7 @@ Sidebar::Sidebar()
     );
     RenderableObjectStatic* sidebarObj = new RenderableObjectStatic(sidebar, shaderUI);
     sidebarObj->position = glm::vec3(0.0f);
-    uiElements.push_back(sidebarObj);
+    uiElements.push_back({sidebarObj, -1});
 
     //Set clickable objects for translation
     std::vector<Tri> tranlateXUp;
@@ -88,12 +87,12 @@ Sidebar::Sidebar()
     transXDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
     transYDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
     transZDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    uiElements.push_back(transXUp);
-    uiElements.push_back(transXDown);
-    uiElements.push_back(transYUp);
-    uiElements.push_back(transYDown);
-    uiElements.push_back(transZUp);
-    uiElements.push_back(transZDown);
+    uiElements.push_back({transXUp,   0});
+    uiElements.push_back({transXDown, 0});
+    uiElements.push_back({transYUp   ,0});
+    uiElements.push_back({transYDown ,0});
+    uiElements.push_back({transZUp   ,0});
+    uiElements.push_back({transZDown ,0});
 
     //Set clickable objects for rotation
     std::vector<Tri> rotateXUp;
@@ -151,12 +150,12 @@ Sidebar::Sidebar()
     rotXDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
     rotYDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
     rotZDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    uiElements.push_back(rotXUp);
-    uiElements.push_back(rotXDown);
-    uiElements.push_back(rotYUp);
-    uiElements.push_back(rotYDown);
-    uiElements.push_back(rotZUp);
-    uiElements.push_back(rotZDown);
+    uiElements.push_back({rotXUp   ,0});
+    uiElements.push_back({rotXDown ,0});
+    uiElements.push_back({rotYUp   ,0});
+    uiElements.push_back({rotYDown ,0});
+    uiElements.push_back({rotZUp   ,0});
+    uiElements.push_back({rotZDown ,0});
 
     //Set 
     std::vector<Tri> scaleXUp;
@@ -214,12 +213,12 @@ Sidebar::Sidebar()
     sclXDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
     sclYDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
     sclZDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    uiElements.push_back(sclXUp);
-    uiElements.push_back(sclXDown);
-    uiElements.push_back(sclYUp);
-    uiElements.push_back(sclYDown);
-    uiElements.push_back(sclZUp);
-    uiElements.push_back(sclZDown);
+    uiElements.push_back({sclXUp   ,0});
+    uiElements.push_back({sclXDown ,0});
+    uiElements.push_back({sclYUp   ,0});
+    uiElements.push_back({sclYDown ,0});
+    uiElements.push_back({sclZUp   ,0});
+    uiElements.push_back({sclZDown ,0});
 
     //Adding texture selection
     float tileSize = 0.075f;
@@ -268,7 +267,7 @@ Sidebar::Sidebar()
             }
         });
 
-        uiElements.push_back(button);
+        uiElements.push_back({button, 0});
         ++index;
     }
 
@@ -298,40 +297,63 @@ Sidebar::Sidebar()
         selectedObject->enableTexture(false);
         std::cout << "Texture removed from " << selectedObject->getName() << "\n";
     });
-    uiElements.push_back(noTextureButton);
+    uiElements.push_back({noTextureButton, 0});
 
-    // Spawn Cube Button
-    std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(-0.95f, -0.9f), glm::vec2(0.2f, 0.08f), glm::vec3(0.2f, 0.6f, 1.0f));
-    Button* spawnCubeButton = new Button(spawnCubeTris, shaderUI, "");
-    spawnCubeButton->setName("CubeButton");
-    spawnCubeButton->position = glm::vec3(-0.8f, -0.3f, 0.1f);
+    // Create action buttons
+    createActionButtons();
+}
 
-    // Add the newly made Button to UI elements and to vector of buttons
-    addButton(spawnCubeButton);
-    uiElements.push_back(spawnCubeButton);
+void Sidebar::createActionButtons() {
+    //create cubes
+    std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(-1.0f, -0.1f), glm::vec2(0.25f, 0.10f), glm::vec3(0.2f, 0.6f, 1.0f));
+    auto* spawnButton = new RenderableObjectStatic(spawnCubeTris, shaderUI);
+    spawnButton->position = { -0.8f, -0.3f, 0.1f };
+    spawnButton->setName("CubeButton");
+    addButton(spawnButton);
+    uiElements.push_back({spawnButton, 1});
 
     //spawn another button, this one is set for deletion
-    float xPos = -0.95f;
-    float yPos = -0.8f;
-    float width = 0.2f;
-    float height = 0.08f;
+    float xPos = -1.0f; float yPos = -0.25f; float width = 0.25f; float height = 0.10f;
 
     std::vector<Tri> garbageQuad = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f));
-
-    Button* deleteButton = new Button(garbageQuad, shaderUI, "");
-    deleteButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
+    auto* deleteButton = new RenderableObjectStatic(garbageQuad, shaderUI);
+    deleteButton->position = { 0.0f, 0.0f, 0.1f };
     deleteButton->setName("DeleteButton");
-
     deleteButton->setOnClick([this]() {
         if (selectedObject) {
-            std::cout << "Deleted: " << selectedObject->getName() << std::endl;
-            selectedObject->deleteObject(); // You can implement this function as needed
+            selectedObject->deleteObject();
             selectedObject = nullptr;
         }
     });
-
     addButton(deleteButton);
-    uiElements.push_back(deleteButton);
+    uiElements.push_back({deleteButton, 1});
+}
+
+std::vector<Tri> Sidebar::createArrow(float x, float y, float offsetY, const glm::vec3& color) {
+    return {
+        Tri(Vertex{{x, y, 0.1f}, color, {0.0f, 1.0f}},
+            Vertex{{x + 0.05f, y, 0.1f}, color, {0.0f, 0.0f}},
+            Vertex{{x + 0.025f, y + offsetY, 0.1f}, color, {1.0f, 0.0f}})
+    };
+}
+
+//modify the visibility of certain ui elements based on the current page
+void Sidebar::updateVisibility(GLFWwindow* window) {
+    //toggle proper pagination and keyboard handling for Sidebar
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    {
+        //handle debounce fast repeating key presses
+        if (currentPage < (totalPages - 1)) ++currentPage;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    {
+        if (currentPage > 0) --currentPage;
+    }
+
+    for (auto& elem : uiElements) {
+        int elemPage = elem.page;
+        (elem.object)->setVisible(elemPage == currentPage || elemPage == -1);  // -1 means always visible
+    }
 }
 
 void Sidebar::setSelectedObject(RenderableObject* obj) {
@@ -340,26 +362,26 @@ void Sidebar::setSelectedObject(RenderableObject* obj) {
 }
 
 //Add button to vectors of all buttons available in the scene
-void Sidebar::addButton(Button* button) 
-{
-    buttons.push_back(button);
-}
+void Sidebar::addButton(RenderableObjectStatic* button)  { buttons.push_back(button); }
 
 // Return the specific button to search
-Button* Sidebar::getButtonByName(const std::string& name) {
+RenderableObjectStatic* Sidebar::getButtonByName(const std::string& name) {
     for (auto* elem : buttons) {
         if (elem->getName() == name)
-            return dynamic_cast<Button*>(elem);
+            return dynamic_cast<RenderableObjectStatic*>(elem);
     }
     return nullptr;
 }
+
 void Sidebar::render() {
     // Disable depth for UI rendering
     glDisable(GL_DEPTH_TEST);
-
     for (auto& element : uiElements) {
-        element->draw(glm::mat4(1.0f), std::vector<LightSource>());
+        auto* obj = element.object;
+        if (!obj) continue;
+        if (obj->isVisible()) {
+            obj->draw(glm::mat4(1.0f), std::vector<LightSource>());
+        }
     }
-
     glEnable(GL_DEPTH_TEST);
 }

@@ -161,7 +161,7 @@ int main() {
     sidebar = new Sidebar();
 
     // Get the button by name for cube generating
-    Button* cubeButton = sidebar->getButtonByName("CubeButton");
+    RenderableObjectStatic* cubeButton = sidebar->getButtonByName("CubeButton");
     if (cubeButton) {
         // Set onClick to spawn a random cube
         (cubeButton)->setOnClick([&]() {
@@ -192,7 +192,9 @@ int main() {
 
     //set all the proper objects for mouse events
     allObjects.insert(allObjects.end(), sceneObjects.begin(), sceneObjects.end());
-    allObjects.insert(allObjects.end(), sidebar->uiElements.begin(), sidebar->uiElements.end());
+    for (const auto& ui : sidebar->uiElements) {
+        allObjects.push_back(ui.object);
+    }
 
     // Mouse click handler expects pointer access
     MouseClickHandler mouseClickHandler(&camera, &allObjects);
@@ -282,6 +284,8 @@ int main() {
             obj->draw(viewProj, lights);
         for (LightSource& light : lights)
             light.lightHandler->draw(viewProj, {});
+        // Render sidebar UI elements    
+        sidebar->updateVisibility(window);
         sidebar->render();
 
         // 7. Events
@@ -295,8 +299,8 @@ int main() {
 
     for (auto* obj : sceneObjects)
         delete obj;
-    for (auto* obj : sidebar->uiElements)
-        delete obj;
+    for (auto& elem : sidebar->uiElements)
+        delete elem.object;
     delete sidebar;
 
     glfwDestroyWindow(window);
