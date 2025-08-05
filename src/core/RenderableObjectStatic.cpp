@@ -17,7 +17,7 @@ RenderableObjectStatic::RenderableObjectStatic(const std::vector<Tri>& triangles
 
 }
 
-void RenderableObjectStatic::draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const {
+void RenderableObjectStatic::draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights) const {
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
 

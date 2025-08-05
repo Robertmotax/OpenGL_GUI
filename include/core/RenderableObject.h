@@ -7,7 +7,7 @@ class LightSource;
 class RenderableObject : public RenderableObjectBase {
 public:
     RenderableObject(const std::vector<Tri> &triangles, Shader *shader, Shader *shadowShader, bool unlit = false);
-    void draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const override;
+    void draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights) const override;
     bool isClicked(float mouseX, float mouseY, int winWidth, int winHeight, const glm::mat4& viewProjInverse, float& outDistance) override;
     void drawDepthOnly(const glm::mat4& shadowMatrix, const glm::vec3& lightPos, float farPlane) const;
     bool getIsUnlit() const { return isUnlit; }
@@ -26,11 +26,11 @@ public:
     void deleteObject();
     void detachFromParent();
     void cleanupRemainingData();
+    bool isUnlit;
 
 
     private:
         Shader *shaderShadow;
-        bool isUnlit;
         
         RenderableObject* parent = nullptr;
         std::vector<RenderableObject*> children;

@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
 #include "core/util.h"
+#include "Globals.h"
 
 class LightSource;
 RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* shader, Shader* shaderShadow, bool unlit)
@@ -16,9 +17,13 @@ RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* sh
 {
     this->shaderShadow = shaderShadow;
     isUnlit = unlit;
+    setOnClick([this]() {
+        selectedObject = this;
+        std::cout << "Selected obj is now " << this->getName();
+    });
 }
 
-void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const {
+void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights) const {
     shader->use();
 
     glm::mat4 model = getModelMatrix();
@@ -46,16 +51,16 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
         glUniform1i(glGetUniformLocation(shaderID, "uNumLights"), (int)lights.size());
 
         for (int i = 0; i < (int)lights.size(); ++i) {
-            const LightSource& light = lights[i];
-            std::string idx = std::to_string(light.id);
+            const LightSource* light = lights[i];
+            std::string idx = std::to_string(light->id);
 
-            glUniform3fv(glGetUniformLocation(shaderID, ("lightPositions[" + idx + "]").c_str()), 1, glm::value_ptr(*light.position));
-            glUniform3fv(glGetUniformLocation(shaderID, ("lightColors[" + idx + "]").c_str()), 1, glm::value_ptr(*light.color));
-            glUniform1f(glGetUniformLocation(shaderID, ("lightIntensities[" + idx + "]").c_str()), length(*light.intensity));
-            glUniform1f(glGetUniformLocation(shaderID, ("farPlanes[" + idx + "]").c_str()), light.farPlane);
+            glUniform3fv(glGetUniformLocation(shaderID, ("lightPositions[" + idx + "]").c_str()), 1, glm::value_ptr(*light->position));
+            glUniform3fv(glGetUniformLocation(shaderID, ("lightColors[" + idx + "]").c_str()), 1, glm::value_ptr(*light->color));
+            glUniform1f(glGetUniformLocation(shaderID, ("lightIntensities[" + idx + "]").c_str()), length(*light->intensity));
+            glUniform1f(glGetUniformLocation(shaderID, ("farPlanes[" + idx + "]").c_str()), light->farPlane);
 
             glActiveTexture(GL_TEXTURE1 + i);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, light.getShadowCubemap());
+            glBindTexture(GL_TEXTURE_CUBE_MAP, light->getShadowCubemap());
             glUniform1i(glGetUniformLocation(shaderID, ("shadowMaps[" + idx + "]").c_str()), 1 + i);
         }
     } else {
@@ -189,8 +194,16 @@ void RenderableObject::updateSelfAndChildren() {
 
 void RenderableObject::deleteObject()
 {
-    detachFromParent(); //if needed from hierarchicalModelling
+    detachFromParent();
     cleanupRemainingData();
+
+    int idToRemove = id;
+
+    auto it = std::remove_if(allObjects.begin(), allObjects.end(),
+        [idToRemove](RenderableObjectBase* item) {
+            auto* obj = dynamic_cast<RenderableObject*>(item);
+            return obj && obj->id == idToRemove;
+        });
 }
 
 void RenderableObject::detachFromParent() 

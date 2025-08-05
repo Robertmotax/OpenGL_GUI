@@ -4,6 +4,7 @@
 #include <iostream>
 #include "core/RenderableObject.h"
 #include "core/util.h"
+#include <Globals.h>
 
 int LightSource::lastId = 0;
 
@@ -66,7 +67,7 @@ void LightSource::computeShadowTransforms() {
     shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0, 0, -1), glm::vec3(0, -1, 0)));
 }
 
-void LightSource::renderShadowMap(std::vector<RenderableObject*> sceneObjects) {
+void LightSource::renderShadowMap() {
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -77,8 +78,15 @@ void LightSource::renderShadowMap(std::vector<RenderableObject*> sceneObjects) {
                                GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, shadowCubemap, 0);
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        for (auto* obj : sceneObjects) {
-            obj->drawDepthOnly(shadowTransforms[face], *position, farPlane);
+        for (auto* obj : allObjects)
+        {
+            if(auto* sceneObj = dynamic_cast<RenderableObject*>(obj))
+            {
+                if(!sceneObj->isUnlit)
+                {
+                    sceneObj->drawDepthOnly(shadowTransforms[face], *position, farPlane);
+                }
+            }
         }
     }
 

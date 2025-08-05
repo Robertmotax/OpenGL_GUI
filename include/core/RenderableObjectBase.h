@@ -18,7 +18,7 @@ public:
     RenderableObjectBase(const std::vector<Tri>& triangles, Shader* shader);
     virtual ~RenderableObjectBase();
 
-    virtual void draw(const glm::mat4& viewProj, const std::vector<LightSource>& lights) const = 0;
+    virtual void draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights) const = 0;
     virtual bool isClicked(float mouseX, float mouseY, int winWidth, int winHeight, const glm::mat4& viewProjInverse, float& outDistance) = 0;
     // Draggable by the mouse click handler and move it according to the mouse position
     virtual bool isDraggable() const { return false; }
@@ -62,18 +62,18 @@ public:
     // Get/Set the model matrix for transformations
     glm::mat4 getFullModelMatrix() const { return model; }
     void setModelMatrix(const glm::mat4& mat) { model = mat; }
+    std::vector<Tri> tris;
+    int id;
 
     
 protected:
     void computeBounds();
 
     std::string name;
-    int id;
     static int lastId;
     GLuint vao = 0, vbo = 0;
     int vertexCount = 0;
     Shader* shader = nullptr;
-    std::vector<Tri> tris;
     Texture* texture = nullptr; // Optional texture for the object
     bool useTexture = false; // controlled from UI or logic
     std::vector<Vertex> flattenedVertices;  // needed for OpenGL and bounds
