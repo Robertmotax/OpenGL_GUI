@@ -312,9 +312,9 @@ void Sidebar::createActionButtons() {
     auto* spawnCubeButton = new RenderableObjectStatic(spawnCubeTris, shaderUI);
     spawnCubeButton->setName("CubeButton");
     spawnCubeButton->position = glm::vec3(-0.8f, -0.3f, 0.1f);
-    spawnCubeButton->setOnClick([]()
+    spawnCubeButton->setOnClick([this]()
     { 
-        allObjects.push_back(new RenderableObject(makeCube(glm::vec3(1.0f), glm::vec3(0.5f)), defaultShader, shadowShader));
+        allObjects.push_back(new RenderableObject(generateCubeTris(0.2f, glm::vec3(0.5f)), defaultShader, shadowShader));
     });
     addButton(spawnCubeButton);
     uiElements.push_back({spawnCubeButton, 1});
