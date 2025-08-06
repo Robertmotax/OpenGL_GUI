@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <functional>
+#include "core/OBJLoader.h"
 
 /** External files used for fast modular help */
 // This library used for texture loading
@@ -88,114 +89,22 @@ int main() {
     int width, height;
     glfwGetWindowSize(window, &width, &height);
     float aspect = (float)width / (float)height;
+    OBJLoader objLoader = OBJLoader();
 
     Camera camera(aspect);
     RayPicker::getInstance().setCamera(&camera);
 
-    Shader shader(vertexPath, fragmentPath);
-    Shader shaderShadow(vertexPathShadow, fragmentPathShadow);
+    defaultShader = new Shader(vertexPath, fragmentPath);
+    shadowShader = new Shader(vertexPathShadow, fragmentPathShadow);
     //_____________________________________________________________________
-    //load human model
-    RenderableObject* humanModel = new RenderableObject(objToTri(humanModelPath), &shader, &shaderShadow);
-    sceneObjects.push_back(humanModel);  // store as RenderableObject*
-    //______________________________________________________________________
-    std::vector<Tri> tris;
-
-    //triangles for the scene objects
-    tris.emplace_back(
-        Vertex{{ 0.0f, 1.0f,  0.0f}, {0.2f, 1.0f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
-        Vertex{{-0.5f, 0.2f,  0.5f}, {0.2f, 1.0f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
-        Vertex{{ 0.5f, 0.2f,  0.5f}, {0.2f, 1.0f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
-    );
-
-    tris.emplace_back(
-        Vertex{{-0.5f,  0.2f,  0.5f}, {1.0f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
-        Vertex{{ 0.0f,  1.0f,  0.0f}, {1.0f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
-        Vertex{{-0.5f,  0.2f, -0.5f}, {1.0f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}  // Cyan
-    );
-
-    tris.emplace_back(
-        Vertex{{ 0.0f,  1.0f,  0.0f}, {0.2f, 0.2f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
-        Vertex{{ 0.5f,  0.2f,  0.5f}, {0.2f, 0.2f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
-        Vertex{{ 0.5f,  0.2f, -0.5f}, {0.2f, 0.2f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
-    );
-
-    tris.emplace_back(
-        Vertex{{-0.5f,  0.2f, -0.5f}, {0.2f, 0.2f, 0.2f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
-        Vertex{{ 0.0f,  1.0f,  0.0f}, {0.2f, 0.2f, 0.2f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}},
-        Vertex{{ 0.5f,  0.2f, -0.5f}, {0.3f, 0.2f, 0.2f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}}
-    );
-
-    // minimalistic floor design to represent the ground
-    //requires 12 triangles for 6 squares for 36 vertices
-    std::vector<Tri> floor = makeCube(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.3f, 0.3f, 0.3f), true);
-
-    //All possible tiles for the UI sidebar for texture selection for floor design
-    std::vector<LightSource> lights = {
-        LightSource(glm::vec3(2.5f, 2.0f, 2.5f), glm::vec3(1.0f, 0.8f, 0.6f), glm::vec3(0.5f), &shader, &shaderShadow),
-        LightSource(glm::vec3(-2.5f, 2.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.7f), &shader, &shaderShadow)
-    };
-
-
-    auto* obj1 = new RenderableObject(tris, &shader, &shaderShadow);
-    auto* floorObj = new RenderableObject(floor, &shader, &shaderShadow);
-    obj1->setName("Prism");
-    floorObj->setName("BigCube");
-
-    sceneObjects.push_back(obj1);
-    //creation of spherical ball objects
-    for (int i = 0; i < 10; ++i) {
-        float z = -1.0f + (i * 0.8f);
-        auto* ball = new RenderableObject(generateSphericalBalls(0.45f, 16, 12), &shader, &shaderShadow);
-        ball->setName("ball " + std::to_string(i));
-        ball->setPosition(glm::vec3(-8.0f + i, 0.4f, z));
-        ball->setParent(obj1); // Set initial orbit center to initial original position related to the triangle
-
-        ballAngles.push_back(glm::radians((float)(rand() % 360))); // random start angle
-        ballRadius.push_back(3.0f + (i * 0.5f)); // radius of the spherical ball
-
-        sceneObjects.push_back(ball); animatedBalls.push_back(ball);
-    }
-    sceneObjects.push_back(floorObj);
-
+    objLoader.importFromObj("models/test.obj");
     sidebar = new Sidebar();
+    //______________________________________________________________________
 
-    // Get the button by name for cube generating
-    RenderableObjectStatic* cubeButton = sidebar->getButtonByName("CubeButton");
-    if (cubeButton) {
-        // Set onClick to spawn a random cube
-        (cubeButton)->setOnClick([&]() {
-            static int cubeNumber = 0;
-            float randX = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
-            float randY = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
-            float randZ = -1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f));
-
-            glm::vec3 pos(randX, randY, randZ);
-            glm::vec3 color(static_cast<float>(rand()) / RAND_MAX, //create random color cubes for fun
-                            static_cast<float>(rand()) / RAND_MAX,  //we can remove and make it all gray later
-                            static_cast<float>(rand()) / RAND_MAX);
-
-            std::vector<Tri> cube = generateCubeTris(0.2f, color); //assumption we can modify the textures coordinates in here
-            RenderableObject* cubeObj = new RenderableObject(cube, &shader, &shaderShadow, false);
-            cubeObj->position = pos;
-            cubeObj->setName("cube " + std::to_string(cubeNumber++));
-
-            sceneObjects.push_back(cubeObj); // add it to the vector such that we can draw it
-            allObjects.push_back(cubeObj);
-
-            cubeObj->setOnClick([cubeObj]() {
-                sidebar->setSelectedObject(cubeObj);
-            });
-            std::cout << "Spawned a cube at " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
-        });
-    }
-
-    //set all the proper objects for mouse events
-    allObjects.insert(allObjects.end(), sceneObjects.begin(), sceneObjects.end());
     for (const auto& ui : sidebar->uiElements) {
         allObjects.push_back(ui.object);
     }
-
+    
     // Mouse click handler expects pointer access
     MouseClickHandler mouseClickHandler(&camera, &allObjects);
 
@@ -218,30 +127,12 @@ int main() {
     
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS); 
-
-    for (auto& light : lights) {
-        light.initShadowCubemap();
-    }
-    shader.use();
+    defaultShader->use();
     glDisable(GL_CULL_FACE);
     glm::vec3 cubePos = {0.0f, 0.0f, 0.0f};
     glm::mat4 model = glm::translate(glm::mat4(1.0f), cubePos);
-    shader.setMat4("uModel", model);
+    defaultShader->setMat4("uModel", model);
 
-    for(RenderableObject*obj : sceneObjects)
-    {
-        obj->setOnClick([obj]() {
-            sidebar->setSelectedObject(obj);
-        });
-    }
-    for (LightSource& light : lights)
-    {
-        RenderableObject* handler = light.lightHandler;
-        light.lightHandler->setOnClick([handler]() {
-            sidebar->setSelectedObject(handler);
-        });
-        allObjects.push_back(handler);
-    }
     while (!glfwWindowShouldClose(window)) {
         float deltaTime = computeDeltaTime();
         int width, height;
@@ -250,8 +141,8 @@ int main() {
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
         // 1. For each light, update shadow transforms and render shadow cubemap
-        for (LightSource& light : lights) {
-            light.renderShadowMap(sceneObjects);
+        for (LightSource* light : lights) {
+            light->renderShadowMap();
         }
 
         // 2. Render scene normally with all lights and shadows
@@ -262,29 +153,17 @@ int main() {
         camera.updateProjectionMatrix(aspect);
         viewProj = camera.getViewProjection();
 
-        // Animate the ball like an orbit solar system
-        for (int i = 0; i < (int)animatedBalls.size(); ++i) {
-            ballAngles[i] += deltaTime * 0.5f; //0.5f is the speed
-
-            float maxRadius = 9.99f; // ensure it doesnt go past the vicinity of the cube
-            ballRadius[i] = std::min(maxRadius, 3.0f + (i * 0.5f));
-            // Local orbit transform: rotate then translate by radius
-            glm::mat4 orbit = glm::rotate(glm::mat4(1.0f), ballAngles[i], glm::vec3(0, 1, 0));
-            orbit = glm::translate(orbit, glm::vec3(ballRadius[i], 0.2f, 0.0f));
-            //set new local transforma for children class
-            animatedBalls[i]->setLocalTransform(orbit);
-        }
-        
-        if (obj1) //prevent dangling pointers issue 
-            obj1->updateSelfAndChildren();
-
-
         // Render all objects
-        for (auto* obj : sceneObjects)
-            obj->draw(viewProj, lights);
-        for (LightSource& light : lights)
-            light.lightHandler->draw(viewProj, {});
-        // Render sidebar UI elements    
+        for (auto* obj : allObjects)
+        {
+            if(dynamic_cast<RenderableObject*>(obj))
+            {
+                obj->draw(viewProj, lights);
+            }
+        }
+        for (LightSource* light : lights)
+            light->lightHandler->draw(viewProj, {});  
+
         sidebar->updateVisibility(window);
         sidebar->render();
 
@@ -297,10 +176,8 @@ int main() {
             glfwSetWindowShouldClose(window, true);
     }
 
-    for (auto* obj : sceneObjects)
+    for (auto* obj : allObjects)
         delete obj;
-    for (auto& elem : sidebar->uiElements)
-        delete elem.object;
     delete sidebar;
 
     glfwDestroyWindow(window);

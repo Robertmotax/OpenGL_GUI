@@ -9,6 +9,8 @@
 #include <iostream>
 #include <functional>
 #include <filesystem>
+#include "core/OBJLoader.h"
+#include <algorithm>
 namespace fs = std::filesystem;
 
 Sidebar::~Sidebar() {}
@@ -304,29 +306,59 @@ Sidebar::Sidebar()
 }
 
 void Sidebar::createActionButtons() {
-    //create cubes
-    std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(-1.0f, -0.1f), glm::vec2(0.25f, 0.10f), glm::vec3(0.2f, 0.6f, 1.0f));
-    auto* spawnButton = new RenderableObjectStatic(spawnCubeTris, shaderUI);
-    spawnButton->position = { -0.8f, -0.3f, 0.1f };
-    spawnButton->setName("CubeButton");
-    addButton(spawnButton);
-    uiElements.push_back({spawnButton, 1});
+    float xPos = -0.95f; float yPos = -0.9f; float width = 0.25f; float height = 0.10f;
+    // Spawn Cube Button
+    std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f, 0.0f, 1.0f));
+    auto* spawnCubeButton = new RenderableObjectStatic(spawnCubeTris, shaderUI);
+    spawnCubeButton->setName("CubeButton");
+    spawnCubeButton->position = glm::vec3(-0.8f, -0.3f, 0.1f);
+    spawnCubeButton->setOnClick([]()
+    { 
+        allObjects.push_back(new RenderableObject(makeCube(glm::vec3(1.0f), glm::vec3(0.5f)), defaultShader, shadowShader));
+    });
+    addButton(spawnCubeButton);
+    uiElements.push_back({spawnCubeButton, 1});
 
     //spawn another button, this one is set for deletion
-    float xPos = -1.0f; float yPos = -0.25f; float width = 0.25f; float height = 0.10f;
-
+    yPos += 0.1;
     std::vector<Tri> garbageQuad = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f));
     auto* deleteButton = new RenderableObjectStatic(garbageQuad, shaderUI);
     deleteButton->position = { 0.0f, 0.0f, 0.1f };
     deleteButton->setName("DeleteButton");
     deleteButton->setOnClick([this]() {
         if (selectedObject) {
+            std::cout << "Deleted: " << selectedObject->getName() << std::endl;
             selectedObject->deleteObject();
+            auto it = std::find_if(allObjects.begin(), allObjects.end(),
+                [](RenderableObjectBase* obj) {
+                    return obj == selectedObject; // Access directly
+                });
+
+            if (it != allObjects.end()) {
+                allObjects.erase(it);
+            }
+            
+            delete selectedObject;
             selectedObject = nullptr;
         }
     });
     addButton(deleteButton);
     uiElements.push_back({deleteButton, 1});
+
+    //Button to save scene
+    yPos += 0.1;
+    std::vector<Tri> saveQuad = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f, 1.0f, 0.0f));
+    auto* saveButton = new RenderableObjectStatic(saveQuad, shaderUI);
+    saveButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
+    saveButton->setName("SaveButton");
+
+    saveButton->setOnClick([]() {
+        OBJLoader objLoader = OBJLoader();
+        objLoader.exportToObj("models/test.obj");
+        std::cout << "Saved Scene " << std::endl;
+    });
+    addButton(saveButton);
+    uiElements.push_back({saveButton, 1});
 }
 
 std::vector<Tri> Sidebar::createArrow(float x, float y, float offsetY, const glm::vec3& color) {
@@ -380,7 +412,7 @@ void Sidebar::render() {
         auto* obj = element.object;
         if (!obj) continue;
         if (obj->isVisible()) {
-            obj->draw(glm::mat4(1.0f), std::vector<LightSource>());
+            obj->draw(glm::mat4(1.0f), std::vector<LightSource*>());
         }
     }
     glEnable(GL_DEPTH_TEST);

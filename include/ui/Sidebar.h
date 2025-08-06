@@ -39,7 +39,6 @@ public:
 
     std::vector<SidebarElement> uiElements;
 private:
-    RenderableObject* selectedObject = nullptr;
     const char* vertexPathUI = "shaders/UI.vert";
     const char* fragmentPathUI = "shaders/UI.frag";
     Shader *shaderUI = nullptr;

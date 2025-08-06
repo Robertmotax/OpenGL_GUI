@@ -17,17 +17,6 @@
 #include "LightSource.h"
 #include "RenderableObject.h"
 #include <iostream>
-#include <vector>
-#include "core/Model.h"
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include "Vertex.h"
 
 
 /**
@@ -222,47 +211,4 @@ inline std::vector<Tri> makeCube(const glm::vec3& scale, const glm::vec3& color,
     }
 
     return cube;
-}
-
-
-inline std::vector<Tri> objToTri(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open OBJ file: " << filename << std::endl;
-        return {};
-    }
-
-    std::vector<glm::vec3> positions;
-    std::vector<Tri> tris;
-
-    std::string line;
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string type;
-        ss >> type;
-
-        if (type == "v") {
-            float x, y, z;
-            ss >> x >> y >> z;
-            positions.emplace_back(x, y, z);
-        } else if (type == "f") {
-            int idx[3];
-            for (int i = 0; i < 3; ++i) {
-                std::string token;
-                ss >> token;
-                std::stringstream tokenStream(token);
-                std::string indexStr;
-                std::getline(tokenStream, indexStr, '/');
-                idx[i] = std::stoi(indexStr) - 1; // OBJ indices are 1-based
-            }
-
-            // Build Tri from positions and default color/texCoord/normal
-            Vertex v0{ positions[idx[0]], {0.7f, 0.7f, 0.7f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} };
-            Vertex v1{ positions[idx[1]], {0.7f, 0.7f, 0.7f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} };
-            Vertex v2{ positions[idx[2]], {0.7f, 0.7f, 0.7f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} };
-            tris.emplace_back(v0, v1, v2);
-        }
-    }
-
-    return tris;
 }

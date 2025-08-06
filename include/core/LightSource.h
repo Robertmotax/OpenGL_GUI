@@ -13,7 +13,7 @@ public:
 
     void initShadowCubemap();
     void computeShadowTransforms();
-    void renderShadowMap(std::vector<RenderableObject*> sceneObjects);
+    void renderShadowMap();
 
     const std::vector<glm::mat4>& getShadowTransforms() const { return shadowTransforms; }
     GLuint getShadowCubemap() const { return shadowCubemap; }
