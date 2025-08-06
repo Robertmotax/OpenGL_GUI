@@ -101,8 +101,10 @@ int main() {
     sidebar = new Sidebar();
     //______________________________________________________________________
 
-    allObjects.insert(allObjects.end(), sidebar->uiElements.begin(), sidebar->uiElements.end());
-
+    for (const auto& ui : sidebar->uiElements) {
+        allObjects.push_back(ui.object);
+    }
+    
     // Mouse click handler expects pointer access
     MouseClickHandler mouseClickHandler(&camera, &allObjects);
 

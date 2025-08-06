@@ -306,8 +306,9 @@ Sidebar::Sidebar()
 }
 
 void Sidebar::createActionButtons() {
+    float xPos = -0.95f; float yPos = -0.9f; float width = 0.25f; float height = 0.10f;
     // Spawn Cube Button
-    std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(-0.95f, -0.9f), glm::vec2(0.2f, 0.08f), glm::vec3(0.2f, 0.6f, 1.0f));
+    std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f, 0.0f, 1.0f));
     auto* spawnCubeButton = new RenderableObjectStatic(spawnCubeTris, shaderUI);
     spawnCubeButton->setName("CubeButton");
     spawnCubeButton->position = glm::vec3(-0.8f, -0.3f, 0.1f);
@@ -319,8 +320,7 @@ void Sidebar::createActionButtons() {
     uiElements.push_back({spawnCubeButton, 1});
 
     //spawn another button, this one is set for deletion
-    float xPos = -1.0f; float yPos = -0.25f; float width = 0.25f; float height = 0.10f;
-
+    yPos += 0.1;
     std::vector<Tri> garbageQuad = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f));
     auto* deleteButton = new RenderableObjectStatic(garbageQuad, shaderUI);
     deleteButton->position = { 0.0f, 0.0f, 0.1f };
@@ -345,7 +345,9 @@ void Sidebar::createActionButtons() {
     addButton(deleteButton);
     uiElements.push_back({deleteButton, 1});
 
-    std::vector<Tri> saveQuad = createButtonQuad(glm::vec2(-0.95, -0.7), glm::vec2(0.2f, 0.08f), glm::vec3(0.2f, 0.6f, 0.2f));
+    //Button to save scene
+    yPos += 0.1;
+    std::vector<Tri> saveQuad = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f, 1.0f, 0.0f));
     auto* saveButton = new RenderableObjectStatic(saveQuad, shaderUI);
     saveButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
     saveButton->setName("SaveButton");
