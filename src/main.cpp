@@ -97,8 +97,7 @@ int main() {
     defaultShader = new Shader(vertexPath, fragmentPath);
     shadowShader = new Shader(vertexPathShadow, fragmentPathShadow);
     //_____________________________________________________________________
-    objLoader.importFromObj("models/test.obj");
-    //objLoader.importFromObj("models/human.obj");
+    //objLoader.importFromObj("assets/models/testScene.obj");
     sidebar = new Sidebar();
     //______________________________________________________________________
 

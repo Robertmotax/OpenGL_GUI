@@ -229,7 +229,7 @@ Sidebar::Sidebar()
     float xInit = -0.975f;
     float yInit = -0.5f;
 
-    for (const auto& entry : fs::directory_iterator("textures")) {
+    for (const auto& entry : fs::directory_iterator("assets/textures")) {
         if (!entry.is_regular_file()) continue;
         if (entry.path().extension() != ".jpg") continue;
 
@@ -306,57 +306,169 @@ Sidebar::Sidebar()
 }
 
 void Sidebar::createActionButtons() {
-    float xPos = -0.95f; float yPos = -0.9f; float width = 0.25f; float height = 0.10f;
+    float xPos = -0.95f; float yPos = 0.8f; float width = 0.25f; float height = 0.10f;
     // Spawn Cube Button
     std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f, 0.0f, 1.0f));
     auto* spawnCubeButton = new RenderableObjectStatic(spawnCubeTris, shaderUI);
     spawnCubeButton->setName("CubeButton");
-    spawnCubeButton->position = glm::vec3(-0.8f, -0.3f, 0.1f);
-    spawnCubeButton->setOnClick([this]()
+    spawnCubeButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
+    spawnCubeButton->setOnClick([]()
     { 
         allObjects.push_back(new RenderableObject(generateCubeTris(0.2f, glm::vec3(0.5f)), defaultShader, shadowShader));
     });
     addButton(spawnCubeButton);
     uiElements.push_back({spawnCubeButton, 1});
 
+    // Spawn Light Button
+    yPos -= 0.15;
+    std::vector<Tri> spawnLightTris = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.8f));
+    auto* spawnLightButton = new RenderableObjectStatic(spawnLightTris, shaderUI);
+    spawnLightButton->setName("LightButton");
+    spawnLightButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
+    spawnLightButton->setOnClick([]()
+    { 
+        LightSource* source = new LightSource(glm::vec3(0.0f), glm::vec3(0.5f), glm::vec3(0.5f), defaultShader, shadowShader);
+        source->initShadowCubemap();
+        lights.push_back(source);
+        RenderableObject* handler = source->lightHandler;
+        allObjects.push_back(handler); 
+    });
+    addButton(spawnLightButton);
+    uiElements.push_back({spawnLightButton, 1});
+
     //spawn another button, this one is set for deletion
-    yPos += 0.1;
+    yPos -= 0.15;
     std::vector<Tri> garbageQuad = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f));
     auto* deleteButton = new RenderableObjectStatic(garbageQuad, shaderUI);
     deleteButton->position = { 0.0f, 0.0f, 0.1f };
     deleteButton->setName("DeleteButton");
     deleteButton->setOnClick([this]() {
-        if (selectedObject) {
-            std::cout << "Deleted: " << selectedObject->getName() << std::endl;
-            selectedObject->deleteObject();
-            auto it = std::find_if(allObjects.begin(), allObjects.end(),
-                [](RenderableObjectBase* obj) {
-                    return obj == selectedObject; // Access directly
-                });
+        if (!selectedObject) return;
 
-            if (it != allObjects.end()) {
-                allObjects.erase(it);
-            }
-            
-            delete selectedObject;
-            selectedObject = nullptr;
-        }
+        std::cout << "Deleted: " << selectedObject->getName() << std::endl;
+        selectedObject->deleteObject();
+        int objectId = selectedObject->id;
+
+        // 1. Delete associated lights first
+        lights.erase(
+            std::remove_if(lights.begin(), lights.end(),
+                [objectId](LightSource* light) {
+                    if (light->lightHandler && light->lightHandler->id == objectId) {
+                        delete light; // safe: we're deleting it while removing it
+                        return true;
+                    }
+                    return false;
+                }),
+            lights.end()
+        );
+
+        // 2. Remove from allObjects
+        allObjects.erase(
+            std::remove_if(allObjects.begin(), allObjects.end(),
+                [objectId](RenderableObjectBase* item) {
+                    auto* obj = dynamic_cast<RenderableObject*>(item);
+                    if (obj && obj->id == objectId) {
+                        delete item;
+                        return true;
+                    }
+                    return false;
+                }),
+            allObjects.end()
+        );
+
+        // 3. Reset selection (already deleted above)
+        selectedObject = nullptr;
     });
     addButton(deleteButton);
     uiElements.push_back({deleteButton, 1});
 
+    //Add model buttons
+    int columnCount = 3;
+    float tileSize = width/columnCount;
+    int index = 0;
+    yPos -= 0.075;
+    float yPosLoaders = yPos;
+    std::vector<glm::vec3> rgb = {{0.1f, 0.0f, 0.0f}, {0.0f, 0.1f, 0.0f}, {0.0f, 0.0f, 0.1f}};
+
+    for (const auto& entry : fs::directory_iterator("assets/models")) {
+        if (!entry.is_regular_file()) continue;
+        if (entry.path().extension() != ".obj") continue;
+
+        std::string path = entry.path().string();
+
+        int row = index / columnCount;
+        int col = index % columnCount;
+
+        float xStart = xPos + col * tileSize;
+        float yStart = yPos - row * tileSize;
+        glm::vec3 color = (float)row * glm::vec3(0.1f) + rgb[index % columnCount] + glm::vec3(0.4f);
+
+        std::vector<Tri> quad = {
+            Tri(
+                Vertex{{xStart,yStart, 0.0f}, color, {0.0f, 1.0f}},
+                Vertex{{xStart + tileSize, yStart, 0.0f}, color, {1.0f, 1.0f}},
+                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, color, {1.0f, 0.0f}}
+            ),
+            Tri(
+                Vertex{{xStart, yStart, 0.0f}, color, {0.0f, 1.0f}},
+                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, color, {1.0f, 0.0f}},
+                Vertex{{xStart, yStart - tileSize, 0.0f}, color, {0.0f, 0.0f}}
+            )
+        };
+
+        auto* button = new RenderableObjectStatic(quad, shaderUI);
+        button->position = glm::vec3(0.0f, 0.0f, 0.1f);
+
+        button->setOnClick([path]() {
+            OBJLoader objLoader = OBJLoader();
+            objLoader.importFromObj(path);
+        });
+
+        uiElements.push_back({button, 1});
+        ++index;
+    }
+
     //Button to save scene
-    yPos += 0.1;
+    yPos = -0.9;
     std::vector<Tri> saveQuad = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f, 1.0f, 0.0f));
     auto* saveButton = new RenderableObjectStatic(saveQuad, shaderUI);
     saveButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
     saveButton->setName("SaveButton");
 
-    saveButton->setOnClick([]() {
+    saveButton->setOnClick([this, index, columnCount, xPos, yPosLoaders, tileSize, rgb]() mutable {
         OBJLoader objLoader = OBJLoader();
-        objLoader.exportToObj("models/test.obj");
+        std::string filename = objLoader.getAvailableFilename("assets/models", "unnamed", ".obj");
+        objLoader.exportToObj(filename);
         std::cout << "Saved Scene " << std::endl;
+
+        int row = index / columnCount;
+        int col = index % columnCount;
+
+        float xStart = xPos + col * tileSize;
+        float yStart = yPosLoaders - row * tileSize;
+        glm::vec3 color = (float)row * glm::vec3(0.1f) + rgb[index % columnCount] + glm::vec3(0.4f);
+
+        std::vector<Tri> quad = {
+            Tri(Vertex{{xStart, yStart, 0.0f}, color, {0.0f, 1.0f}},
+                Vertex{{xStart + tileSize, yStart, 0.0f}, color, {1.0f, 1.0f}},
+                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, color, {1.0f, 0.0f}}),
+            Tri(Vertex{{xStart, yStart, 0.0f}, color, {0.0f, 1.0f}},
+                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, color, {1.0f, 0.0f}},
+                Vertex{{xStart, yStart - tileSize, 0.0f}, color, {0.0f, 0.0f}})
+        };
+
+        auto* button = new RenderableObjectStatic(quad, shaderUI);
+        button->position = glm::vec3(0.0f, 0.0f, 0.1f);
+
+        button->setOnClick([filename]() {
+            OBJLoader objLoader = OBJLoader();
+            objLoader.importFromObj("models/assets/" + filename + ".obj");
+        });
+
+        uiElements.push_back({button, 1});
+        ++index;
     });
+
     addButton(saveButton);
     uiElements.push_back({saveButton, 1});
 }

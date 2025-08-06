@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <filesystem>
 #include "Vertex.h"
 #include "Globals.h"
 
@@ -70,6 +71,20 @@ public:
 
         outFile.close();
         std::cout << "Exported scene with lights to: " << filename << "\n";
+    }
+
+    static std::string getAvailableFilename(const std::string& basePath, const std::string& baseName, const std::string& extension) {
+        namespace fs = std::filesystem; // C++17 required
+
+        std::string filename = basePath + "/" + baseName + extension;
+        int index = 1;
+
+        while (fs::exists(filename)) {
+            filename = basePath + "/" + baseName + "(" + std::to_string(index) + ")" + extension;
+            ++index;
+        }
+
+        return filename;
     }
 
    static void importFromObj(const std::string& filename) {
