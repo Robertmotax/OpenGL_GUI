@@ -14,6 +14,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "Vertex.h"
 #include "Globals.h"
 
@@ -71,60 +72,69 @@ public:
         std::cout << "Exported scene with lights to: " << filename << "\n";
     }
 
-    static void importFromObj(const std::string& filename) {
+   static void importFromObj(const std::string& filename) {
         std::ifstream inFile(filename);
         if (!inFile.is_open()) {
             std::cerr << "Failed to open file for reading: " << filename << "\n";
             return;
         }
 
-        std::vector<glm::vec3> tempVertices;
-        std::vector<glm::vec3> tempColors;
-        std::string currentObjectName;
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec3> colors;
         std::vector<Tri> currentTris;
+        std::string currentObjectName = "Unnamed";
 
         std::string line;
         while (std::getline(inFile, line)) {
-            if (line.empty()) continue;
+            if (line.empty() || line[0] == '\r') continue;
 
             std::istringstream iss(line);
-            std::string token;
-            iss >> token;
+            std::string prefix;
+            iss >> prefix;
 
-            if (token == "v") {
-                float x, y, z;
-                float r = 0.5f, g = 0.5f, b = 0.5f; // default color gray
-
+            if (prefix == "v") {
+                float x, y, z, r = 0.5f, g = 0.5f, b = 0.5f;
                 iss >> x >> y >> z;
                 if (!(iss >> r >> g >> b)) {
-                    // No color specified, fallback to default
-                    r = g = b = 0.5f;
+                    r = g = b = 0.5f;  // default gray
+                }
+                positions.emplace_back(x, y, z);
+                colors.emplace_back(r, g, b);
+
+            } else if (prefix == "f") {
+                std::vector<int> indices;
+                std::string vertex;
+                while (iss >> vertex) {
+                    std::replace(vertex.begin(), vertex.end(), '/', ' '); // Replace slashes
+                    std::istringstream vss(vertex);
+                    int posIdx;
+                    vss >> posIdx;
+                    indices.push_back(posIdx - 1); // OBJ indices start at 1
                 }
 
-                tempVertices.emplace_back(x, y, z);
-                tempColors.emplace_back(r, g, b);
+                if (indices.size() >= 3) {
+                    for (size_t i = 1; i + 1 < indices.size(); ++i) {
+                        int i0 = indices[0];
+                        int i1 = indices[i];
+                        int i2 = indices[i + 1];
 
-            } else if (token == "f") {
-                int i1, i2, i3;
-                iss >> i1 >> i2 >> i3;
+                        Vertex v0{positions[i0], colors[i0], {0, 0}, {0, 0, 0}};
+                        Vertex v1{positions[i1], colors[i1], {0, 0}, {0, 0, 0}};
+                        Vertex v2{positions[i2], colors[i2], {0, 0}, {0, 0, 0}};
+                        currentTris.emplace_back(v0, v1, v2);
+                    }
+                }
 
-                Vertex v1{ tempVertices[i1 - 1], tempColors[i1 - 1], {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
-                Vertex v2{ tempVertices[i2 - 1], tempColors[i2 - 1], {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
-                Vertex v3{ tempVertices[i3 - 1], tempColors[i3 - 1], {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
-
-                currentTris.emplace_back(v1, v2, v3);
-
-            } else if (token == "o") {
+            } else if (prefix == "o") {
                 if (!currentTris.empty()) {
                     auto* obj = new RenderableObject(currentTris, defaultShader, shadowShader);
                     obj->setName(currentObjectName);
                     allObjects.push_back(obj);
-
                     currentTris.clear();
                 }
                 iss >> currentObjectName;
 
-            } else if (token == "#") {
+            } else if (prefix == "#") {
                 std::string commentType;
                 iss >> commentType;
                 if (commentType == "light") {
@@ -143,13 +153,12 @@ public:
             }
         }
 
-        // Final object
         if (!currentTris.empty()) {
             auto* obj = new RenderableObject(currentTris, defaultShader, shadowShader);
             obj->setName(currentObjectName);
             allObjects.push_back(obj);
         }
 
-        std::cout << "Imported scene from: " << filename << "\n";
+        std::cout << "Imported scene OBJ: " << filename << "\n";
     }
 };
