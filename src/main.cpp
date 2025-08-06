@@ -160,7 +160,9 @@ int main() {
             }
         }
         for (LightSource* light : lights)
-            light->lightHandler->draw(viewProj, {});
+            light->lightHandler->draw(viewProj, {});  
+
+        sidebar->updateVisibility(window);
         sidebar->render();
 
         // 7. Events

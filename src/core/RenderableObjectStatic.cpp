@@ -85,3 +85,11 @@ bool RenderableObjectStatic::isClicked(float mouseX, float mouseY, int winWidth,
 
     return false;
 }
+
+void RenderableObjectStatic::setVisible(bool v) {
+    visible = v;
+}
+
+bool RenderableObjectStatic::isVisible() const {
+    return visible;
+}

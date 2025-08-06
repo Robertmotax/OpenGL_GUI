@@ -93,3 +93,5 @@ inline std::vector<Tri> generateCubeTris(float size = 1.0f, glm::vec3 color = {0
 
     return tris;
 }
+
+
