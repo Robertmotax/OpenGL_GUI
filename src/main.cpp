@@ -156,9 +156,10 @@ int main() {
         // Render all objects
         for (auto* obj : allObjects)
         {
-            if(dynamic_cast<RenderableObject*>(obj))
+            if(auto* sceneObj = dynamic_cast<RenderableObject*>(obj))
             {
-                obj->draw(viewProj, lights);
+                sceneObj->updateSelfAndChildren();
+                sceneObj->draw(viewProj, lights);
             }
         }
         for (LightSource* light : lights)

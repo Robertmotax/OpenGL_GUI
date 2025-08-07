@@ -9,3 +9,4 @@ extern std::vector<LightSource*> lights;
 extern RenderableObject* selectedObject;
 extern Shader* defaultShader;
 extern Shader* shadowShader;
+extern bool waitingForParentSelection;

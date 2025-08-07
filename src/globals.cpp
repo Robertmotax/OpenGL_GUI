@@ -6,3 +6,4 @@ std::vector<LightSource*> lights;
 RenderableObject* selectedObject;
 Shader* defaultShader;
 Shader* shadowShader;
+bool waitingForParentSelection;

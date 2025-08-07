@@ -72,17 +72,17 @@ Sidebar::Sidebar()
         Vertex{{ -0.725f, 0.70f, 0.1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
     );
     RenderableObjectStatic* transXUp = new RenderableObjectStatic(tranlateXUp, shaderUI);
-    transXUp->setOnClick([&](){ selectedObject->position.x += 0.05; });
+    transXUp->setOnClick([&](){ if(selectedObject) selectedObject->position.x += 0.05; });
     RenderableObjectStatic* transXDown = new RenderableObjectStatic(tranlateXDown, shaderUI);
-    transXDown->setOnClick([&](){ selectedObject->position.x -= 0.05; });
+    transXDown->setOnClick([&](){ if(selectedObject) selectedObject->position.x -= 0.05; });
     RenderableObjectStatic* transYUp = new RenderableObjectStatic(tranlateYUp, shaderUI);
-    transYUp->setOnClick([&](){ selectedObject->position.y += 0.05; });
+    transYUp->setOnClick([&](){ if(selectedObject) selectedObject->position.y += 0.05; });
     RenderableObjectStatic* transYDown = new RenderableObjectStatic(tranlateYDown, shaderUI);
-    transYDown->setOnClick([&](){ selectedObject->position.y -= 0.05; });
+    transYDown->setOnClick([&](){ if(selectedObject) selectedObject->position.y -= 0.05; });
     RenderableObjectStatic* transZUp = new RenderableObjectStatic(tranlateZUp, shaderUI);
-    transZUp->setOnClick([&](){ selectedObject->position.z += 0.05; });
+    transZUp->setOnClick([&](){ if(selectedObject) selectedObject->position.z += 0.05; });
     RenderableObjectStatic* transZDown = new RenderableObjectStatic(tranlateZDown, shaderUI);
-    transZDown->setOnClick([&](){ selectedObject->position.z -= 0.05; });
+    transZDown->setOnClick([&](){ if(selectedObject) selectedObject->position.z -= 0.05; });
     transXUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
     transYUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
     transZUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
@@ -135,17 +135,17 @@ Sidebar::Sidebar()
     );
 
     RenderableObjectStatic* rotXUp = new RenderableObjectStatic(rotateXUp, shaderUI);
-    rotXUp->setOnClick([&](){ selectedObject->rotation.x += 0.05; });
+    rotXUp->setOnClick([&](){ if(selectedObject) selectedObject->rotation.x += 0.05; });
     RenderableObjectStatic* rotXDown = new RenderableObjectStatic(rotateXDown, shaderUI);
-    rotXDown->setOnClick([&](){ selectedObject->rotation.x -= 0.05; });
+    rotXDown->setOnClick([&](){ if(selectedObject) selectedObject->rotation.x -= 0.05; });
     RenderableObjectStatic* rotYUp = new RenderableObjectStatic(rotateYUp, shaderUI);
-    rotYUp->setOnClick([&](){ selectedObject->rotation.y += 0.05; });
+    rotYUp->setOnClick([&](){ if(selectedObject) selectedObject->rotation.y += 0.05; });
     RenderableObjectStatic* rotYDown = new RenderableObjectStatic(rotateYDown, shaderUI);
-    rotYDown->setOnClick([&](){ selectedObject->rotation.y -= 0.05; });
+    rotYDown->setOnClick([&](){ if(selectedObject) selectedObject->rotation.y -= 0.05; });
     RenderableObjectStatic* rotZUp = new RenderableObjectStatic(rotateZUp, shaderUI);
     rotZUp->setOnClick([&](){ selectedObject->rotation.z += 0.05; });
     RenderableObjectStatic* rotZDown = new RenderableObjectStatic(rotateZDown, shaderUI);
-    rotZDown->setOnClick([&](){ selectedObject->rotation.z -= 0.05; });
+    rotZDown->setOnClick([&](){ if(selectedObject) selectedObject->rotation.z -= 0.05; });
     rotXUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
     rotYUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
     rotZUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
@@ -198,17 +198,17 @@ Sidebar::Sidebar()
     );
     
     RenderableObjectStatic* sclXUp = new RenderableObjectStatic(scaleXUp, shaderUI);
-    sclXUp->setOnClick([&](){ selectedObject->scale.x += 0.05; });
+    sclXUp->setOnClick([&](){ if(selectedObject) selectedObject->scale.x += 0.05; });
     RenderableObjectStatic* sclXDown = new RenderableObjectStatic(scaleXDown, shaderUI);
-    sclXDown->setOnClick([&](){ selectedObject->scale.x -= 0.05; });
+    sclXDown->setOnClick([&](){ if(selectedObject) selectedObject->scale.x -= 0.05; });
     RenderableObjectStatic* sclYUp = new RenderableObjectStatic(scaleYUp, shaderUI);
-    sclYUp->setOnClick([&](){ selectedObject->scale.y += 0.05; });
+    sclYUp->setOnClick([&](){ if(selectedObject) selectedObject->scale.y += 0.05; });
     RenderableObjectStatic* sclYDown = new RenderableObjectStatic(scaleYDown, shaderUI);
-    sclYDown->setOnClick([&](){ selectedObject->scale.y -= 0.05; });
+    sclYDown->setOnClick([&](){ if(selectedObject) selectedObject->scale.y -= 0.05; });
     RenderableObjectStatic* sclZUp = new RenderableObjectStatic(scaleZUp, shaderUI);
-    sclZUp->setOnClick([&](){ selectedObject->scale.z += 0.05; });
+    sclZUp->setOnClick([&](){ if(selectedObject) selectedObject->scale.z += 0.05; });
     RenderableObjectStatic* sclZDown = new RenderableObjectStatic(scaleZDown, shaderUI);
-    sclZDown->setOnClick([&](){ selectedObject->scale.z -= 0.05; });
+    sclZDown->setOnClick([&](){ if(selectedObject) selectedObject->scale.z -= 0.05; });
     sclXUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
     sclYUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
     sclZUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
@@ -221,6 +221,22 @@ Sidebar::Sidebar()
     uiElements.push_back({sclYDown ,0});
     uiElements.push_back({sclZUp   ,0});
     uiElements.push_back({sclZDown ,0});
+
+    // Spawn Cube Button
+    std::vector<Tri> setParent = createButtonQuad(glm::vec2(-0.95, 0.0f), glm::vec2(0.25, 0.1), glm::vec3(1.0f, 0.4f, 0.4f));
+    auto* setParentButton = new RenderableObjectStatic(setParent, shaderUI);
+    setParentButton->setName("SetParentButton");
+    setParentButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
+    setParentButton->setOnClick([]() mutable
+    { 
+        if(selectedObject)
+        {
+            waitingForParentSelection = true;
+            std::cout << "Choose a scene object to set as the parent for " << selectedObject->getName() << "\n";
+        }
+    });
+    addButton(setParentButton);
+    uiElements.push_back({setParentButton, 0});
 
     //Adding texture selection
     float tileSize = 0.075f;
@@ -349,32 +365,26 @@ void Sidebar::createActionButtons() {
         selectedObject->deleteObject();
         int objectId = selectedObject->id;
 
-        // 1. Delete associated lights first
-        lights.erase(
-            std::remove_if(lights.begin(), lights.end(),
-                [objectId](LightSource* light) {
-                    if (light->lightHandler && light->lightHandler->id == objectId) {
-                        delete light; // safe: we're deleting it while removing it
-                        return true;
-                    }
-                    return false;
-                }),
-            lights.end()
-        );
+        // 1. Delete associated lights first (safe remove & delete)
+        auto lit = std::remove_if(lights.begin(), lights.end(),
+            [objectId](LightSource* light) {
+                return light->lightHandler && light->lightHandler->id == objectId;
+            });
+        for (auto itr = lit; itr != lights.end(); ++itr) {
+            delete *itr;
+        }
+        lights.erase(lit, lights.end());
 
-        // 2. Remove from allObjects
-        allObjects.erase(
-            std::remove_if(allObjects.begin(), allObjects.end(),
-                [objectId](RenderableObjectBase* item) {
-                    auto* obj = dynamic_cast<RenderableObject*>(item);
-                    if (obj && obj->id == objectId) {
-                        delete item;
-                        return true;
-                    }
-                    return false;
-                }),
-            allObjects.end()
-        );
+        // 2. Remove from allObjects (safe remove & delete)
+        auto oit = std::remove_if(allObjects.begin(), allObjects.end(),
+            [objectId](RenderableObjectBase* item) {
+                auto* obj = dynamic_cast<RenderableObject*>(item);
+                return obj && obj->id == objectId;
+            });
+        for (auto itr = oit; itr != allObjects.end(); ++itr) {
+            delete *itr;
+        }
+        allObjects.erase(oit, allObjects.end());
 
         // 3. Reset selection (already deleted above)
         selectedObject = nullptr;

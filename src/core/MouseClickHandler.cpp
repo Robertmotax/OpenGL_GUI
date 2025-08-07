@@ -3,6 +3,7 @@
 #include <singleton/RayPicker.h>
 #include <core/RenderableObject.h>
 #include <core/RenderableObjectStatic.h>
+#include <Globals.h>
 
 void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -48,7 +49,23 @@ void MouseClickHandler::handleMouseClick(GLFWwindow* window, int button, int act
                 }
             }
 
-            if (closestObject && closestObject->onClick) {
+            if(closestObject && waitingForParentSelection)
+            {
+                if(auto* sceneObj = dynamic_cast<RenderableObject*>(closestObject)) {
+                    std::cout << "Setting parent for " << selectedObject->getName() << " as " << sceneObj->getName() << std::endl;
+                    selectedObject->setParent(sceneObj);
+                }
+                else
+                {
+                    std::cout << "Cancelled parent selection for " << selectedObject->getName() << std::endl;
+                    if (closestObject->onClick)
+                    {
+                        closestObject->onClick();
+                    }
+                }
+                waitingForParentSelection = false;
+            }
+            else if (closestObject && closestObject->onClick) {
                 std::cout << "Clicked on " << closestObject->getName() << std::endl;
                 closestObject->onClick();
             } else if (closestObject) {

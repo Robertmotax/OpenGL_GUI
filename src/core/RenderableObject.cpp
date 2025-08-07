@@ -172,9 +172,26 @@ bool RenderableObject::isRayIntersecting(const glm::vec3& rayOrigin, const glm::
 //Hierarchical Modelling function
 void RenderableObject::setParent(RenderableObject* newParent) 
 {
+    // Step 1: Cache the current world transform (before parenting)
+    glm::mat4 worldTransform = getModelMatrix();
+
+    // Step 2: Set the parent
     parent = newParent;
-    if (parent) parent->children.push_back(this);
+
+    // Step 3: Adjust localTransform so world position remains the same
+    if (newParent) {
+        glm::mat4 parentWorld = newParent->getModelMatrix();
+        glm::mat4 inverseParentWorld = glm::inverse(parentWorld);
+        localTransform = inverseParentWorld * worldTransform;
+
+        // Step 4: Add this to the parent's children list
+        parent->children.push_back(this);
+    } else {
+        // If unparenting, just keep the world transform as the local
+        localTransform = worldTransform;
+    }
 }
+
 
 
 void RenderableObject::updateSelfAndChildren() {
