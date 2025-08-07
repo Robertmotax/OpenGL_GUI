@@ -9,9 +9,9 @@ class Texture
 {
 public:
 	Texture();
-	Texture(const char* fileLoc);
+	Texture(const char* fileLoc, bool tiny = false);
 
-	void loadTexture();
+	void loadTexture(bool tiny);
 	void useTexture();
 	void clearTexture();
 

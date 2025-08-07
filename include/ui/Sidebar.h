@@ -46,7 +46,7 @@ private:
 
     // For future use if we want multiple pages
     int currentPage = 0;
-    const int totalPages = 2; 
+    const int totalPages = 3; 
 
 
 };

@@ -258,3 +258,38 @@ void RenderableObject::cleanupRemainingData()
         texture = nullptr;
     }
 }
+
+void RenderableObject::updateFromKeyframes(float currentTime) {
+    if (keyframes.size() < 2) return;
+
+    Keyframe* prev = nullptr;
+    Keyframe* next = nullptr;
+
+    for (size_t i = 0; i < keyframes.size() - 1; ++i) {
+        if (keyframes[i].time <= currentTime && keyframes[i + 1].time >= currentTime) {
+            prev = &keyframes[i];
+            next = &keyframes[i + 1];
+            break;
+        }
+    }
+
+    if (!prev || !next) return;
+
+    float t = (currentTime - prev->time) / (next->time - prev->time);
+
+    // Interpolate position and scale
+    glm::vec3 interpPos = glm::mix(prev->position, next->position, t);
+    glm::vec3 interpScale = glm::mix(prev->scale, next->scale, t);
+
+    // Convert Euler to Quat
+    glm::quat rotPrev = glm::quat(prev->rotation);
+    glm::quat rotNext = glm::quat(next->rotation);
+
+    // Slerp rotation
+    glm::quat interpRot = glm::slerp(rotPrev, rotNext, t);
+
+    // Build transform
+    localTransform = glm::translate(glm::mat4(1.0f), interpPos) *
+                     glm::mat4_cast(interpRot) *
+                     glm::scale(glm::mat4(1.0f), interpScale);
+}

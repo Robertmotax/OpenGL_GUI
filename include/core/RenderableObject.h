@@ -2,6 +2,7 @@
 #pragma once
 #include "core/RenderableObjectBase.h"
 #include "core/LightSource.h"
+#include "Keyframe.h"
 
 class LightSource;
 class RenderableObject : public RenderableObjectBase {
@@ -20,7 +21,7 @@ public:
     glm::mat4 getLocalTransform() const { return localTransform; }
     void setLocalTransform(const glm::mat4& localT) { localTransform = localT; }
     void updateSelfAndChildren();
-
+    void updateFromKeyframes(float currentTime);
 
     //Delete object from the screen
     void deleteObject();
@@ -31,7 +32,7 @@ public:
 
     private:
         Shader *shaderShadow;
-        
+        std::vector<Keyframe> keyframes;
         RenderableObject* parent = nullptr;
         std::vector<RenderableObject*> children;
         glm::mat4 localTransform = glm::mat4(1.0f);

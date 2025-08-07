@@ -317,6 +317,57 @@ Sidebar::Sidebar()
     });
     uiElements.push_back({noTextureButton, 0});
 
+    // Add animation buttons
+    float secondButtonSize = 0.02f;
+    int numberOfSeconds = 60;
+    int timeIndex = 0;
+    float xTimeInit = -0.975f;
+    float yTImeInit = 0.9f;
+
+    while (timeIndex < numberOfSeconds) {
+        int currentTime = timeIndex;
+        float xStart = xTimeInit + (currentTime % ((int)(0.3f / secondButtonSize))) * secondButtonSize;
+        float yStart = yTImeInit - (secondButtonSize + 0.02f) * (currentTime / (int)(0.3f / secondButtonSize));
+
+        glm::vec3 color = glm::vec3(0.5f, 0.5f, 0.5f);
+        std::vector<Tri> quad = {
+            Tri(
+                Vertex{{xStart,yStart, 0.0f}, color, {0.0f, 1.0f}},
+                Vertex{{xStart + secondButtonSize, yStart, 0.0f}, color, {1.0f, 1.0f}},
+                Vertex{{xStart + secondButtonSize, yStart - secondButtonSize, 0.0f}, color, {1.0f, 0.0f}}
+            ),
+            Tri(
+                Vertex{{xStart, yStart, 0.0f}, color, {0.0f, 1.0f}},
+                Vertex{{xStart + secondButtonSize, yStart - secondButtonSize, 0.0f}, color, {1.0f, 0.0f}},
+                Vertex{{xStart, yStart - secondButtonSize, 0.0f}, color, {0.0f, 0.0f}}
+            )
+        };
+
+        auto* button = new RenderableObjectStatic(quad, shaderUI);
+        button->position = glm::vec3(0.0f, 0.0f, 0.1f);
+        button->setName("timeButton" + std::to_string(currentTime));
+
+        button->setOnClick([button, currentTime]() {
+            for(auto* elm : allObjects)
+            {
+                if(elm->getName() == "timeButton" + std::to_string(sceneTime))
+                {
+                    elm->setTexture(nullptr);
+                    elm->enableTexture(false);
+                }
+            }
+            Texture* texture = new Texture("assets/textures/SelectedElementColor.jpg", true);
+            button->setTexture(texture);
+            button->enableTexture(true);
+            sceneTime = currentTime;
+            std::cout << "Time set to " << currentTime;
+        });
+
+        uiElements.push_back({button, 2});
+        ++timeIndex;
+    }
+
+
     // Create action buttons
     createActionButtons();
 }
@@ -337,13 +388,13 @@ void Sidebar::createActionButtons() {
 
     // Spawn Light Button
     yPos -= 0.15;
-    std::vector<Tri> spawnLightTris = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.8f));
+    std::vector<Tri> spawnLightTris = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.9f));
     auto* spawnLightButton = new RenderableObjectStatic(spawnLightTris, shaderUI);
     spawnLightButton->setName("LightButton");
     spawnLightButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
     spawnLightButton->setOnClick([]()
     { 
-        LightSource* source = new LightSource(glm::vec3(0.0f), glm::vec3(0.5f), glm::vec3(0.5f), defaultShader, shadowShader);
+        LightSource* source = new LightSource(glm::vec3(0.0f), glm::vec3(0.5f), glm::vec3(0.8f), defaultShader, shadowShader);
         source->initShadowCubemap();
         lights.push_back(source);
         RenderableObject* handler = source->lightHandler;
@@ -493,20 +544,28 @@ std::vector<Tri> Sidebar::createArrow(float x, float y, float offsetY, const glm
 
 //modify the visibility of certain ui elements based on the current page
 void Sidebar::updateVisibility(GLFWwindow* window) {
-    //toggle proper pagination and keyboard handling for Sidebar
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-    {
-        //handle debounce fast repeating key presses
+    auto handleKeyPress = [&](int key, std::function<void()> onPress) {
+        bool isPressed = glfwGetKey(window, key) == GLFW_PRESS;
+        bool wasPressed = prevKeyStates[key];
+
+        if (isPressed && !wasPressed) {
+            onPress();  // key just pressed
+        }
+
+        prevKeyStates[key] = isPressed; // update state
+    };
+
+    handleKeyPress(GLFW_KEY_E, [&]() {
         if (currentPage < (totalPages - 1)) ++currentPage;
-    }
-    else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-    {
+    });
+
+    handleKeyPress(GLFW_KEY_Q, [&]() {
         if (currentPage > 0) --currentPage;
-    }
+    });
 
     for (auto& elem : uiElements) {
         int elemPage = elem.page;
-        (elem.object)->setVisible(elemPage == currentPage || elemPage == -1);  // -1 means always visible
+        elem.object->setVisible(elemPage == currentPage || elemPage == -1);
     }
 }
 

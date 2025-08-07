@@ -10,3 +10,5 @@ extern RenderableObject* selectedObject;
 extern Shader* defaultShader;
 extern Shader* shadowShader;
 extern bool waitingForParentSelection;
+extern int sceneTime;
+extern std::unordered_map<int, bool> prevKeyStates;

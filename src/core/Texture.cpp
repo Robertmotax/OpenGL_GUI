@@ -6,14 +6,14 @@
 Texture::Texture() : textureID(0), width(0), height(0), bitDepth(0), fileLocation("")  {}
 
 //main constructor with proper file location
-Texture::Texture(const char* fileLoc) 
+Texture::Texture(const char* fileLoc, bool tiny) 
     : textureID(0), width(0), height(0), bitDepth(0), fileLocation(fileLoc) 
 {
-    loadTexture();
+    loadTexture(tiny);
 }
 
 // read texture file and load it into OpenGL
-void Texture::loadTexture() 
+void Texture::loadTexture(bool tiny) 
 {
 	// Before loading any textures, call this once:
 	stbi_set_flip_vertically_on_load(true);
@@ -54,7 +54,16 @@ void Texture::loadTexture()
         format = GL_RGBA;
 
 	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, texData);
-	glGenerateMipmap(GL_TEXTURE_2D);
+
+	if(!tiny)
+	{
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
