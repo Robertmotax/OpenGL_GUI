@@ -21,222 +21,92 @@ Sidebar::Sidebar()
     //Set the background of the side pannel
     std::vector<Tri> sidebar;
     sidebar.emplace_back(
-        Vertex{{ -0.65f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}},
-        Vertex{{ -0.65f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 0.0f}},
-        Vertex{{ -1.00f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 0.0f}}
+        Vertex{{ -1.00f + SIDEBAR_WIDTH,  1.0f, 0.0f}, SIDEBAR_COLOR, {0.0f, 1.0f}},
+        Vertex{{ -1.00f + SIDEBAR_WIDTH, -1.0f, 0.0f}, SIDEBAR_COLOR, {0.0f, 0.0f}},
+        Vertex{{ -1.00f, -1.0f, 0.0f}, SIDEBAR_COLOR, {1.0f, 0.0f}}
     );
     sidebar.emplace_back(
-        Vertex{{ -0.65f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {0.0f, 1.0f}},
-        Vertex{{ -1.00f,  1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 1.0f}},
-        Vertex{{ -1.00f, -1.0f, 0.0f}, {0.8f, 0.8f, 0.8f}, {1.0f, 0.0f}}
+        Vertex{{ -1.00f + SIDEBAR_WIDTH,  1.0f, 0.0f}, SIDEBAR_COLOR, {0.0f, 1.0f}},
+        Vertex{{ -1.00f,  1.0f, 0.0f}, SIDEBAR_COLOR, {1.0f, 1.0f}},
+        Vertex{{ -1.00f, -1.0f, 0.0f}, SIDEBAR_COLOR, {1.0f, 0.0f}}
     );
     RenderableObjectStatic* sidebarObj = new RenderableObjectStatic(sidebar, shaderUI);
     sidebarObj->position = glm::vec3(0.0f);
-    uiElements.push_back({sidebarObj, -1});
+    uiElements.push_back(new SidebarElement{sidebarObj, -1});
 
+    float xStart = -1.0f + PADDING;
+    float yStart = 1.0f - PADDING;
+
+    // Create transformation buttons
+    createTransformButtons(yStart);
+
+    // Create texture selector buttons
+    createActionButtons(xStart, yStart);
+
+    //Create animation buttons
+    createAnimationButtons(xStart, yStart);
+}
+
+void Sidebar::createTransformButtons(float yStart) {
+    glm::vec3 green = {0.0f, 1.0f, 0.0f};
+    glm::vec3 red = {1.0f, 0.0f, 0.0f};
     //Set clickable objects for translation
-    std::vector<Tri> tranlateXUp;
-    tranlateXUp.emplace_back(
-        Vertex{{ -0.90f ,  0.75f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.95f ,  0.75f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.925f,  0.80f, 0.1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> tranlateXDown;
-    tranlateXDown.emplace_back(
-        Vertex{{ -0.90f , 0.75f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.95f , 0.75f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.925f, 0.70f, 0.1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> tranlateYUp;
-    tranlateYUp.emplace_back(
-        Vertex{{ -0.85f ,  0.75f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.80f ,  0.75f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.825f,  0.80f, 0.1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> tranlateYDown;
-    tranlateYDown.emplace_back(
-        Vertex{{ -0.85f , 0.75f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.80f , 0.75f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.825f, 0.70f, 0.1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> tranlateZUp;
-    tranlateZUp.emplace_back(
-        Vertex{{ -0.75f , 0.75f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.70f , 0.75f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.725f, 0.80f, 0.1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> tranlateZDown;
-    tranlateZDown.emplace_back(
-        Vertex{{ -0.75f , 0.75f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.70f , 0.75f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.725f, 0.70f, 0.1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    RenderableObjectStatic* transXUp = new RenderableObjectStatic(tranlateXUp, shaderUI);
-    transXUp->setOnClick([&](){ if(selectedObject) selectedObject->position.x += 0.05; });
-    RenderableObjectStatic* transXDown = new RenderableObjectStatic(tranlateXDown, shaderUI);
-    transXDown->setOnClick([&](){ if(selectedObject) selectedObject->position.x -= 0.05; });
-    RenderableObjectStatic* transYUp = new RenderableObjectStatic(tranlateYUp, shaderUI);
-    transYUp->setOnClick([&](){ if(selectedObject) selectedObject->position.y += 0.05; });
-    RenderableObjectStatic* transYDown = new RenderableObjectStatic(tranlateYDown, shaderUI);
-    transYDown->setOnClick([&](){ if(selectedObject) selectedObject->position.y -= 0.05; });
-    RenderableObjectStatic* transZUp = new RenderableObjectStatic(tranlateZUp, shaderUI);
-    transZUp->setOnClick([&](){ if(selectedObject) selectedObject->position.z += 0.05; });
-    RenderableObjectStatic* transZDown = new RenderableObjectStatic(tranlateZDown, shaderUI);
-    transZDown->setOnClick([&](){ if(selectedObject) selectedObject->position.z -= 0.05; });
-    transXUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    transYUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    transZUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    transXDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    transYDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    transZDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    uiElements.push_back({transXUp,   0});
-    uiElements.push_back({transXDown, 0});
-    uiElements.push_back({transYUp   ,0});
-    uiElements.push_back({transYDown ,0});
-    uiElements.push_back({transZUp   ,0});
-    uiElements.push_back({transZDown ,0});
+    float xStart = -1.0 + PADDING;
+    yStart -= 0.05f;
+    SidebarElement *transXUp = createArrow(xStart, yStart, 0, "translateXUp", green);
+    SidebarElement *transXDown = createArrow(xStart, yStart, 0, "translateXDown", red, nullptr, true);
+    xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
+    SidebarElement *transYUp = createArrow(xStart, yStart, 0, "translateYUp", green);
+    SidebarElement *transYDown = createArrow(xStart, yStart, 0, "translateYDown", red, nullptr, true);
+    xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
+    SidebarElement *transZUp = createArrow(xStart, yStart, 0, "translateZUp", green);
+    SidebarElement *transZDown = createArrow(xStart, yStart, 0, "translateZDown", red, nullptr, true);
+
+    transXUp->object->setOnClick([&](){ if(selectedObject) selectedObject->position.x += 0.05; });
+    transXDown->object->setOnClick([&](){ if(selectedObject) selectedObject->position.x -= 0.05; });
+    transYUp->object->setOnClick([&](){ if(selectedObject) selectedObject->position.y += 0.05; });
+    transYDown->object->setOnClick([&](){ if(selectedObject) selectedObject->position.y -= 0.05; });
+    transZUp->object->setOnClick([&](){ if(selectedObject) selectedObject->position.z += 0.05; });
+    transZDown->object->setOnClick([&](){ if(selectedObject) selectedObject->position.z -= 0.05; });
+
 
     //Set clickable objects for rotation
-    std::vector<Tri> rotateXUp;
-    rotateXUp.emplace_back(
-        Vertex{{ -0.90f ,  0.50f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.95f ,  0.50f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.925f,  0.55f, 0.1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> rotateXDown;
-    rotateXDown.emplace_back(
-        Vertex{{ -0.90f , 0.50f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.95f , 0.50f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.925f, 0.45f, 0.1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> rotateYUp;
-    rotateYUp.emplace_back(
-        Vertex{{ -0.85f ,  0.50f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.80f ,  0.50f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.825f,  0.55f, 0.1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> rotateYDown;
-    rotateYDown.emplace_back(
-        Vertex{{ -0.85f , 0.50f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.80f , 0.50f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.825f, 0.45f, 0.1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> rotateZUp;
-    rotateZUp.emplace_back(
-        Vertex{{ -0.75f , 0.50f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.70f , 0.50f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.725f, 0.55f, 0.1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> rotateZDown;
-    rotateZDown.emplace_back(
-        Vertex{{ -0.75f , 0.50f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.70f , 0.50f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.725f, 0.45f, 0.1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
-    );
+    yStart -= 0.20;
+    xStart = -1.0 + PADDING;
+    SidebarElement *rotXUp = createArrow(xStart, yStart, 0, "rotateXUp", green);
+    SidebarElement *rotXDown = createArrow(xStart, yStart, 0, "rotateXDown", red, nullptr, true);
+    xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
+    SidebarElement *rotYUp = createArrow(xStart, yStart, 0, "rotateYUp", green);
+    SidebarElement *rotYDown = createArrow(xStart, yStart, 0, "rotateYDown", red, nullptr, true);
+    xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
+    SidebarElement *rotZUp = createArrow(xStart, yStart, 0, "rotateZUp", green);
+    SidebarElement *rotZDown = createArrow(xStart, yStart, 0, "rotateZDown", red, nullptr, true);
 
-    RenderableObjectStatic* rotXUp = new RenderableObjectStatic(rotateXUp, shaderUI);
-    rotXUp->setOnClick([&](){ if(selectedObject) selectedObject->rotation.x += 0.05; });
-    RenderableObjectStatic* rotXDown = new RenderableObjectStatic(rotateXDown, shaderUI);
-    rotXDown->setOnClick([&](){ if(selectedObject) selectedObject->rotation.x -= 0.05; });
-    RenderableObjectStatic* rotYUp = new RenderableObjectStatic(rotateYUp, shaderUI);
-    rotYUp->setOnClick([&](){ if(selectedObject) selectedObject->rotation.y += 0.05; });
-    RenderableObjectStatic* rotYDown = new RenderableObjectStatic(rotateYDown, shaderUI);
-    rotYDown->setOnClick([&](){ if(selectedObject) selectedObject->rotation.y -= 0.05; });
-    RenderableObjectStatic* rotZUp = new RenderableObjectStatic(rotateZUp, shaderUI);
-    rotZUp->setOnClick([&](){ selectedObject->rotation.z += 0.05; });
-    RenderableObjectStatic* rotZDown = new RenderableObjectStatic(rotateZDown, shaderUI);
-    rotZDown->setOnClick([&](){ if(selectedObject) selectedObject->rotation.z -= 0.05; });
-    rotXUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    rotYUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    rotZUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    rotXDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    rotYDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    rotZDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    uiElements.push_back({rotXUp   ,0});
-    uiElements.push_back({rotXDown ,0});
-    uiElements.push_back({rotYUp   ,0});
-    uiElements.push_back({rotYDown ,0});
-    uiElements.push_back({rotZUp   ,0});
-    uiElements.push_back({rotZDown ,0});
+    rotXUp->object->setOnClick([&](){ if(selectedObject) selectedObject->rotation.x += 0.05; });
+    rotXDown->object->setOnClick([&](){ if(selectedObject) selectedObject->rotation.x -= 0.05; });
+    rotYUp->object->setOnClick([&](){ if(selectedObject) selectedObject->rotation.y += 0.05; });
+    rotYDown->object->setOnClick([&](){ if(selectedObject) selectedObject->rotation.y -= 0.05; });
+    rotZUp->object->setOnClick([&](){ selectedObject->rotation.z += 0.05; });
+    rotZDown->object->setOnClick([&](){ if(selectedObject) selectedObject->rotation.z -= 0.05; });
 
-    //Set 
-    std::vector<Tri> scaleXUp;
-    scaleXUp.emplace_back(
-        Vertex{{ -0.90f ,  0.25f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.95f ,  0.25f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.925f,  0.30f, 0.1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> scaleXDown;
-    scaleXDown.emplace_back(
-        Vertex{{ -0.90f , 0.25f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.95f , 0.25f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.925f, 0.20f, 0.1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> scaleYUp;
-    scaleYUp.emplace_back(
-        Vertex{{ -0.85f ,  0.25f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.80f ,  0.25f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.825f,  0.30f, 0.1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> scaleYDown;
-    scaleYDown.emplace_back(
-        Vertex{{ -0.85f , 0.25f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.80f , 0.25f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.825f, 0.20f, 0.1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> scaleZUp;
-    scaleZUp.emplace_back(
-        Vertex{{ -0.75f , 0.25f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.70f , 0.25f, 0.1f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.725f, 0.30f, 0.1f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
-    );
-    std::vector<Tri> scaleZDown;
-    scaleZDown.emplace_back(
-        Vertex{{ -0.75f , 0.25f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-        Vertex{{ -0.70f , 0.25f, 0.1f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{ -0.725f, 0.20f, 0.1f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
-    );
+    //Set clickable objects for scale
+    yStart -= 0.20;
+    xStart = -1.0 + PADDING;
+    SidebarElement *sclXUp = createArrow(xStart, yStart, 0, "scaleXUp", green);
+    SidebarElement *sclXDown = createArrow(xStart, yStart, 0, "scaleXDown", red, nullptr, true);
+    xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
+    SidebarElement *sclYUp = createArrow(xStart, yStart, 0, "scaleYUp", green);
+    SidebarElement *sclYDown = createArrow(xStart, yStart, 0, "scaleYDown", red, nullptr, true);
+    xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
+    SidebarElement *sclZUp = createArrow(xStart, yStart, 0, "scaleZUp", green);
+    SidebarElement *sclZDown = createArrow(xStart, yStart, 0, "scaleZDown", red, nullptr, true);
     
-    RenderableObjectStatic* sclXUp = new RenderableObjectStatic(scaleXUp, shaderUI);
-    sclXUp->setOnClick([&](){ if(selectedObject) selectedObject->scale.x += 0.05; });
-    RenderableObjectStatic* sclXDown = new RenderableObjectStatic(scaleXDown, shaderUI);
-    sclXDown->setOnClick([&](){ if(selectedObject) selectedObject->scale.x -= 0.05; });
-    RenderableObjectStatic* sclYUp = new RenderableObjectStatic(scaleYUp, shaderUI);
-    sclYUp->setOnClick([&](){ if(selectedObject) selectedObject->scale.y += 0.05; });
-    RenderableObjectStatic* sclYDown = new RenderableObjectStatic(scaleYDown, shaderUI);
-    sclYDown->setOnClick([&](){ if(selectedObject) selectedObject->scale.y -= 0.05; });
-    RenderableObjectStatic* sclZUp = new RenderableObjectStatic(scaleZUp, shaderUI);
-    sclZUp->setOnClick([&](){ if(selectedObject) selectedObject->scale.z += 0.05; });
-    RenderableObjectStatic* sclZDown = new RenderableObjectStatic(scaleZDown, shaderUI);
-    sclZDown->setOnClick([&](){ if(selectedObject) selectedObject->scale.z -= 0.05; });
-    sclXUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    sclYUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    sclZUp->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    sclXDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    sclYDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    sclZDown->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    uiElements.push_back({sclXUp   ,0});
-    uiElements.push_back({sclXDown ,0});
-    uiElements.push_back({sclYUp   ,0});
-    uiElements.push_back({sclYDown ,0});
-    uiElements.push_back({sclZUp   ,0});
-    uiElements.push_back({sclZDown ,0});
-
-    // Spawn Cube Button
-    std::vector<Tri> setParent = createButtonQuad(glm::vec2(-0.95, 0.0f), glm::vec2(0.25, 0.1), glm::vec3(1.0f, 0.4f, 0.4f));
-    auto* setParentButton = new RenderableObjectStatic(setParent, shaderUI);
-    setParentButton->setName("SetParentButton");
-    setParentButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    setParentButton->setOnClick([]() mutable
-    { 
-        if(selectedObject)
-        {
-            waitingForParentSelection = true;
-            std::cout << "Choose a scene object to set as the parent for " << selectedObject->getName() << "\n";
-        }
-    });
-    addButton(setParentButton);
-    uiElements.push_back({setParentButton, 0});
+    sclXUp->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.x += 0.05; });
+    sclXDown->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.x -= 0.05; });
+    sclYUp->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.y += 0.05; });
+    sclYDown->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.y -= 0.05; });
+    sclZUp->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.z += 0.05; });
+    sclZDown->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.z -= 0.05; });
 
     //Adding texture selection
     float tileSize = 0.075f;
@@ -258,25 +128,9 @@ Sidebar::Sidebar()
         float xStart = xInit + col * tileSize;
         float yStart = yInit - row * tileSize;
 
-        std::vector<Tri> quad = {
-            Tri(
-                Vertex{{xStart,yStart, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-                Vertex{{xStart + tileSize, yStart, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}
-            ),
-            Tri(
-                Vertex{{xStart, yStart, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
-                Vertex{{xStart, yStart - tileSize, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}
-            )
-        };
+        SidebarElement *textButton = createButton(xStart, yStart, 0, "TextureButton_" + path, glm::vec3(0.0f), tileSize, tileSize, texture);
 
-        auto* button = new RenderableObjectStatic(quad, shaderUI);
-        button->position = glm::vec3(0.0f, 0.0f, 0.1f);
-        button->setTexture(texture);
-        button->enableTexture(true);
-
-        button->setOnClick([this, texture, path]() {
+        textButton->object->setOnClick([this, texture, path]() {
             if(selectedObject)
             {
                 selectedObject->setTexture(texture);
@@ -284,115 +138,36 @@ Sidebar::Sidebar()
                 std::cout << "Assigned Texture " << path << " to " << selectedObject->getName() << "\n";
             }
         });
-
-        uiElements.push_back({button, 0});
         ++index;
     }
 
     int row = index / columnCount;
     int col = index % columnCount;
 
-    float xStart = xInit + col * tileSize;
-    float yStart = yInit - row * tileSize;
+    xStart = xInit + col * tileSize;
+    yStart = yInit - row * tileSize;
 
-    std::vector<Tri> grayQuad = {
-        Tri(
-            Vertex{{xStart, yStart, 0.0f}, {0.6f, 0.6f, 0.6f}, {0.0f, 1.0f}},
-            Vertex{{xStart + tileSize, yStart, 0.0f}, {0.6f, 0.6f, 0.6f}, {1.0f, 1.0f}},
-            Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, {0.6f, 0.6f, 0.6f}, {1.0f, 0.0f}}
-        ),
-        Tri(
-            Vertex{{xStart, yStart, 0.0f}, {0.6f, 0.6f, 0.6f}, {0.0f, 1.0f}},
-            Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, {0.6f, 0.6f, 0.6f}, {1.0f, 0.0f}},
-            Vertex{{xStart, yStart - tileSize, 0.0f}, {0.6f, 0.6f, 0.6f}, {0.0f, 0.0f}}
-        )
-    };
-
-    auto* noTextureButton = new RenderableObjectStatic(grayQuad, shaderUI);
-    noTextureButton->enableTexture(false); // No texture = clear
-    noTextureButton->setOnClick([&]() {
+    SidebarElement *textButton = createButton(xStart, yStart, 0, "NoTextureButton", glm::vec3(0.5f), tileSize, tileSize);
+    textButton->object->setOnClick([&]() {
         selectedObject->setTexture(nullptr);
         selectedObject->enableTexture(false);
         std::cout << "Texture removed from " << selectedObject->getName() << "\n";
     });
-    uiElements.push_back({noTextureButton, 0});
-
-    // Add animation buttons
-    float secondButtonSize = 0.02f;
-    int numberOfSeconds = 60;
-    int timeIndex = 0;
-    float xTimeInit = -0.975f;
-    float yTImeInit = 0.9f;
-
-    while (timeIndex < numberOfSeconds) {
-        int currentTime = timeIndex;
-        float xStart = xTimeInit + (currentTime % ((int)(0.3f / secondButtonSize))) * secondButtonSize;
-        float yStart = yTImeInit - (secondButtonSize + 0.02f) * (currentTime / (int)(0.3f / secondButtonSize));
-
-        glm::vec3 color = glm::vec3(0.5f, 0.5f, 0.5f);
-        std::vector<Tri> quad = {
-            Tri(
-                Vertex{{xStart,yStart, 0.0f}, color, {0.0f, 1.0f}},
-                Vertex{{xStart + secondButtonSize, yStart, 0.0f}, color, {1.0f, 1.0f}},
-                Vertex{{xStart + secondButtonSize, yStart - secondButtonSize, 0.0f}, color, {1.0f, 0.0f}}
-            ),
-            Tri(
-                Vertex{{xStart, yStart, 0.0f}, color, {0.0f, 1.0f}},
-                Vertex{{xStart + secondButtonSize, yStart - secondButtonSize, 0.0f}, color, {1.0f, 0.0f}},
-                Vertex{{xStart, yStart - secondButtonSize, 0.0f}, color, {0.0f, 0.0f}}
-            )
-        };
-
-        auto* button = new RenderableObjectStatic(quad, shaderUI);
-        button->position = glm::vec3(0.0f, 0.0f, 0.1f);
-        button->setName("timeButton" + std::to_string(currentTime));
-
-        button->setOnClick([button, currentTime]() {
-            for(auto* elm : allObjects)
-            {
-                if(elm->getName() == "timeButton" + std::to_string(sceneTime))
-                {
-                    elm->setTexture(nullptr);
-                    elm->enableTexture(false);
-                }
-            }
-            Texture* texture = new Texture("assets/textures/SelectedElementColor.jpg", true);
-            button->setTexture(texture);
-            button->enableTexture(true);
-            sceneTime = currentTime;
-            std::cout << "Time set to " << currentTime;
-        });
-
-        uiElements.push_back({button, 2});
-        ++timeIndex;
-    }
-
-
-    // Create action buttons
-    createActionButtons();
 }
 
-void Sidebar::createActionButtons() {
-    float xPos = -0.95f; float yPos = 0.8f; float width = 0.25f; float height = 0.10f;
+
+void Sidebar::createActionButtons(float xPos, float yPos) {
     // Spawn Cube Button
-    std::vector<Tri> spawnCubeTris = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f, 0.0f, 1.0f));
-    auto* spawnCubeButton = new RenderableObjectStatic(spawnCubeTris, shaderUI);
-    spawnCubeButton->setName("CubeButton");
-    spawnCubeButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    spawnCubeButton->setOnClick([]()
+    SidebarElement* spawnCubeButton = createButton(xPos, yPos, 1, "SpawnCubeButton", glm::vec3(0.0f, 0.0f, 1.0f));
+    spawnCubeButton->object->setOnClick([]()
     { 
-        allObjects.push_back(new RenderableObject(generateCubeTris(0.2f, glm::vec3(0.5f)), defaultShader, shadowShader));
+        allObjects.push_back(new RenderableObject(generateCubeTris(1.0f, glm::vec3(0.5f)), defaultShader, shadowShader));
     });
-    addButton(spawnCubeButton);
-    uiElements.push_back({spawnCubeButton, 1});
 
     // Spawn Light Button
     yPos -= 0.15;
-    std::vector<Tri> spawnLightTris = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.9f));
-    auto* spawnLightButton = new RenderableObjectStatic(spawnLightTris, shaderUI);
-    spawnLightButton->setName("LightButton");
-    spawnLightButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    spawnLightButton->setOnClick([]()
+    SidebarElement* spawnLightButton = createButton(xPos, yPos, 1, "SpawnLightButton", glm::vec3(0.9f));
+    spawnLightButton->object->setOnClick([]()
     { 
         LightSource* source = new LightSource(glm::vec3(0.0f), glm::vec3(0.5f), glm::vec3(0.8f), defaultShader, shadowShader);
         source->initShadowCubemap();
@@ -400,16 +175,11 @@ void Sidebar::createActionButtons() {
         RenderableObject* handler = source->lightHandler;
         allObjects.push_back(handler); 
     });
-    addButton(spawnLightButton);
-    uiElements.push_back({spawnLightButton, 1});
 
     //spawn another button, this one is set for deletion
     yPos -= 0.15;
-    std::vector<Tri> garbageQuad = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f));
-    auto* deleteButton = new RenderableObjectStatic(garbageQuad, shaderUI);
-    deleteButton->position = { 0.0f, 0.0f, 0.1f };
-    deleteButton->setName("DeleteButton");
-    deleteButton->setOnClick([this]() {
+    SidebarElement* deleteButton = createButton(xPos, yPos, 1, "DeleteObjectButton", glm::vec3(0.0f));
+    deleteButton->object->setOnClick([this]() {
         if (!selectedObject) return;
 
         std::cout << "Deleted: " << selectedObject->getName() << std::endl;
@@ -440,14 +210,12 @@ void Sidebar::createActionButtons() {
         // 3. Reset selection (already deleted above)
         selectedObject = nullptr;
     });
-    addButton(deleteButton);
-    uiElements.push_back({deleteButton, 1});
 
     //Add model buttons
     int columnCount = 3;
-    float tileSize = width/columnCount;
+    float tileSize = (SIDEBAR_WIDTH - 2 * PADDING)/columnCount;
     int index = 0;
-    yPos -= 0.075;
+    yPos -= 0.15;
     float yPosLoaders = yPos;
     std::vector<glm::vec3> rgb = {{0.1f, 0.0f, 0.0f}, {0.0f, 0.1f, 0.0f}, {0.0f, 0.0f, 0.1f}};
 
@@ -464,39 +232,21 @@ void Sidebar::createActionButtons() {
         float yStart = yPos - row * tileSize;
         glm::vec3 color = (float)row * glm::vec3(0.1f) + rgb[index % columnCount] + glm::vec3(0.4f);
 
-        std::vector<Tri> quad = {
-            Tri(
-                Vertex{{xStart,yStart, 0.0f}, color, {0.0f, 1.0f}},
-                Vertex{{xStart + tileSize, yStart, 0.0f}, color, {1.0f, 1.0f}},
-                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, color, {1.0f, 0.0f}}
-            ),
-            Tri(
-                Vertex{{xStart, yStart, 0.0f}, color, {0.0f, 1.0f}},
-                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, color, {1.0f, 0.0f}},
-                Vertex{{xStart, yStart - tileSize, 0.0f}, color, {0.0f, 0.0f}}
-            )
-        };
+        SidebarElement* loaderButton = createButton(xStart, yStart, 1, "loader" + std::to_string(index), color, tileSize, tileSize);
 
-        auto* button = new RenderableObjectStatic(quad, shaderUI);
-        button->position = glm::vec3(0.0f, 0.0f, 0.1f);
-
-        button->setOnClick([path]() {
+        loaderButton->object->setOnClick([path]() {
             OBJLoader objLoader = OBJLoader();
             objLoader.importFromObj(path);
         });
 
-        uiElements.push_back({button, 1});
         ++index;
     }
 
     //Button to save scene
     yPos = -0.9;
-    std::vector<Tri> saveQuad = createButtonQuad(glm::vec2(xPos, yPos), glm::vec2(width, height), glm::vec3(0.0f, 1.0f, 0.0f));
-    auto* saveButton = new RenderableObjectStatic(saveQuad, shaderUI);
-    saveButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
-    saveButton->setName("SaveButton");
+    SidebarElement* loaderButton = createButton(xPos, yPos, 1, "loader" + std::to_string(index), glm::vec3(0.0f, 1.0f, 0.0f));
 
-    saveButton->setOnClick([this, index, columnCount, xPos, yPosLoaders, tileSize, rgb]() mutable {
+    loaderButton->object->setOnClick([this, index, columnCount, xPos, yPosLoaders, tileSize, rgb]() mutable {
         OBJLoader objLoader = OBJLoader();
         std::string filename = objLoader.getAvailableFilename("assets/models", "unnamed", ".obj");
         objLoader.exportToObj(filename);
@@ -509,37 +259,111 @@ void Sidebar::createActionButtons() {
         float yStart = yPosLoaders - row * tileSize;
         glm::vec3 color = (float)row * glm::vec3(0.1f) + rgb[index % columnCount] + glm::vec3(0.4f);
 
-        std::vector<Tri> quad = {
-            Tri(Vertex{{xStart, yStart, 0.0f}, color, {0.0f, 1.0f}},
-                Vertex{{xStart + tileSize, yStart, 0.0f}, color, {1.0f, 1.0f}},
-                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, color, {1.0f, 0.0f}}),
-            Tri(Vertex{{xStart, yStart, 0.0f}, color, {0.0f, 1.0f}},
-                Vertex{{xStart + tileSize, yStart - tileSize, 0.0f}, color, {1.0f, 0.0f}},
-                Vertex{{xStart, yStart - tileSize, 0.0f}, color, {0.0f, 0.0f}})
-        };
+        SidebarElement* loaderButton = createButton(xStart, yStart, 1, "loader" + std::to_string(index), color, tileSize, tileSize);
 
-        auto* button = new RenderableObjectStatic(quad, shaderUI);
-        button->position = glm::vec3(0.0f, 0.0f, 0.1f);
-
-        button->setOnClick([filename]() {
+        loaderButton->object->setOnClick([filename]() {
             OBJLoader objLoader = OBJLoader();
             objLoader.importFromObj("models/assets/" + filename + ".obj");
         });
 
-        uiElements.push_back({button, 1});
         ++index;
     });
-
-    addButton(saveButton);
-    uiElements.push_back({saveButton, 1});
 }
 
-std::vector<Tri> Sidebar::createArrow(float x, float y, float offsetY, const glm::vec3& color) {
-    return {
-        Tri(Vertex{{x, y, 0.1f}, color, {0.0f, 1.0f}},
-            Vertex{{x + 0.05f, y, 0.1f}, color, {0.0f, 0.0f}},
-            Vertex{{x + 0.025f, y + offsetY, 0.1f}, color, {1.0f, 0.0f}})
+void Sidebar::createAnimationButtons(float xPos, float yPos)
+{
+    // Add animation buttons
+    float secondButtonSize = 0.02f;
+    int numberOfSeconds = 60;
+    int timeIndex = 0;
+
+    while (timeIndex < numberOfSeconds) {
+        int currentTime = timeIndex;
+        float xStart = xPos + (currentTime % ((int)(0.3f / secondButtonSize))) * secondButtonSize;
+        float yStart = yPos - (secondButtonSize + 0.02f) * (currentTime / (int)(0.3f / secondButtonSize));
+
+        glm::vec3 color = glm::vec3(0.5f, 0.5f, 0.5f);
+        SidebarElement* loaderButton = createButton(xStart, yStart, 2, "TimeButton" + std::to_string(currentTime), color, secondButtonSize, secondButtonSize);
+
+        loaderButton->object->setOnClick([loaderButton, currentTime]() {
+            for(auto* elm : allObjects)
+            {
+                if(elm->getName() == "TimeButton" + std::to_string(sceneTime))
+                {
+                    elm->setTexture(nullptr);
+                    elm->enableTexture(false);
+                }
+            }
+            Texture* texture = new Texture("assets/textures/SelectedElementColor.jpg", true);
+            loaderButton->object->setTexture(texture);
+            loaderButton->object->enableTexture(true);
+            sceneTime = currentTime;
+            std::cout << "Time set to " << currentTime;
+        });
+        keyframeButtons.push_back(loaderButton->object);
+        ++timeIndex;
+    }
+
+    yPos = yPos - (secondButtonSize + 0.02f) * (timeIndex / (int)(0.3f / secondButtonSize)) - 0.1f; 
+    Texture *addKeyframeColor = new Texture("assets/textures/AddKeyframeColor.jpeg");
+    SidebarElement* addKeyframeButton = createButton(xPos, yPos, 2, "AddKeyframeButton", glm::vec3(0.1f, 0.1f, 0.9f));
+    addKeyframeButton->object->setOnClick([]()
+    { 
+        selectedObject->addKeyframe(sceneTime); 
+    });
+}
+
+SidebarElement* Sidebar::createArrow(float x, float y, int page, std::string name, const glm::vec3& color, Texture* texture, bool down) {
+    std::vector<Tri> arrowRender;
+    if(!down)
+    {
+        arrowRender.emplace_back(
+            Vertex{{ x , y, 0.1f}, color, {0.0f, 1.0f}},
+            Vertex{{ x + 0.05 , y, 0.1f}, color, {0.0f, 0.0f}},
+            Vertex{{ x + 0.025f, y + 0.05, 0.1f}, color, {1.0f, 0.0f}}
+        );
+    }
+    else
+    {
+        arrowRender.emplace_back(
+            Vertex{{ x , y, 0.1f}, color, {0.0f, 1.0f}},
+            Vertex{{ x + 0.05 , y, 0.1f}, color, {0.0f, 0.0f}},
+            Vertex{{ x + 0.025f, y - 0.05, 0.1f}, color, {1.0f, 0.0f}}
+        );
+    }
+    RenderableObjectStatic* arrowButton = new RenderableObjectStatic(arrowRender, shaderUI);
+    arrowButton->position = glm::vec3(0.0f, 0.0f, 0.1f);
+    arrowButton->setName(name);
+    SidebarElement* elm = new SidebarElement{arrowButton, page};
+    uiElements.push_back(elm);
+    return elm;
+}
+
+SidebarElement* Sidebar::createButton(float x, float y, int page, std::string name, const glm::vec3& color, float width, float height, Texture* texture) {
+    std::vector<Tri> buttonRender = {
+        Tri(
+            Vertex{{x         , y          , 0.0f}, color, {0.0f, 1.0f}},
+            Vertex{{x + width , y          , 0.0f}, color, {1.0f, 1.0f}},
+            Vertex{{x         , y - height , 0.0f}, color, {0.0f, 0.0f}}
+        ),
+        Tri(
+            Vertex{{x         , y - height , 0.0f}, color, {0.0f, 0.0f}},
+            Vertex{{x + width , y          , 0.0f}, color, {1.0f, 1.0f}},
+            Vertex{{x + width , y - height , 0.0f}, color, {1.0f, 0.0f}}
+        )
     };
+    RenderableObjectStatic* button = new RenderableObjectStatic(buttonRender, shaderUI);
+    button->position = glm::vec3(0.0f, 0.0f, 0.1f);
+    button->setName(name);
+    if(texture != nullptr)
+    {
+        button->setTexture(texture);
+        button->enableTexture(true);
+    }
+
+    SidebarElement* elm = new SidebarElement{button, page};
+    uiElements.push_back(elm);
+    return elm;
 }
 
 //modify the visibility of certain ui elements based on the current page
@@ -556,41 +380,40 @@ void Sidebar::updateVisibility(GLFWwindow* window) {
     };
 
     handleKeyPress(GLFW_KEY_E, [&]() {
-        if (currentPage < (totalPages - 1)) ++currentPage;
+        if (currentPage < (TOTAL_PAGES - 1)) ++currentPage;
     });
 
     handleKeyPress(GLFW_KEY_Q, [&]() {
         if (currentPage > 0) --currentPage;
     });
 
-    for (auto& elem : uiElements) {
-        int elemPage = elem.page;
-        elem.object->setVisible(elemPage == currentPage || elemPage == -1);
+    for (auto* elem : uiElements) {
+        int elemPage = elem->page;
+        elem->object->setVisible(elemPage == currentPage || elemPage == -1);
     }
 }
 
 void Sidebar::setSelectedObject(RenderableObject* obj) {
     selectedObject = obj;
-    std::cout << "Selected obj is now " << obj->getName();
-}
-
-//Add button to vectors of all buttons available in the scene
-void Sidebar::addButton(RenderableObjectStatic* button)  { buttons.push_back(button); }
-
-// Return the specific button to search
-RenderableObjectStatic* Sidebar::getButtonByName(const std::string& name) {
-    for (auto* elem : buttons) {
-        if (elem->getName() == name)
-            return dynamic_cast<RenderableObjectStatic*>(elem);
+        Texture *keyframePresentColor = new Texture("assets/textures/AddKeyframeColor.jpeg");
+    for(auto key : selectedObject->keyframes)
+    {
+        for(auto* keyButtons : keyframeButtons)
+        {
+            if(keyButtons->getName() == "TimeButton" + std::to_string(key.time))
+            {
+                keyButtons->setTexture(keyframePresentColor);
+            }
+        }
     }
-    return nullptr;
+    std::cout << "Selected obj is now " << obj->getName();
 }
 
 void Sidebar::render() {
     // Disable depth for UI rendering
     glDisable(GL_DEPTH_TEST);
-    for (auto& element : uiElements) {
-        auto* obj = element.object;
+    for (auto* element : uiElements) {
+        auto* obj = element->object;
         if (!obj) continue;
         if (obj->isVisible()) {
             obj->draw(glm::mat4(1.0f), std::vector<LightSource*>());

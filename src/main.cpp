@@ -102,7 +102,7 @@ int main() {
     //______________________________________________________________________
 
     for (const auto& ui : sidebar->uiElements) {
-        allObjects.push_back(ui.object);
+        allObjects.push_back(ui->object);
     }
     
     // Mouse click handler expects pointer access
@@ -158,6 +158,7 @@ int main() {
         {
             if(auto* sceneObj = dynamic_cast<RenderableObject*>(obj))
             {
+                sceneObj->updateFromKeyframes(sceneTime);
                 sceneObj->updateSelfAndChildren();
                 sceneObj->draw(viewProj, lights);
             }
