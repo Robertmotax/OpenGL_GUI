@@ -310,7 +310,7 @@ void Sidebar::createTransformButtons(float yStart) {
     });
     scaleXDown->object->setOnClick([&]() {
         if (selectedObject) {
-            selectedObject->scale.x = std::max(0.1f, selectedObject->scale.y - 0.05f);
+            selectedObject->scale.x = std::max(0.05f, selectedObject->scale.y - 0.05f);
             selectedObject->updateLocalTransformFromComponents();
             selectedObject->updateSelfAndChildren();
         }
@@ -324,7 +324,7 @@ void Sidebar::createTransformButtons(float yStart) {
     });
     scaleYDown->object->setOnClick([&]() {
         if (selectedObject) {
-            selectedObject->scale.y = std::max(0.1f, selectedObject->scale.y - 0.05f);
+            selectedObject->scale.y = std::max(0.05f, selectedObject->scale.y - 0.05f);
             selectedObject->updateLocalTransformFromComponents();
             selectedObject->updateSelfAndChildren();
         }
@@ -338,7 +338,7 @@ void Sidebar::createTransformButtons(float yStart) {
     });
     scaleZDown->object->setOnClick([&]() {
         if (selectedObject) {
-            selectedObject->scale.z = std::max(0.1f, selectedObject->scale.y - 0.05f);
+            selectedObject->scale.z = std::max(0.05f, selectedObject->scale.y - 0.05f);
             selectedObject->updateLocalTransformFromComponents();
             selectedObject->updateSelfAndChildren();
         }
@@ -354,7 +354,7 @@ void Sidebar::createTransformButtons(float yStart) {
     });
     scaleXDownFast->object->setOnClick([fastScaleStep]() {
         if (selectedObject) {
-            selectedObject->scale.x = std::max(0.1f, selectedObject->scale.x - fastScaleStep);
+            selectedObject->scale.x = std::max(0.05f, selectedObject->scale.x - fastScaleStep);
             selectedObject->updateLocalTransformFromComponents();
             selectedObject->updateSelfAndChildren();
         }
@@ -368,7 +368,7 @@ void Sidebar::createTransformButtons(float yStart) {
     });
     scaleYDownFast->object->setOnClick([fastScaleStep]() {
         if (selectedObject) {
-            selectedObject->scale.y = std::max(0.1f, selectedObject->scale.y - fastScaleStep);
+            selectedObject->scale.y = std::max(0.05f, selectedObject->scale.y - fastScaleStep);
             selectedObject->updateLocalTransformFromComponents();
             selectedObject->updateSelfAndChildren();
         }
@@ -382,7 +382,7 @@ void Sidebar::createTransformButtons(float yStart) {
     });
     scaleZDownFast->object->setOnClick([fastScaleStep]() {
         if (selectedObject) {
-            selectedObject->scale.z = std::max(0.1f, selectedObject->scale.z - fastScaleStep);
+            selectedObject->scale.z = std::max(0.05f, selectedObject->scale.z - fastScaleStep);
             selectedObject->updateLocalTransformFromComponents();
             selectedObject->updateSelfAndChildren();
         }
@@ -612,11 +612,14 @@ void Sidebar::createAnimationButtons(float xPos, float yPos)
                 if(elm->getName() == "TimeButton" + std::to_string((int)sceneTime))
                 {
                     bool keyed = false;
-                    for(Keyframe& key : selectedObject->keyframes)
+                    if(selectedObject)
                     {
-                        if((int)key.time == (int)sceneTime)
+                        for(Keyframe& key : selectedObject->keyframes)
                         {
-                            keyed = true;
+                            if((int)key.time == (int)sceneTime)
+                            {
+                                keyed = true;
+                            }
                         }
                     }
                     Texture *keyframePresentColor = new Texture("assets/textures/KeyframedElementColor.jpg");
