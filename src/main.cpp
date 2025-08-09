@@ -165,12 +165,12 @@ int main() {
                 }   
                 if (sceneObj->parent == nullptr)
                     sceneObj->updateSelfAndChildren();
-                sceneObj->draw(viewProj, lights);
+                sceneObj->draw(viewProj, lights, camera.getPosition());
             }
         }
         lastTime = sceneTime;
         for (LightSource* light : lights)
-            light->lightHandler->draw(viewProj, {});  
+            light->lightHandler->draw(viewProj, {}, glm::vec3(0.0f));  
 
         sidebar->updateVisibility(window);
         sidebar->render();

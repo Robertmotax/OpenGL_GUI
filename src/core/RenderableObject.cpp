@@ -25,7 +25,7 @@ RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* sh
     updateLocalTransformFromComponents();
 }
 
-void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights) const {
+void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights, glm::vec3 cameraPos) const {
     shader->use();
 
     glm::mat4 model = getModelMatrix();
@@ -33,6 +33,10 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
 
     glUniformMatrix4fv(glGetUniformLocation(shaderID, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(glGetUniformLocation(shaderID, "uVP"), 1, GL_FALSE, glm::value_ptr(viewProj));
+
+    glUniform3fv(glGetUniformLocation(shaderID, "uViewPos"), 1, glm::value_ptr(cameraPos));
+    glUniform1f(glGetUniformLocation(shaderID, "shininess"), 32.0f);
+    glUniform1f(glGetUniformLocation(shaderID, "specularStrength"), 0.5f);
 
     // --- Texture 2D binding ---
     if (useTexture && texture) {

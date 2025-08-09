@@ -19,7 +19,7 @@ public:
     virtual ~RenderableObjectBase();
     std::vector<Vertex> getFlattenedVertices() { return flattenedVertices; }
 
-    virtual void draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights) const = 0;
+    virtual void draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights, glm::vec3 cameraPos = glm::vec3(0.0f)) const = 0;
     virtual bool isClicked(float mouseX, float mouseY, int winWidth, int winHeight, const glm::mat4& viewProjInverse, float& outDistance) = 0;
     // Draggable by the mouse click handler and move it according to the mouse position
     virtual bool isDraggable() const { return false; }
