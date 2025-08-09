@@ -6,7 +6,7 @@
 Texture::Texture() : textureID(0), width(0), height(0), bitDepth(0), fileLocation("")  {}
 
 //main constructor with proper file location
-Texture::Texture(const char* fileLoc, bool tiny) 
+Texture::Texture(std::string fileLoc, bool tiny) 
     : textureID(0), width(0), height(0), bitDepth(0), fileLocation(fileLoc) 
 {
     loadTexture(tiny);
@@ -18,7 +18,7 @@ void Texture::loadTexture(bool tiny)
 	// Before loading any textures, call this once:
 	stbi_set_flip_vertically_on_load(true);
 
-	unsigned char* texData = stbi_load(fileLocation, &width, &height, &bitDepth, 0);
+	unsigned char* texData = stbi_load(fileLocation.c_str(), &width, &height, &bitDepth, 0);
 	if (!texData) 
 	{
 		printf("Failed to find: %s\n", fileLocation);

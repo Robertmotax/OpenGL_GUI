@@ -2,11 +2,12 @@
 #pragma once
 
 #include <vector>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "core/RenderableObjectStatic.h"
 #include <core/RenderableObject.h>
 #include <unordered_map>
 #include "core/Texture.h"
-#include "ui/utilSidebar.h"
 #include "core/Shader.h"
 
 /**
@@ -25,7 +26,6 @@ public:
     Sidebar();
     ~Sidebar();
     void render();
-    void setSelectedObject(RenderableObject* obj);
 
     //Buttons
     void createTransformButtons(float yPos);
@@ -38,15 +38,12 @@ public:
     int getCurrentPage() const { return currentPage; }
 
     // Utility for creating a UI Button
-    SidebarElement* createArrow(float x, float y, int page, std::string name, const glm::vec3& color, Texture* texture = nullptr, bool down = false);
+    SidebarElement* createArrow(float x, float y, int page, std::string name, const glm::vec3& color,  float scale = 1.0f, Texture* texture = nullptr, bool down = false);
     SidebarElement* createButton(float x, float y, int page, std::string name, const glm::vec3& color, float width = SIDEBAR_WIDTH - 2 * PADDING, float height = BUTTON_HEIGHT, Texture* texture = nullptr);
-
-    std::vector<SidebarElement*> uiElements;
 private:
     const char* vertexPathUI = "shaders/UI.vert";
     const char* fragmentPathUI = "shaders/UI.frag";
     Shader *shaderUI = nullptr;
-    std::vector<RenderableObjectStatic*> keyframeButtons;
 
     // For future use if we want multiple pages
     int currentPage = 0;

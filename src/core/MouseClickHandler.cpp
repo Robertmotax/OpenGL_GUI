@@ -95,6 +95,8 @@ void MouseClickHandler::handleMouseMove(GLFWwindow* window, double xpos, double 
 
     if (RayPicker::getInstance().intersectPlane(rayOrigin, rayDir, objectPos, cameraForward, hitPoint)) {
         selectedDraggableObject->setPosition(hitPoint);
+        selectedDraggableObject->updateLocalTransformFromComponents();
+        selectedDraggableObject->updateSelfAndChildren();
     }
 }
 

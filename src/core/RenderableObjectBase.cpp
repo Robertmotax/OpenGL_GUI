@@ -7,7 +7,7 @@ RenderableObjectBase::RenderableObjectBase(const std::vector<Tri>& triangles, Sh
     : tris(triangles), shader(shader)
 {
     id = ++lastId;
-    name = "obj" + id;
+    name = "obj" + std::to_string(id);
     // Flatten triangles into vertices
     for (const auto &tri : tris)
     {

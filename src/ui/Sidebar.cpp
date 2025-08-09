@@ -50,63 +50,367 @@ Sidebar::Sidebar()
 void Sidebar::createTransformButtons(float yStart) {
     glm::vec3 green = {0.0f, 1.0f, 0.0f};
     glm::vec3 red = {1.0f, 0.0f, 0.0f};
-    //Set clickable objects for translation
+    float smallScale = 0.7f;
+    float yOffset = 0.05f;
+    float xOffset = (0.05f / 2) - (0.05f / 2) * smallScale;
+
+    // Set clickable objects for translation
     float xStart = -1.0 + PADDING;
-    yStart -= 0.05f;
+    yStart -= 0.2f;
+
+    // Original translation arrows
     SidebarElement *transXUp = createArrow(xStart, yStart, 0, "translateXUp", green);
-    SidebarElement *transXDown = createArrow(xStart, yStart, 0, "translateXDown", red, nullptr, true);
+    SidebarElement *transXDown = createArrow(xStart, yStart, 0, "translateXDown", red, 1.0f, nullptr, true);
     xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
     SidebarElement *transYUp = createArrow(xStart, yStart, 0, "translateYUp", green);
-    SidebarElement *transYDown = createArrow(xStart, yStart, 0, "translateYDown", red, nullptr, true);
+    SidebarElement *transYDown = createArrow(xStart, yStart, 0, "translateYDown", red, 1.0f, nullptr, true);
     xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
     SidebarElement *transZUp = createArrow(xStart, yStart, 0, "translateZUp", green);
-    SidebarElement *transZDown = createArrow(xStart, yStart, 0, "translateZDown", red, nullptr, true);
+    SidebarElement *transZDown = createArrow(xStart, yStart, 0, "translateZDown", red, 1.0f, nullptr, true);
 
-    transXUp->object->setOnClick([&](){ if(selectedObject) selectedObject->position.x += 0.05; });
-    transXDown->object->setOnClick([&](){ if(selectedObject) selectedObject->position.x -= 0.05; });
-    transYUp->object->setOnClick([&](){ if(selectedObject) selectedObject->position.y += 0.05; });
-    transYDown->object->setOnClick([&](){ if(selectedObject) selectedObject->position.y -= 0.05; });
-    transZUp->object->setOnClick([&](){ if(selectedObject) selectedObject->position.z += 0.05; });
-    transZDown->object->setOnClick([&](){ if(selectedObject) selectedObject->position.z -= 0.05; });
+    // Fast translation arrows
+    float fastStep = 0.25f;
 
+    SidebarElement *transXUpFast = createArrow(xStart - 2 * ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart + yOffset, 0, "translateXUpFast", green, smallScale, nullptr, false);
+    SidebarElement *transXDownFast = createArrow(xStart - 2 * ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart - yOffset, 0, "translateXDownFast", red, smallScale, nullptr, true);
+    SidebarElement *transYUpFast = createArrow(xStart - ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart + yOffset, 0, "translateYUpFast", green, smallScale, nullptr, false);
+    SidebarElement *transYDownFast = createArrow(xStart - ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart - yOffset, 0, "translateYDownFast", red, smallScale, nullptr, true);
+    SidebarElement *transZUpFast = createArrow(xStart + xOffset, yStart + yOffset, 0, "translateZUpFast", green, smallScale, nullptr, false);
+    SidebarElement *transZDownFast = createArrow(xStart + xOffset, yStart - yOffset, 0, "translateZDownFast", red, smallScale, nullptr, true);
 
-    //Set clickable objects for rotation
-    yStart -= 0.20;
+    // Click handlers for translation
+    transXUp->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->position.x += 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    transXDown->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->position.x -= 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    transYUp->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->position.y += 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    transYDown->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->position.y -= 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    transZUp->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->position.z += 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    transZDown->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->position.z -= 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+
+    // Fast movement handlers
+    transXUpFast->object->setOnClick([fastStep]() {
+        if (selectedObject) {
+            selectedObject->position.x += fastStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    transXDownFast->object->setOnClick([fastStep]() {
+        if (selectedObject) {
+            selectedObject->position.x -= fastStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    transYUpFast->object->setOnClick([fastStep]() {
+        if (selectedObject) {
+            selectedObject->position.y += fastStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    transYDownFast->object->setOnClick([fastStep]() {
+        if (selectedObject) {
+            selectedObject->position.y -= fastStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    transZUpFast->object->setOnClick([fastStep]() {
+        if (selectedObject) {
+            selectedObject->position.z += fastStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    transZDownFast->object->setOnClick([fastStep]() {
+        if (selectedObject) {
+            selectedObject->position.z -= fastStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+
     xStart = -1.0 + PADDING;
+    yStart -= 0.2f;
+
+    // Original rotation arrows
     SidebarElement *rotXUp = createArrow(xStart, yStart, 0, "rotateXUp", green);
-    SidebarElement *rotXDown = createArrow(xStart, yStart, 0, "rotateXDown", red, nullptr, true);
+    SidebarElement *rotXDown = createArrow(xStart, yStart, 0, "rotateXDown", red, 1.0f, nullptr, true);
     xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
     SidebarElement *rotYUp = createArrow(xStart, yStart, 0, "rotateYUp", green);
-    SidebarElement *rotYDown = createArrow(xStart, yStart, 0, "rotateYDown", red, nullptr, true);
+    SidebarElement *rotYDown = createArrow(xStart, yStart, 0, "rotateYDown", red, 1.0f, nullptr, true);
     xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
     SidebarElement *rotZUp = createArrow(xStart, yStart, 0, "rotateZUp", green);
-    SidebarElement *rotZDown = createArrow(xStart, yStart, 0, "rotateZDown", red, nullptr, true);
+    SidebarElement *rotZDown = createArrow(xStart, yStart, 0, "rotateZDown", red, 1.0f, nullptr, true);
 
-    rotXUp->object->setOnClick([&](){ if(selectedObject) selectedObject->rotation.x += 0.05; });
-    rotXDown->object->setOnClick([&](){ if(selectedObject) selectedObject->rotation.x -= 0.05; });
-    rotYUp->object->setOnClick([&](){ if(selectedObject) selectedObject->rotation.y += 0.05; });
-    rotYDown->object->setOnClick([&](){ if(selectedObject) selectedObject->rotation.y -= 0.05; });
-    rotZUp->object->setOnClick([&](){ selectedObject->rotation.z += 0.05; });
-    rotZDown->object->setOnClick([&](){ if(selectedObject) selectedObject->rotation.z -= 0.05; });
+    // Fast rotation arrows
+    float fastRotStep = 0.25f;
 
-    //Set clickable objects for scale
-    yStart -= 0.20;
+    SidebarElement *rotXUpFast = createArrow(xStart - 2 * ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart + yOffset, 0, "rotateXUpFast", green, smallScale, nullptr, false);
+    SidebarElement *rotXDownFast = createArrow(xStart - 2 * ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart - yOffset, 0, "rotateXDownFast", red, smallScale, nullptr, true);
+    SidebarElement *rotYUpFast = createArrow(xStart - ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart + yOffset, 0, "rotateYUpFast", green, smallScale, nullptr, false);
+    SidebarElement *rotYDownFast = createArrow(xStart - ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart - yOffset, 0, "rotateYDownFast", red, smallScale, nullptr, true);
+    SidebarElement *rotZUpFast = createArrow(xStart + xOffset, yStart + yOffset, 0, "rotateZUpFast", green, smallScale, nullptr, false);
+    SidebarElement *rotZDownFast = createArrow(xStart + xOffset, yStart - yOffset, 0, "rotateZDownFast", red, smallScale, nullptr, true);
+
+    // Rotation handlers
+    rotXUp->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->rotation.x += 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    rotXDown->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->rotation.x -= 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    rotYUp->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->rotation.y += 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    rotYDown->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->rotation.y -= 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    rotZUp->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->rotation.z += 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    rotZDown->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->rotation.z -= 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+
+    // Fast rotation handlers
+    rotXUpFast->object->setOnClick([fastRotStep]() {
+        if (selectedObject) {
+            selectedObject->rotation.x += fastRotStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    rotXDownFast->object->setOnClick([fastRotStep]() {
+        if (selectedObject) {
+            selectedObject->rotation.x -= fastRotStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    rotYUpFast->object->setOnClick([fastRotStep]() {
+        if (selectedObject) {
+            selectedObject->rotation.y += fastRotStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    rotYDownFast->object->setOnClick([fastRotStep]() {
+        if (selectedObject) {
+            selectedObject->rotation.y -= fastRotStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    rotZUpFast->object->setOnClick([fastRotStep]() {
+        if (selectedObject) {
+            selectedObject->rotation.z += fastRotStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    rotZDownFast->object->setOnClick([fastRotStep]() {
+        if (selectedObject) {
+            selectedObject->rotation.z -= fastRotStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+
     xStart = -1.0 + PADDING;
-    SidebarElement *sclXUp = createArrow(xStart, yStart, 0, "scaleXUp", green);
-    SidebarElement *sclXDown = createArrow(xStart, yStart, 0, "scaleXDown", red, nullptr, true);
+    yStart -= 0.2f;
+
+    // Original scale arrows
+    SidebarElement *scaleXUp = createArrow(xStart, yStart, 0, "scaleXUp", green);
+    SidebarElement *scaleXDown = createArrow(xStart, yStart, 0, "scaleXDown", red, 1.0f, nullptr, true);
     xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
-    SidebarElement *sclYUp = createArrow(xStart, yStart, 0, "scaleYUp", green);
-    SidebarElement *sclYDown = createArrow(xStart, yStart, 0, "scaleYDown", red, nullptr, true);
+    SidebarElement *scaleYUp = createArrow(xStart, yStart, 0, "scaleYUp", green);
+    SidebarElement *scaleYDown = createArrow(xStart, yStart, 0, "scaleYDown", red, 1.0f, nullptr, true);
     xStart += (SIDEBAR_WIDTH - 2 * PADDING) / 3;
-    SidebarElement *sclZUp = createArrow(xStart, yStart, 0, "scaleZUp", green);
-    SidebarElement *sclZDown = createArrow(xStart, yStart, 0, "scaleZDown", red, nullptr, true);
-    
-    sclXUp->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.x += 0.05; });
-    sclXDown->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.x -= 0.05; });
-    sclYUp->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.y += 0.05; });
-    sclYDown->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.y -= 0.05; });
-    sclZUp->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.z += 0.05; });
-    sclZDown->object->setOnClick([&](){ if(selectedObject) selectedObject->scale.z -= 0.05; });
+    SidebarElement *scaleZUp = createArrow(xStart, yStart, 0, "scaleZUp", green);
+    SidebarElement *scaleZDown = createArrow(xStart, yStart, 0, "scaleZDown", red, 1.0f, nullptr, true);
+
+    // Fast scale arrows
+    float fastScaleStep = 0.25f;
+
+    SidebarElement *scaleXUpFast = createArrow(xStart - 2 * ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart + yOffset, 0, "scaleXUpFast", green, smallScale, nullptr, false);
+    SidebarElement *scaleXDownFast = createArrow(xStart - 2 * ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart - yOffset, 0, "scaleXDownFast", red, smallScale, nullptr, true);
+    SidebarElement *scaleYUpFast = createArrow(xStart - ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart + yOffset, 0, "scaleYUpFast", green, smallScale, nullptr, false);
+    SidebarElement *scaleYDownFast = createArrow(xStart - ((SIDEBAR_WIDTH - 2 * PADDING) / 3) + xOffset, yStart - yOffset, 0, "scaleYDownFast", red, smallScale, nullptr, true);
+    SidebarElement *scaleZUpFast = createArrow(xStart + xOffset, yStart + yOffset, 0, "scaleZUpFast", green, smallScale, nullptr, false);
+    SidebarElement *scaleZDownFast = createArrow(xStart + xOffset, yStart - yOffset, 0, "scaleZDownFast", red, smallScale, nullptr, true);
+
+    // Scale handlers
+    scaleXUp->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->scale.x += 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    scaleXDown->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->scale.x = std::max(0.1f, selectedObject->scale.y - 0.05f);
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    scaleYUp->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->scale.y += 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    scaleYDown->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->scale.y = std::max(0.1f, selectedObject->scale.y - 0.05f);
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    scaleZUp->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->scale.z += 0.05f;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    scaleZDown->object->setOnClick([&]() {
+        if (selectedObject) {
+            selectedObject->scale.z = std::max(0.1f, selectedObject->scale.y - 0.05f);
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+
+    // Fast scale handlers
+    scaleXUpFast->object->setOnClick([fastScaleStep]() {
+        if (selectedObject) {
+            selectedObject->scale.x += fastScaleStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    scaleXDownFast->object->setOnClick([fastScaleStep]() {
+        if (selectedObject) {
+            selectedObject->scale.x = std::max(0.1f, selectedObject->scale.x - fastScaleStep);
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    scaleYUpFast->object->setOnClick([fastScaleStep]() {
+        if (selectedObject) {
+            selectedObject->scale.y += fastScaleStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    scaleYDownFast->object->setOnClick([fastScaleStep]() {
+        if (selectedObject) {
+            selectedObject->scale.y = std::max(0.1f, selectedObject->scale.y - fastScaleStep);
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    scaleZUpFast->object->setOnClick([fastScaleStep]() {
+        if (selectedObject) {
+            selectedObject->scale.z += fastScaleStep;
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    scaleZDownFast->object->setOnClick([fastScaleStep]() {
+        if (selectedObject) {
+            selectedObject->scale.z = std::max(0.1f, selectedObject->scale.z - fastScaleStep);
+            selectedObject->updateLocalTransformFromComponents();
+            selectedObject->updateSelfAndChildren();
+        }
+    });
+    // Set hierarchy Button
+    yStart -= 0.15f;
+    xStart = -1.0f + PADDING;
+    SidebarElement *hierarchyButton = createButton(xStart, yStart, 0, "SetHierarchyButton", {1.0f, 0.0f, 0.0f});
+    hierarchyButton->object->setOnClick([]() mutable
+    { 
+        if(selectedObject)
+        {
+            waitingForParentSelection = true;
+            std::cout << "Choose a scene object to set as the parent for " << selectedObject->getName() << "\n";
+        }
+    });
+
+    // Remove hierarchy Button
+    yStart -= 0.15f;
+    SidebarElement *removeHierarchyButton = createButton(xStart, yStart, 0, "RemoveHierarchyButton", {0.0f, 0.0f, 0.0f});
+    removeHierarchyButton->object->setOnClick([]()
+    { 
+        if(selectedObject && selectedObject->parent)
+        {
+            selectedObject->setParent(nullptr);
+            std::cout << "Removed parent from " << selectedObject->getName() << "\n";
+        }
+    });
 
     //Adding texture selection
     float tileSize = 0.075f;
@@ -120,7 +424,7 @@ void Sidebar::createTransformButtons(float yStart) {
         if (entry.path().extension() != ".jpg") continue;
 
         std::string path = entry.path().string();
-        Texture* texture = new Texture(path.c_str());
+        Texture* texture = new Texture(path);
 
         int row = index / columnCount;
         int col = index % columnCount;
@@ -160,8 +464,10 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
     // Spawn Cube Button
     SidebarElement* spawnCubeButton = createButton(xPos, yPos, 1, "SpawnCubeButton", glm::vec3(0.0f, 0.0f, 1.0f));
     spawnCubeButton->object->setOnClick([]()
-    { 
-        allObjects.push_back(new RenderableObject(generateCubeTris(1.0f, glm::vec3(0.5f)), defaultShader, shadowShader));
+    {
+        RenderableObject *cube = new RenderableObject(makeCube(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.5f)), defaultShader, shadowShader);
+        selectedObject = cube;
+        allObjects.push_back(cube); 
     });
 
     // Spawn Light Button
@@ -179,36 +485,39 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
     //spawn another button, this one is set for deletion
     yPos -= 0.15;
     SidebarElement* deleteButton = createButton(xPos, yPos, 1, "DeleteObjectButton", glm::vec3(0.0f));
-    deleteButton->object->setOnClick([this]() {
+    deleteButton->object->setOnClick([this]() 
+    {
         if (!selectedObject) return;
 
         std::cout << "Deleted: " << selectedObject->getName() << std::endl;
-        selectedObject->deleteObject();
+
         int objectId = selectedObject->id;
 
-        // 1. Delete associated lights first (safe remove & delete)
+        // 1. Remove and delete lights safely
         auto lit = std::remove_if(lights.begin(), lights.end(),
             [objectId](LightSource* light) {
                 return light->lightHandler && light->lightHandler->id == objectId;
             });
+
         for (auto itr = lit; itr != lights.end(); ++itr) {
             delete *itr;
         }
         lights.erase(lit, lights.end());
 
-        // 2. Remove from allObjects (safe remove & delete)
-        auto oit = std::remove_if(allObjects.begin(), allObjects.end(),
-            [objectId](RenderableObjectBase* item) {
-                auto* obj = dynamic_cast<RenderableObject*>(item);
-                return obj && obj->id == objectId;
-            });
-        for (auto itr = oit; itr != allObjects.end(); ++itr) {
-            delete *itr;
-        }
-        allObjects.erase(oit, allObjects.end());
-
-        // 3. Reset selection (already deleted above)
+        // 2. Delete the object once, then remove from allObjects
+        // (Make a copy of the pointer to delete it before erasing from the vector)
+        RenderableObjectBase* toDelete = selectedObject;
         selectedObject = nullptr;
+
+        allObjects.erase(
+            std::remove_if(allObjects.begin(), allObjects.end(),
+                [toDelete](RenderableObjectBase* item) {
+                    return item == toDelete;
+                }),
+            allObjects.end()
+        );
+
+        delete toDelete;
     });
 
     //Add model buttons
@@ -236,20 +545,21 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
 
         loaderButton->object->setOnClick([path]() {
             OBJLoader objLoader = OBJLoader();
-            objLoader.importFromObj(path);
+            objLoader.load(path);
+            lastTime = -1.0f;
         });
-
+        keyframeButtons.push_back(loaderButton->object);
         ++index;
     }
 
     //Button to save scene
     yPos = -0.9;
-    SidebarElement* loaderButton = createButton(xPos, yPos, 1, "loader" + std::to_string(index), glm::vec3(0.0f, 1.0f, 0.0f));
+    SidebarElement* saveButton = createButton(xPos, yPos, 1, "SaveSceneButton", glm::vec3(0.0f, 1.0f, 0.0f));
 
-    loaderButton->object->setOnClick([this, index, columnCount, xPos, yPosLoaders, tileSize, rgb]() mutable {
+    saveButton->object->setOnClick([this, index, columnCount, xPos, yPosLoaders, tileSize, rgb]() mutable {
         OBJLoader objLoader = OBJLoader();
         std::string filename = objLoader.getAvailableFilename("assets/models", "unnamed", ".obj");
-        objLoader.exportToObj(filename);
+        objLoader.save(filename);
         std::cout << "Saved Scene " << std::endl;
 
         int row = index / columnCount;
@@ -263,8 +573,10 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
 
         loaderButton->object->setOnClick([filename]() {
             OBJLoader objLoader = OBJLoader();
-            objLoader.importFromObj("models/assets/" + filename + ".obj");
+            objLoader.load(filename);
+            lastTime = -1.0f;
         });
+        allObjects.push_back(loaderButton->object);
 
         ++index;
     });
@@ -282,53 +594,108 @@ void Sidebar::createAnimationButtons(float xPos, float yPos)
         float xStart = xPos + (currentTime % ((int)(0.3f / secondButtonSize))) * secondButtonSize;
         float yStart = yPos - (secondButtonSize + 0.02f) * (currentTime / (int)(0.3f / secondButtonSize));
 
+        SidebarElement *timeButton;
         glm::vec3 color = glm::vec3(0.5f, 0.5f, 0.5f);
-        SidebarElement* loaderButton = createButton(xStart, yStart, 2, "TimeButton" + std::to_string(currentTime), color, secondButtonSize, secondButtonSize);
+        if(timeIndex != 0)
+        {
+            timeButton = createButton(xStart, yStart, 2, "TimeButton" + std::to_string(currentTime), color, secondButtonSize, secondButtonSize);
+        }
+        else
+        {
+            Texture* texture = new Texture("assets/textures/SelectedElementColor.jpg", true);
+            timeButton = createButton(xStart, yStart, 2, "TimeButton" + std::to_string(currentTime), color, secondButtonSize, secondButtonSize, texture);
+        }
 
-        loaderButton->object->setOnClick([loaderButton, currentTime]() {
-            for(auto* elm : allObjects)
+        timeButton->object->setOnClick([timeButton, currentTime]() {
+            for(auto* elm : keyframeButtons)
             {
-                if(elm->getName() == "TimeButton" + std::to_string(sceneTime))
+                if(elm->getName() == "TimeButton" + std::to_string((int)sceneTime))
                 {
-                    elm->setTexture(nullptr);
-                    elm->enableTexture(false);
+                    bool keyed = false;
+                    for(Keyframe& key : selectedObject->keyframes)
+                    {
+                        if((int)key.time == (int)sceneTime)
+                        {
+                            keyed = true;
+                        }
+                    }
+                    Texture *keyframePresentColor = new Texture("assets/textures/KeyframedElementColor.jpg");
+                    if(keyed)
+                    {
+                        elm->setTexture(keyframePresentColor);
+                        elm->enableTexture(true);
+                    }
+                    else
+                    {
+                        elm->setTexture(nullptr);
+                        elm->enableTexture(false);
+                    }
+                    break;
                 }
             }
             Texture* texture = new Texture("assets/textures/SelectedElementColor.jpg", true);
-            loaderButton->object->setTexture(texture);
-            loaderButton->object->enableTexture(true);
+            timeButton->object->setTexture(texture);
+            timeButton->object->enableTexture(true);
             sceneTime = currentTime;
-            std::cout << "Time set to " << currentTime;
+            std::cout << "Time set to " << currentTime << "\n";
         });
-        keyframeButtons.push_back(loaderButton->object);
+        keyframeButtons.push_back(timeButton->object);
         ++timeIndex;
     }
 
     yPos = yPos - (secondButtonSize + 0.02f) * (timeIndex / (int)(0.3f / secondButtonSize)) - 0.1f; 
-    Texture *addKeyframeColor = new Texture("assets/textures/AddKeyframeColor.jpeg");
+    Texture *addKeyframeColor = new Texture("assets/textures/KeyframedElementColor.jpg");
     SidebarElement* addKeyframeButton = createButton(xPos, yPos, 2, "AddKeyframeButton", glm::vec3(0.1f, 0.1f, 0.9f));
-    addKeyframeButton->object->setOnClick([]()
+    addKeyframeButton->object->setOnClick([addKeyframeColor]()
     { 
-        selectedObject->addKeyframe(sceneTime); 
+        if(selectedObject)
+        {
+            selectedObject->addKeyframe(sceneTime);
+            for(auto* elm : keyframeButtons)
+            {
+                if(elm->getName() == "TimeButton" + std::to_string((int)sceneTime))
+                {
+                    elm->setTexture(addKeyframeColor);
+                    elm->enableTexture(true);
+                }
+            }
+        }
+    });
+
+    yPos -= 0.15f;
+    SidebarElement* removeKeyframeButton = createButton(xPos, yPos, 2, "RemoveKeyframeButton", glm::vec3(0.0f, 0.0f, 0.0f));
+    removeKeyframeButton->object->setOnClick([addKeyframeColor]()
+    { 
+        if(selectedObject)
+        {
+            selectedObject->removeKeyframe((int)sceneTime);
+        }
+    });
+
+    yPos -= 0.15f;
+    SidebarElement* playButton = createButton(xPos, yPos, 2, "PlayButton", glm::vec3(0.2f, 0.5f, 0.2f));
+    playButton->object->setOnClick([]()
+    { 
+        play = !play; 
     });
 }
 
-SidebarElement* Sidebar::createArrow(float x, float y, int page, std::string name, const glm::vec3& color, Texture* texture, bool down) {
+SidebarElement* Sidebar::createArrow(float x, float y, int page, std::string name, const glm::vec3& color, float scale, Texture* texture, bool down) {
     std::vector<Tri> arrowRender;
     if(!down)
     {
         arrowRender.emplace_back(
-            Vertex{{ x , y, 0.1f}, color, {0.0f, 1.0f}},
-            Vertex{{ x + 0.05 , y, 0.1f}, color, {0.0f, 0.0f}},
-            Vertex{{ x + 0.025f, y + 0.05, 0.1f}, color, {1.0f, 0.0f}}
+            Vertex{{ x                  , y                 , 0.1f}, color, {0.0f, 1.0f}},
+            Vertex{{ x + 0.05 * scale   , y                 , 0.1f}, color, {0.0f, 0.0f}},
+            Vertex{{ x + 0.025f * scale , y + 0.05 * scale  , 0.1f}, color, {1.0f, 0.0f}}
         );
     }
     else
     {
         arrowRender.emplace_back(
-            Vertex{{ x , y, 0.1f}, color, {0.0f, 1.0f}},
-            Vertex{{ x + 0.05 , y, 0.1f}, color, {0.0f, 0.0f}},
-            Vertex{{ x + 0.025f, y - 0.05, 0.1f}, color, {1.0f, 0.0f}}
+            Vertex{{ x                  , y                 , 0.1f}, color, {0.0f, 1.0f}},
+            Vertex{{ x + 0.05 * scale   , y                 , 0.1f}, color, {0.0f, 0.0f}},
+            Vertex{{ x + 0.025f * scale , y - 0.05 * scale  , 0.1f}, color, {1.0f, 0.0f}}
         );
     }
     RenderableObjectStatic* arrowButton = new RenderableObjectStatic(arrowRender, shaderUI);
@@ -391,22 +758,6 @@ void Sidebar::updateVisibility(GLFWwindow* window) {
         int elemPage = elem->page;
         elem->object->setVisible(elemPage == currentPage || elemPage == -1);
     }
-}
-
-void Sidebar::setSelectedObject(RenderableObject* obj) {
-    selectedObject = obj;
-        Texture *keyframePresentColor = new Texture("assets/textures/AddKeyframeColor.jpeg");
-    for(auto key : selectedObject->keyframes)
-    {
-        for(auto* keyButtons : keyframeButtons)
-        {
-            if(keyButtons->getName() == "TimeButton" + std::to_string(key.time))
-            {
-                keyButtons->setTexture(keyframePresentColor);
-            }
-        }
-    }
-    std::cout << "Selected obj is now " << obj->getName();
 }
 
 void Sidebar::render() {

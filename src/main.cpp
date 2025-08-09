@@ -101,7 +101,7 @@ int main() {
     sidebar = new Sidebar();
     //______________________________________________________________________
 
-    for (const auto& ui : sidebar->uiElements) {
+    for (const auto& ui : uiElements) {
         allObjects.push_back(ui->object);
     }
     
@@ -132,7 +132,8 @@ int main() {
     glm::vec3 cubePos = {0.0f, 0.0f, 0.0f};
     glm::mat4 model = glm::translate(glm::mat4(1.0f), cubePos);
     defaultShader->setMat4("uModel", model);
-
+    lastTime = -1.0f;
+    sceneTime = 0.0f;
     while (!glfwWindowShouldClose(window)) {
         float deltaTime = computeDeltaTime();
         int width, height;
@@ -158,11 +159,16 @@ int main() {
         {
             if(auto* sceneObj = dynamic_cast<RenderableObject*>(obj))
             {
-                sceneObj->updateFromKeyframes(sceneTime);
-                sceneObj->updateSelfAndChildren();
+                if(lastTime != sceneTime)
+                {
+                    sceneObj->updateFromKeyframes(sceneTime);
+                }   
+                if (sceneObj->parent == nullptr)
+                    sceneObj->updateSelfAndChildren();
                 sceneObj->draw(viewProj, lights);
             }
         }
+        lastTime = sceneTime;
         for (LightSource* light : lights)
             light->lightHandler->draw(viewProj, {});  
 
@@ -172,6 +178,26 @@ int main() {
         // 7. Events
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        if(play)
+        {
+            sceneTime += deltaTime;
+            std::string prefix = "TimeButton";
+            for(auto* elm : keyframeButtons)
+            {
+                std::string s = elm->getName();
+                if(elm->getName() == prefix + std::to_string((int)sceneTime))
+                {
+                    Texture* texture = new Texture("assets/textures/SelectedElementColor.jpg", true);
+                    elm->setTexture(texture);
+                    elm->enableTexture(true);
+                }
+                else{
+                    elm->setTexture(nullptr);
+                    elm->enableTexture(false);
+                }
+            }
+        }
 
         // Exit if ESC pressed
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)

@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include "core/util.h"
 #include "Globals.h"
+#include <ui/Sidebar.h>
 
 class LightSource;
 RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* shader, Shader* shaderShadow, bool unlit)
@@ -18,9 +19,10 @@ RenderableObject::RenderableObject(const std::vector<Tri>& triangles, Shader* sh
     this->shaderShadow = shaderShadow;
     isUnlit = unlit;
     setOnClick([this]() {
-        selectedObject = this;
+        setSelectedObject(this);
         std::cout << "Selected obj is now " << this->getName();
     });
+    updateLocalTransformFromComponents();
 }
 
 void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights) const {
@@ -52,11 +54,11 @@ void RenderableObject::draw(const glm::mat4& viewProj, const std::vector<LightSo
 
         for (int i = 0; i < (int)lights.size(); ++i) {
             const LightSource* light = lights[i];
-            std::string idx = std::to_string(light->id);
+            std::string idx = std::to_string(i);
 
             glUniform3fv(glGetUniformLocation(shaderID, ("lightPositions[" + idx + "]").c_str()), 1, glm::value_ptr(*light->position));
             glUniform3fv(glGetUniformLocation(shaderID, ("lightColors[" + idx + "]").c_str()), 1, glm::value_ptr(*light->color));
-            glUniform1f(glGetUniformLocation(shaderID, ("lightIntensities[" + idx + "]").c_str()), length(*light->intensity));
+            glUniform1f(glGetUniformLocation(shaderID, ("lightIntensities[" + idx + "]").c_str()), glm::length(*light->intensity));
             glUniform1f(glGetUniformLocation(shaderID, ("farPlanes[" + idx + "]").c_str()), light->farPlane);
 
             glActiveTexture(GL_TEXTURE1 + i);
@@ -169,25 +171,35 @@ bool RenderableObject::isRayIntersecting(const glm::vec3& rayOrigin, const glm::
 }
 
 
-//Hierarchical Modelling function
-void RenderableObject::setParent(RenderableObject* newParent) 
-{
-    // Step 1: Cache the current world transform (before parenting)
-    glm::mat4 worldTransform = getModelMatrix();
+void RenderableObject::setParent(RenderableObject* newParent) {
+    // Step 1: Cache the current world transform before parenting
+    glm::mat4 worldTransform = model;
+    if(!newParent)
+    {
+        parent->children.erase(std::remove(parent->children.begin(), parent->children.end(), this), parent->children.end());
+        parent = nullptr;
+        localTransform = worldTransform;
+        return;
+    }
 
-    // Step 2: Set the parent
+    // Step 2: Remove from current parent's children list (if any)
+    if (parent) {
+        auto& siblings = parent->children;
+        siblings.erase(std::remove(siblings.begin(), siblings.end(), this), siblings.end());
+    }
+
+    // Step 3: Assign new parent
     parent = newParent;
 
-    // Step 3: Adjust localTransform so world position remains the same
+    // Step 4: Adjust localTransform so world position remains the same
     if (newParent) {
-        glm::mat4 parentWorld = newParent->getModelMatrix();
-        glm::mat4 inverseParentWorld = glm::inverse(parentWorld);
-        localTransform = inverseParentWorld * worldTransform;
+        glm::mat4 parentWorld = newParent->model; // current world transform
+        localTransform = glm::inverse(parentWorld) * worldTransform;
 
-        // Step 4: Add this to the parent's children list
+        // Step 5: Add this to the new parent's children list
         parent->children.push_back(this);
     } else {
-        // If unparenting, just keep the world transform as the local
+        // If unparented, keep world transform as local
         localTransform = worldTransform;
     }
 }
@@ -213,14 +225,6 @@ void RenderableObject::deleteObject()
 {
     detachFromParent();
     cleanupRemainingData();
-
-    int idToRemove = id;
-
-    auto it = std::remove_if(allObjects.begin(), allObjects.end(),
-        [idToRemove](RenderableObjectBase* item) {
-            auto* obj = dynamic_cast<RenderableObject*>(item);
-            return obj && obj->id == idToRemove;
-        });
 }
 
 void RenderableObject::detachFromParent() 
@@ -260,11 +264,12 @@ void RenderableObject::cleanupRemainingData()
 }
 
 void RenderableObject::updateFromKeyframes(float currentTime) {
-    if (keyframes.size() < 2) return;
+    if (keyframes.size() < 2) return;  // Need at least two keyframes to interpolate
 
     Keyframe* prev = nullptr;
     Keyframe* next = nullptr;
 
+    // Find the two keyframes surrounding currentTime
     for (size_t i = 0; i < keyframes.size() - 1; ++i) {
         if (keyframes[i].time <= currentTime && keyframes[i + 1].time >= currentTime) {
             prev = &keyframes[i];
@@ -273,22 +278,37 @@ void RenderableObject::updateFromKeyframes(float currentTime) {
         }
     }
 
-    if (!prev || !next) return;
+    if (!prev || !next) {
+        // Outside the keyframe time range:
+        // Snap to first or last keyframe transform
+        if (currentTime < keyframes.front().time) {
+            const auto& k = keyframes.front();
+            localTransform = glm::translate(glm::mat4(1.0f), k.position) *
+                             glm::mat4_cast(glm::quat(k.rotation)) *
+                             glm::scale(glm::mat4(1.0f), k.scale);
+        } else if (currentTime > keyframes.back().time) {
+            const auto& k = keyframes.back();
+            localTransform = glm::translate(glm::mat4(1.0f), k.position) *
+                             glm::mat4_cast(glm::quat(k.rotation)) *
+                             glm::scale(glm::mat4(1.0f), k.scale);
+        }
+        return;
+    }
 
+    // Interpolation factor (0 to 1)
     float t = (currentTime - prev->time) / (next->time - prev->time);
 
-    // Interpolate position and scale
+    // Linear interpolate position and scale
     glm::vec3 interpPos = glm::mix(prev->position, next->position, t);
     glm::vec3 interpScale = glm::mix(prev->scale, next->scale, t);
 
-    // Convert Euler to Quat
     glm::quat rotPrev = glm::quat(prev->rotation);
     glm::quat rotNext = glm::quat(next->rotation);
 
     // Slerp rotation
     glm::quat interpRot = glm::slerp(rotPrev, rotNext, t);
 
-    // Build transform
+    // Compose local transform matrix from position, rotation, scale
     localTransform = glm::translate(glm::mat4(1.0f), interpPos) *
                      glm::mat4_cast(interpRot) *
                      glm::scale(glm::mat4(1.0f), interpScale);

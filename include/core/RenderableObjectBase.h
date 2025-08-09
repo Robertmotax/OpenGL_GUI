@@ -17,6 +17,7 @@ class RenderableObjectBase {
 public:
     RenderableObjectBase(const std::vector<Tri>& triangles, Shader* shader);
     virtual ~RenderableObjectBase();
+    std::vector<Vertex> getFlattenedVertices() { return flattenedVertices; }
 
     virtual void draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights) const = 0;
     virtual bool isClicked(float mouseX, float mouseY, int winWidth, int winHeight, const glm::mat4& viewProjInverse, float& outDistance) = 0;
@@ -26,6 +27,7 @@ public:
     //Texture purposes 
     void setTexture(Texture* texture);
     void enableTexture(bool enable);
+    Texture* texture = nullptr;
 
     //Enable clicking on the object
     void setOnClick(std::function<void()> callback);
@@ -36,21 +38,17 @@ public:
     glm::vec3 scale = glm::vec3(1.0f);
 
     glm::mat4 getModelMatrix() const {
-        //glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 model = getFullModelMatrix();
-
-        // Translate
-        model = glm::translate(model, position);
-
-        // Rotate (apply in order: X, Y, Z)
-        model = glm::rotate(model, rotation.x, glm::vec3(1, 0, 0));
-        model = glm::rotate(model, rotation.y, glm::vec3(0, 1, 0));
-        model = glm::rotate(model, rotation.z, glm::vec3(0, 0, 1));
-
-        // Scale
-        model = glm::scale(model, scale);
-
         return model;
+    }
+
+    glm::mat4 getLocalMatrix() const {
+        glm::mat4 m = glm::mat4(1.0f);
+        m = glm::translate(m, position);
+        m = glm::rotate(m, rotation.x, glm::vec3(1, 0, 0));
+        m = glm::rotate(m, rotation.y, glm::vec3(0, 1, 0));
+        m = glm::rotate(m, rotation.z, glm::vec3(0, 0, 1));
+        m = glm::scale(m, scale);
+        return m;
     }
 
     //getters and setters
@@ -60,7 +58,6 @@ public:
     std::string getName() const { return name; }
 
     // Get/Set the model matrix for transformations
-    glm::mat4 getFullModelMatrix() const { return model; }
     void setModelMatrix(const glm::mat4& mat) { model = mat; }
     std::vector<Tri> tris;
     int id;
@@ -74,7 +71,6 @@ protected:
     GLuint vao = 0, vbo = 0;
     int vertexCount = 0;
     Shader* shader = nullptr;
-    Texture* texture = nullptr; // Optional texture for the object
     bool useTexture = false; // controlled from UI or logic
     std::vector<Vertex> flattenedVertices;  // needed for OpenGL and bounds
     glm::vec3 minBounds, maxBounds;

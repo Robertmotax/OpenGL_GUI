@@ -11,10 +11,12 @@ int LightSource::lastId = 0;
 LightSource::LightSource(const glm::vec3& pos, const glm::vec3& col, const glm::vec3& inten, Shader* shader, Shader* shaderShadow, float farP)
     : farPlane(farP), id(lastId++) {
     
-    lightHandler = new RenderableObject(makeCube(inten, glm::vec3(0.8f)), shader, shaderShadow, true);
+    lightHandler = new RenderableObject(makeCube(glm::vec3(0.0f), inten, glm::vec3(0.8f)), shader, shaderShadow, true);
     lightHandler->position = pos;
     lightHandler->rotation = col;
     lightHandler->scale = glm::vec3(inten);
+    lightHandler->updateLocalTransformFromComponents();
+    lightHandler->updateSelfAndChildren();
 
     position = &lightHandler->position;
     color = &lightHandler->rotation;
