@@ -520,19 +520,24 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
         if (!selectedObject) return;
 
         std::cout << "Deleted: " << selectedObject->getName() << std::endl;
-
+        selectedObject->deleteObject();
         int objectId = selectedObject->id;
 
         // 1. Remove and delete lights safely
-        auto lit = std::remove_if(lights.begin(), lights.end(),
-            [objectId](LightSource* light) {
-                return light->lightHandler && light->lightHandler->id == objectId;
-            });
-
-        for (auto itr = lit; itr != lights.end(); ++itr) {
-            delete *itr;
+        for (auto* light : lights) {
+            if(light->lightHandler && light->lightHandler->id == objectId)
+            {
+                lights.erase(
+                    std::remove_if(lights.begin(), lights.end(),
+                        [light](LightSource* item) {
+                            return item == light;
+                        }),
+                    lights.end()
+                );
+                delete light;
+                break;
+            }
         }
-        lights.erase(lit, lights.end());
 
         // 2. Delete the object once, then remove from allObjects
         // (Make a copy of the pointer to delete it before erasing from the vector)
