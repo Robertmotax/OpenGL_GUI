@@ -37,8 +37,29 @@ Sidebar::Sidebar()
     float xStart = -1.0f + PADDING;
     float yStart = 1.0f - PADDING;
 
-    Texture *prevNextIndicatorTexture = new Texture("assets\\textures\\sidebar\\PrevNextButtons.jpg");
-    SidebarElement *prevNextIndicator = createButton(-1.0f, 1.0f, -1, "PrevNextIndicator", {1.0f, 0.0f, 0.0f}, 0.1f, 0.033f, prevNextIndicatorTexture);
+    Texture *prevButtonTexture = new Texture("assets\\textures\\sidebar\\PrevButton.jpg");
+    SidebarElement *prevButton = createButton(-1.0f, 1.0f, -1, "PrevNextIndicator", {1.0f, 0.0f, 0.0f}, 0.05f, 0.033f, prevButtonTexture);
+    prevButton->object->setOnClick([this]() mutable
+    {
+        if(currentPage > 0) 
+            currentPage--;
+        for (auto* elem : uiElements) {
+            int elemPage = elem->page;
+            elem->object->setVisible(elemPage == currentPage || elemPage == -1);
+        }
+    });
+
+    Texture *nextButtonTexture = new Texture("assets\\textures\\sidebar\\NextButton.jpg");
+    SidebarElement *nextButton = createButton(-0.95f, 1.0f, -1, "PrevNextIndicator", {1.0f, 0.0f, 0.0f}, 0.05f, 0.033f, nextButtonTexture);
+    nextButton->object->setOnClick([this]() mutable
+    {
+        if(currentPage < (Sidebar::TOTAL_PAGES-1)) 
+            currentPage++; 
+        for (auto* elem : uiElements) {
+            int elemPage = elem->page;
+            elem->object->setVisible(elemPage == currentPage || elemPage == -1);
+        }
+    });
 
     // Create transformation buttons
     createTransformButtons(yStart);
@@ -281,7 +302,7 @@ void Sidebar::createTransformButtons(float yStart) {
     });
 
     xStart = -1.0 + PADDING;
-    yStart -= 0.3f;
+    yStart -= 0.2f;
 
     // Original scale arrows
     SidebarElement *scaleXUp = createArrow(xStart, yStart, 0, "scaleXUp", green);
@@ -393,7 +414,8 @@ void Sidebar::createTransformButtons(float yStart) {
     // Set hierarchy Button
     yStart -= 0.15f;
     xStart = -1.0f + PADDING;
-    SidebarElement *hierarchyButton = createButton(xStart, yStart, 0, "SetHierarchyButton", {1.0f, 0.0f, 0.0f});
+    Texture *setParentButtonTexture = new Texture("assets\\textures\\sidebar\\SetParentButton.jpg");
+    SidebarElement *hierarchyButton = createButton(xStart, yStart, 0, "SetHierarchyButton", {1.0f, 0.0f, 0.0f}, 0.3f, 0.1f, setParentButtonTexture);
     hierarchyButton->object->setOnClick([]() mutable
     { 
         if(selectedObject)
@@ -402,13 +424,11 @@ void Sidebar::createTransformButtons(float yStart) {
             std::cout << "Choose a scene object to set as the parent for " << selectedObject->getName() << "\n";
         }
     });
-    Texture *setParentButtonTexture = new Texture("assets\\textures\\sidebar\\SetParentButton.jpg");
-    hierarchyButton->object->setTexture(setParentButtonTexture);
-    hierarchyButton->object->enableTexture(true);
 
     // Remove hierarchy Button
     yStart -= 0.15f;
-    SidebarElement *removeHierarchyButton = createButton(xStart, yStart, 0, "RemoveHierarchyButton", {0.0f, 0.0f, 0.0f});
+    Texture *removeHierarchyButtonTexture = new Texture("assets\\textures\\sidebar\\RemoveParentButton.jpg");
+    SidebarElement *removeHierarchyButton = createButton(xStart, yStart, 0, "RemoveHierarchyButton", {0.0f, 0.0f, 0.0f}, 0.3f, 0.1f, removeHierarchyButtonTexture);
     removeHierarchyButton->object->setOnClick([]()
     { 
         if(selectedObject && selectedObject->parent)
@@ -417,9 +437,6 @@ void Sidebar::createTransformButtons(float yStart) {
             std::cout << "Removed parent from " << selectedObject->getName() << "\n";
         }
     });
-    Texture *removeHierarchyButtonTexture = new Texture("assets\\textures\\sidebar\\RemoveParentButton.jpg");
-    removeHierarchyButton->object->setTexture(removeHierarchyButtonTexture);
-    removeHierarchyButton->object->enableTexture(true);
 
     //Adding texture selection
     float tileSize = 0.075f;
@@ -472,20 +489,19 @@ void Sidebar::createTransformButtons(float yStart) {
 void Sidebar::createActionButtons(float xPos, float yPos) {
     // Spawn Cube Button
     yPos -= 0.025;
-    SidebarElement* spawnCubeButton = createButton(xPos, yPos, 1, "SpawnCubeButton", glm::vec3(0.0f, 0.0f, 1.0f));
+    Texture *spawnCubeButtonTexture = new Texture("assets\\textures\\sidebar\\AddCubeButton.jpg");
+    SidebarElement* spawnCubeButton = createButton(xPos, yPos, 1, "SpawnCubeButton", glm::vec3(0.0f, 0.0f, 1.0f), 0.3f, 0.1f, spawnCubeButtonTexture);
     spawnCubeButton->object->setOnClick([]()
     {
         RenderableObject *cube = new RenderableObject(makeCube(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.5f)), defaultShader, shadowShader);
         selectedObject = cube;
         allObjects.push_back(cube); 
     });
-    Texture *spawnCubeButtonTexture = new Texture("assets\\textures\\sidebar\\AddCubeButton.jpg");
-    spawnCubeButton->object->setTexture(spawnCubeButtonTexture);
-    spawnCubeButton->object->enableTexture(true);
 
     // Spawn Light Button
     yPos -= 0.15;
-    SidebarElement* spawnLightButton = createButton(xPos, yPos, 1, "SpawnLightButton", glm::vec3(0.9f));
+    Texture *spawnLightButtonTexture = new Texture("assets\\textures\\sidebar\\AddLightButton.jpg");
+    SidebarElement* spawnLightButton = createButton(xPos, yPos, 1, "SpawnLightButton", glm::vec3(0.9f), 0.3f, 0.1f, spawnLightButtonTexture);
     spawnLightButton->object->setOnClick([]()
     { 
         LightSource* source = new LightSource(glm::vec3(0.0f), glm::vec3(0.5f), glm::vec3(0.8f), defaultShader, shadowShader);
@@ -494,13 +510,11 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
         RenderableObject* handler = source->lightHandler;
         allObjects.push_back(handler); 
     });
-    Texture *spawnLightButtonTexture = new Texture("assets\\textures\\sidebar\\AddLightButton.jpg");
-    spawnLightButton->object->setTexture(spawnLightButtonTexture);
-    spawnLightButton->object->enableTexture(true);
 
     //spawn another button, this one is set for deletion
     yPos -= 0.15;
-    SidebarElement* deleteButton = createButton(xPos, yPos, 1, "DeleteObjectButton", glm::vec3(0.0f));
+    Texture *deleteObjectButtonTexture = new Texture("assets\\textures\\sidebar\\DeleteObjectButton.jpg");
+    SidebarElement* deleteButton = createButton(xPos, yPos, 1, "DeleteObjectButton", glm::vec3(0.0f), 0.3f, 0.1f, deleteObjectButtonTexture);
     deleteButton->object->setOnClick([this]() 
     {
         if (!selectedObject) return;
@@ -535,9 +549,6 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
 
         delete toDelete;
     });
-    Texture *deleteObjectButtonTexture = new Texture("assets\\textures\\sidebar\\DeleteObjectButton.jpg");
-    deleteButton->object->setTexture(deleteObjectButtonTexture);
-    deleteButton->object->enableTexture(true);
 
     //Add model buttons
     int columnCount = 3;
@@ -573,7 +584,8 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
 
     //Button to save scene
     yPos = -0.875;
-    SidebarElement* saveButton = createButton(xPos, yPos, 1, "SaveSceneButton", glm::vec3(0.0f, 1.0f, 0.0f));
+    Texture *saveButtonTexture = new Texture("assets\\textures\\sidebar\\SaveButton.jpg");
+    SidebarElement* saveButton = createButton(xPos, yPos, 1, "SaveSceneButton", glm::vec3(0.0f, 1.0f, 0.0f), 0.3f, 0.1f, saveButtonTexture);
 
     saveButton->object->setOnClick([this, index, columnCount, xPos, yPosLoaders, tileSize, rgb]() mutable {
         OBJLoader objLoader = OBJLoader();
@@ -599,10 +611,6 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
 
         ++index;
     });
-
-    Texture *saveButtonTexture = new Texture("assets\\textures\\sidebar\\SaveButton.jpg");
-    saveButton->object->setTexture(saveButtonTexture);
-    saveButton->object->enableTexture(true);
 }
 
 void Sidebar::createAnimationButtons(float xPos, float yPos)
@@ -672,7 +680,8 @@ void Sidebar::createAnimationButtons(float xPos, float yPos)
 
     yPos = yPos - (secondButtonSize + 0.02f) * (timeIndex / (int)(0.3f / secondButtonSize)) - 0.1f; 
     Texture *addKeyframeColor = new Texture("assets/textures/sidebar/KeyframedElementColor.jpg");
-    SidebarElement* addKeyframeButton = createButton(xPos, yPos, 2, "AddKeyframeButton", glm::vec3(0.1f, 0.1f, 0.9f));
+    Texture *addKeyframeButtonTexture = new Texture("assets\\textures\\sidebar\\AddKeyframeButton.jpg");
+    SidebarElement* addKeyframeButton = createButton(xPos, yPos, 2, "AddKeyframeButton", glm::vec3(0.1f, 0.1f, 0.9f),0.3f, 0.1f, addKeyframeButtonTexture);
     addKeyframeButton->object->setOnClick([addKeyframeColor]()
     { 
         if(selectedObject)
@@ -688,12 +697,10 @@ void Sidebar::createAnimationButtons(float xPos, float yPos)
             }
         }
     });
-    Texture *addKeyframeButtonTexture = new Texture("assets\\textures\\sidebar\\AddKeyframeButton.jpg");
-    addKeyframeButton->object->setTexture(addKeyframeButtonTexture);
-    addKeyframeButton->object->enableTexture(true);
 
     yPos -= 0.15f;
-    SidebarElement* removeKeyframeButton = createButton(xPos, yPos, 2, "RemoveKeyframeButton", glm::vec3(0.0f, 0.0f, 0.0f));
+    Texture *removeKeyframeButtonTexture = new Texture("assets\\textures\\sidebar\\DeleteKeyframeButton.jpg");
+    SidebarElement* removeKeyframeButton = createButton(xPos, yPos, 2, "RemoveKeyframeButton", glm::vec3(0.0f, 0.0f, 0.0f), 0.3f, 0.1f, removeKeyframeButtonTexture);
     removeKeyframeButton->object->setOnClick([addKeyframeColor]()
     { 
         if(selectedObject)
@@ -701,19 +708,15 @@ void Sidebar::createAnimationButtons(float xPos, float yPos)
             selectedObject->removeKeyframe((int)sceneTime);
         }
     });
-    Texture *removeKeyframeButtonTexture = new Texture("assets\\textures\\sidebar\\DeleteKeyframeButton.jpg");
-    removeKeyframeButton->object->setTexture(removeKeyframeButtonTexture);
-    removeKeyframeButton->object->enableTexture(true);
+
 
     yPos -= 0.15f;
-    SidebarElement* playButton = createButton(xPos, yPos, 2, "PlayButton", glm::vec3(0.2f, 0.5f, 0.2f));
+    Texture *playButtonTexture = new Texture("assets\\textures\\sidebar\\PlayPauseButton.jpg");
+    SidebarElement* playButton = createButton(xPos, yPos, 2, "PlayButton", glm::vec3(0.2f, 0.5f, 0.2f), 0.3f, 0.1f, playButtonTexture);
     playButton->object->setOnClick([]()
     { 
         play = !play; 
     });
-    Texture *playButtonTexture = new Texture("assets\\textures\\sidebar\\PlayPauseButton.jpg");
-    playButton->object->setTexture(playButtonTexture);
-    playButton->object->enableTexture(true);
 }
 
 SidebarElement* Sidebar::createArrow(float x, float y, int page, std::string name, const glm::vec3& color, float scale, Texture* texture, bool down) {
