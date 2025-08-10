@@ -188,7 +188,7 @@ int main() {
                 std::string s = elm->getName();
                 if(elm->getName() == prefix + std::to_string((int)sceneTime))
                 {
-                    Texture* texture = new Texture("assets/textures/SelectedElementColor.jpg", true);
+                    Texture* texture = new Texture("assets/textures/sidebar/SelectedElementColor.jpg", true);
                     elm->setTexture(texture);
                     elm->enableTexture(true);
                 }
