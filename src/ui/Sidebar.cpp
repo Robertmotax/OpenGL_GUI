@@ -555,19 +555,24 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
         if (!selectedObject) return;
 
         std::cout << "Deleted: " << selectedObject->getName() << std::endl;
-
+        selectedObject->deleteObject();
         int objectId = selectedObject->id;
 
         // 1. Remove and delete lights safely
-        auto lit = std::remove_if(lights.begin(), lights.end(),
-            [objectId](LightSource* light) {
-                return light->lightHandler && light->lightHandler->id == objectId;
-            });
-
-        for (auto itr = lit; itr != lights.end(); ++itr) {
-            delete *itr;
+        for (auto* light : lights) {
+            if(light->lightHandler && light->lightHandler->id == objectId)
+            {
+                lights.erase(
+                    std::remove_if(lights.begin(), lights.end(),
+                        [light](LightSource* item) {
+                            return item == light;
+                        }),
+                    lights.end()
+                );
+                delete light;
+                break;
+            }
         }
-        lights.erase(lit, lights.end());
 
         // 2. Delete the object once, then remove from allObjects
         // (Make a copy of the pointer to delete it before erasing from the vector)
@@ -616,6 +621,48 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
         keyframeButtons.push_back(loaderButton->object);
         ++index;
     }
+
+    yPos = -0.725f;
+    Texture *deleteSceneButtonTexture = new Texture("assets\\textures\\sidebar\\DeleteSceneButton.jpg");
+    SidebarElement* deleteSceneButton = createButton(xPos, yPos, 1, "DeleteObjectButton", glm::vec3(0.0f), 0.3f, 0.1f, deleteSceneButtonTexture);
+    deleteSceneButton->object->setOnClick([this]() 
+    {
+        std::cout << "Deleting scene... ";
+        for (auto itLight = lights.begin(); itLight != lights.end();) {
+            LightSource* light = *itLight;
+            if (light->lightHandler) {
+                int lightHandlerId = light->lightHandler->id;
+            }
+            ++itLight;
+        }
+
+        // Delete all objects
+        for (auto it = allObjects.begin(); it != allObjects.end();) {
+            RenderableObjectBase* obj = *it;
+
+            RenderableObject* sceneObj = dynamic_cast<RenderableObject*>(obj);
+            if (sceneObj) {
+                int objectId = sceneObj->id;
+
+                // Remove & delete lights associated with this object
+                for (auto itLight = lights.begin(); itLight != lights.end();) {
+                    LightSource* light = *itLight;
+                    if (light->lightHandler && light->lightHandler->id == objectId) {
+                        delete light;
+                        itLight = lights.erase(itLight);
+                    } else {
+                        ++itLight;
+                    }
+                }
+                sceneObj->deleteObject();
+                delete sceneObj;
+                it = allObjects.erase(it);
+            } else {
+                ++it;
+            }
+        }
+        std::cout << "Deleted scene";
+    });
 
     //Button to save scene
     yPos = -0.875;

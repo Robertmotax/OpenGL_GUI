@@ -150,161 +150,87 @@ inline bool rayIntersectsAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDi
 }
 
 inline std::vector<Tri> makeCube(const glm::vec3& pos, const glm::vec3& scale, const glm::vec3& color, bool inv = false) {
-    std::vector<Tri> cube;
+    constexpr float texWidth = 192.0f;
+    constexpr float texHeight = 256.0f;
+    constexpr float tileSize = 64.0f;
 
-    auto V = [&](glm::vec3 p, glm::vec2 texCoords) -> Vertex {
-        glm::vec3 pos_scaled = p * scale;
-        glm::vec3 pos_final = pos_scaled + pos;
-        return Vertex{ pos_final, color, texCoords, {0.0f, 0.0f, 0.0f} };
+    auto mapUV = [&](float px, float py, glm::vec2 local) {
+        float flipped_py = texHeight - py - tileSize;
+        float u = (px + local.x * tileSize) / texWidth;
+        float v = (flipped_py + local.y * tileSize) / texHeight;
+        u = std::round(u * 3) / 3.0f;
+        v = std::round(v * 4) / 4.0f;
+        return glm::vec2(u, v);
     };
 
+    // Helper: Vertex with scaled position and UV from atlas
+    auto V = [&](glm::vec3 p, float px, float py, glm::vec2 local) -> Vertex {
+        glm::vec3 pos_scaled = p * scale;
+        glm::vec3 pos_final = pos_scaled + pos;
+        return Vertex{ pos_final, color, mapUV(px, py, local), {0.0f, 0.0f, 0.0f} };
+    };
+
+    std::vector<Tri> cube;
+
+    // Face UV origins in pixels
+    float R_x=128,  R_y=64;
+    float T_x=64,   T_y=0;
+    float F_x=64,  F_y=64;
+    float Bm_x=64,Bm_y=128;
+    float Ba_x=64,  Ba_y=196;
+    float L_x=0,  L_y=64;
+
+    auto addFace = [&](glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float fx, float fy) {
+        // p0-p1-p2, p0-p2-p3  (counter-clockwise)
+        cube.emplace_back(
+            V(p0, fx, fy, {0,0}),
+            V(p1, fx, fy, {1,0}),
+            V(p2, fx, fy, {1,1})
+        );
+        cube.emplace_back(
+            V(p0, fx, fy, {0,0}),
+            V(p2, fx, fy, {1,1}),
+            V(p3, fx, fy, {0,1})
+        );
+    };
+
+    // Standard cube positions
+    glm::vec3 p000 = {-0.5f, -0.5f, -0.5f};
+    glm::vec3 p001 = {-0.5f, -0.5f,  0.5f};
+    glm::vec3 p010 = {-0.5f,  0.5f, -0.5f};
+    glm::vec3 p011 = {-0.5f,  0.5f,  0.5f};
+    glm::vec3 p100 = { 0.5f, -0.5f, -0.5f};
+    glm::vec3 p101 = { 0.5f, -0.5f,  0.5f};
+    glm::vec3 p110 = { 0.5f,  0.5f, -0.5f};
+    glm::vec3 p111 = { 0.5f,  0.5f,  0.5f};
+
     if (!inv) {
-        // Front face (z = +0.5)
-        cube.emplace_back(
-            V({-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}),
-            V({ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}),
-            V({-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f})
-        );
-
-        // Back face (z = -0.5)
-        cube.emplace_back(
-            V({ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}),
-            V({-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}),
-            V({ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f})
-        );
-
-        // Left face (x = -0.5)
-        cube.emplace_back(
-            V({-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}),
-            V({-0.5f,  0.5f,  0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({-0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}),
-            V({-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f})
-        );
-
-        // Right face (x = +0.5)
-        cube.emplace_back(
-            V({ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}),
-            V({ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}),
-            V({ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f})
-        );
-
-        // Top face (y = +0.5)
-        cube.emplace_back(
-            V({-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}),
-            V({ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}),
-            V({-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f})
-        );
-
-        // Bottom face (y = -0.5)
-        cube.emplace_back(
-            V({-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}),
-            V({ 0.5f, -0.5f,  0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f, -0.5f,  0.5f}, {1.0f, 1.0f}),
-            V({-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f})
-        );
-    } 
-    else {
-        // inv == true: flip winding order and texCoords accordingly
-
-        // Front face
-        cube.emplace_back(
-            V({ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}),
-            V({-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}),
-            V({-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f})
-        );
-
-        // Back face
-        cube.emplace_back(
-            V({-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}),
-            V({ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}),
-            V({ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f})
-        );
-
-        // Left face
-        cube.emplace_back(
-            V({-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}),
-            V({-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({-0.5f,  0.5f,  0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({-0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}),
-            V({-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f})
-        );
-
-        // Right face
-        cube.emplace_back(
-            V({ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}),
-            V({ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}),
-            V({ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f})
-        );
-
-        // Top face
-        cube.emplace_back(
-            V({ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}),
-            V({-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}),
-            V({-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f}),
-            V({-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f})
-        );
-
-        // Bottom face
-        cube.emplace_back(
-            V({ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}),
-            V({-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({ 0.5f, -0.5f,  0.5f}, {1.0f, 1.0f})
-        );
-        cube.emplace_back(
-            V({ 0.5f, -0.5f,  0.5f}, {1.0f, 1.0f}),
-            V({-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}),
-            V({-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f})
-        );
+        addFace(p001, p101, p111, p011, F_x, F_y); // Back
+        addFace(p100, p000, p010, p110, Ba_x, Ba_y); // Front
+        addFace(p000, p001, p011, p010, L_x, L_y); // Left
+        addFace(p101, p100, p110, p111, R_x, R_y); // Right
+        addFace(p011, p111, p110, p010, T_x, T_y); // Top
+        addFace(p000, p100, p101, p001, Bm_x, Bm_y); // Bottom
+    } else {
+        // Inverted winding order
+        auto addFaceInv = [&](glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float fx, float fy) {
+            cube.emplace_back(
+                V(p0, fx, fy, {0,0}),
+                V(p2, fx, fy, {1,1}),
+                V(p1, fx, fy, {1,0})
+            );
+            cube.emplace_back(
+                V(p0, fx, fy, {0,0}),
+                V(p3, fx, fy, {0,1}),
+                V(p2, fx, fy, {1,1})
+            );
+        };
+        addFaceInv(p001, p101, p111, p011, F_x, F_y); // Back
+        addFaceInv(p100, p000, p010, p110, Ba_x, Ba_y); // Front
+        addFaceInv(p000, p001, p011, p010, L_x, L_y); // Left
+        addFaceInv(p101, p100, p110, p111, R_x, R_y); // Right
+        addFaceInv(p011, p111, p110, p010, T_x, T_y); // Top
+        addFaceInv(p000, p100, p101, p001, Bm_x, Bm_y); // Bottom
     }
 
     return cube;
