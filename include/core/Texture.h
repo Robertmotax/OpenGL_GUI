@@ -15,6 +15,7 @@ public:
 	Texture();
 	Texture(std::string fileLoc, bool tiny = false);
 
+	GLuint getTextureID() const { return textureID; }
 	void loadTexture(bool tiny);
 	void loadTextureSkyBox(const std::vector<std::string>& faces); // For cubemap textures
 	void useTexture(bool isSkybox = false);

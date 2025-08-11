@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <core/Shader.h>
 #include "core/RenderableObject.h"
+#include "core/Texture.h"
 #include <core/Tri.h>
 #include <core/Vertex.h>
 #include <core/Skybox.h>
@@ -21,5 +22,7 @@ public:
     void draw(const glm::mat4& viewProj, const std::vector<LightSource*>& lights, glm::vec3 cameraPos = glm::vec3(0.0f)) const override;
 
 private:
+    Texture* cubeMapTexture = nullptr; // Cubemap texture
+    std::vector<std::string> faces;
     std::vector<Tri> generateCubeBoxEncapsulated();
 };
