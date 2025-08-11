@@ -10,7 +10,20 @@ Skybox::Skybox(Shader* shader, Shader* shaderShadow)
     : RenderableObject(generateCubeBoxEncapsulated(), shader, shaderShadow, false)
 {
     name = "Skybox";
-    useTexture = false; // We'll handle cubemap texture binding manually
+    // Prepare cubemap face textures paths
+    faces = {
+        "assets/textures/skybox/interstellar/interstellar_rt.tga",
+        "assets/textures/skybox/interstellar/interstellar_lf.tga",
+        "assets/textures/skybox/interstellar/interstellar_up.tga",
+        "assets/textures/skybox/interstellar/interstellar_dn.tga",
+        "assets/textures/skybox/interstellar/interstellar_bk.tga",
+        "assets/textures/skybox/interstellar/interstellar_ft.tga"
+    };
+    // Create a cubemap texture and load the faces
+    cubeMapTexture = new Texture();
+    cubeMapTexture->loadTextureSkyBox(faces);
+    this->setTexture(cubeMapTexture);
+    this->enableTexture(true);
 }
 
 Skybox::~Skybox() {}
@@ -30,13 +43,13 @@ void Skybox::draw(const glm::mat4& viewProj, const std::vector<LightSource*>& li
 
     glUniformMatrix4fv(glGetUniformLocation(shaderID, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(glGetUniformLocation(shaderID, "uVP"), 1, GL_FALSE, glm::value_ptr(viewProj));
-    glUniform3fv(glGetUniformLocation(shaderID, "uViewPos"), 1, glm::value_ptr(cameraPos));
 
     shader->setInt("skybox", 0);  // Make sure your shader uses "skybox" samplerCube uniform
 
     // --- Texture 2D binding ---
     glUniform1i(glGetUniformLocation(shaderID, "uUseTexture"), 1);
-    texture->useTexture(true);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture->getTextureID());
     glUniform1i(glGetUniformLocation(shaderID, "uTexture"), 0);
 
     // Draw the cube mesh
@@ -51,7 +64,7 @@ void Skybox::draw(const glm::mat4& viewProj, const std::vector<LightSource*>& li
 std::vector<Tri> Skybox::generateCubeBoxEncapsulated() {
     std::vector<Tri> tris;
     // Scale factor
-    const float s = 10.0f;
+    const float s = 12.0f;
 
     // Define 24 vertices with position, normal, texCoord, and color (white)
     Vertex vertices[24] = {

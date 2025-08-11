@@ -511,25 +511,8 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
 
         Shader* skyboxShader = new Shader("shaders/skybox.vert", "shaders/skybox.frag");
         // Create a new skybox
-        currentSkybox = new Skybox(skyboxShader, shadowShader);
-
-        // Prepare cubemap face textures paths
-        std::vector<std::string> faces = {
-            "assets/textures/skybox/interstellar/interstellar_rt.tga",
-            "assets/textures/skybox/interstellar/interstellar_lf.tga",
-            "assets/textures/skybox/interstellar/interstellar_up.tga",
-            "assets/textures/skybox/interstellar/interstellar_dn.tga",
-            "assets/textures/skybox/interstellar/interstellar_bk.tga",
-            "assets/textures/skybox/interstellar/interstellar_ft.tga"
-        };
-
-        // Create a cubemap texture and load the faces
-        Texture* cubemapTexture = new Texture();
-        cubemapTexture->loadTextureSkyBox(faces);
-
-        currentSkybox->setTexture(cubemapTexture);
-        currentSkybox->enableTexture(true);
-
+        currentSkybox = new Skybox(skyboxShader, shadowShader); 
+        // for the sake of it, we load texture directly within the skybox class
         allObjects.push_back(currentSkybox);
     });
 
