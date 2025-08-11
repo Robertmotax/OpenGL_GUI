@@ -57,6 +57,12 @@ Escape – Close the application window
 
 Interaction:
 
+- **Sidebar Pagination Controls:**  
+  The sidebar possess multiple pages of controls. These keyboard shortcuts enable navigation between pages:  
+  - Press **Q** to move to the **previous page** of the sidebar.  
+  - Press **E** to move to the **next page** of the sidebar.
+
+
 Click on objects in scene to edit them using the Sidebar.
 
 The first row of arrows in the sidebar translates the clicked object, the second rotates, the third scales.
