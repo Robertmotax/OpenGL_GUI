@@ -12,12 +12,12 @@ Skybox::Skybox(Shader* shader, Shader* shaderShadow)
     name = "Skybox";
     // Prepare cubemap face textures paths
     faces = {
-        "assets/textures/skybox/interstellar/interstellar_rt.tga",
-        "assets/textures/skybox/interstellar/interstellar_lf.tga",
+        "assets/textures/skybox/interstellar/interstellar_ft.tga",
+        "assets/textures/skybox/interstellar/interstellar_bk.tga",
         "assets/textures/skybox/interstellar/interstellar_up.tga",
         "assets/textures/skybox/interstellar/interstellar_dn.tga",
-        "assets/textures/skybox/interstellar/interstellar_bk.tga",
-        "assets/textures/skybox/interstellar/interstellar_ft.tga"
+        "assets/textures/skybox/interstellar/interstellar_rt.tga",
+        "assets/textures/skybox/interstellar/interstellar_lf.tga"
     };
     // Create a cubemap texture and load the faces
     cubeMapTexture = new Texture();
