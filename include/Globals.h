@@ -2,6 +2,7 @@
 #pragma once
 
 #include <vector>
+#include "core/Skybox.h"
 #include "core/RenderableObject.h"
 #include "core/RenderableObjectStatic.h"
 #include "ui/Sidebar.h"
@@ -18,5 +19,6 @@ extern float sceneTime;
 extern float lastTime;
 extern bool play;
 extern std::unordered_map<int, bool> prevKeyStates;
-
+extern Skybox* currentSkybox;
+// Function to set the currently selected object
 void setSelectedObject(RenderableObject *obj);

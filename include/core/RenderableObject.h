@@ -77,7 +77,6 @@ public:
     void cleanupRemainingData();
     bool isUnlit;
 
-
     private:
         Shader *shaderShadow;
         std::vector<RenderableObject*> children;

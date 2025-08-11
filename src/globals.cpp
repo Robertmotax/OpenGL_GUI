@@ -13,6 +13,7 @@ float sceneTime;
 float lastTime;
 bool play;
 std::unordered_map<int, bool> prevKeyStates;
+Skybox* currentSkybox;
 
 void setSelectedObject(RenderableObject *obj)
 {

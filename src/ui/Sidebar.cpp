@@ -498,6 +498,24 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
         allObjects.push_back(cube); 
     });
 
+    //Spawn Skybox
+    yPos -= 0.15;
+    Texture *spawnSkyboxButtonTexture = new Texture("assets\\textures\\sidebar\\AddSkyboxButton.jpg");
+    SidebarElement* spawnSkyboxButton = createButton(xPos, yPos, 1, "SpawnSkyboxButton", glm::vec3(0.0f, 0.5f, 0.5f), 0.3f, 0.1f, spawnSkyboxButtonTexture);
+    spawnSkyboxButton->object->setOnClick([]()
+    { 
+        // If you already have a skybox, delete it first
+        if (currentSkybox) {
+            currentSkybox = nullptr;
+        }
+
+        Shader* skyboxShader = new Shader("shaders/skybox.vert", "shaders/skybox.frag");
+        // Create a new skybox
+        currentSkybox = new Skybox(skyboxShader, shadowShader); 
+        // for the sake of it, we load texture directly within the skybox class
+        allObjects.push_back(currentSkybox);
+    });
+
     // Spawn Light Button
     yPos -= 0.15;
     Texture *spawnLightButtonTexture = new Texture("assets\\textures\\sidebar\\AddLightButton.jpg");
