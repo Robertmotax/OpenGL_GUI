@@ -1,6 +1,7 @@
 #include "core/Texture.h"
 #include <iostream>
 #include <assert.h>
+#include <vector>
 
 //default constructor
 Texture::Texture() : textureID(0), width(0), height(0), bitDepth(0), fileLocation("")  {}
@@ -70,12 +71,62 @@ void Texture::loadTexture(bool tiny)
 	stbi_image_free(texData);
 }
 
-// use the texture in OpenGL
-void Texture::useTexture() 
+/**
+ * @brief Load a cubemap texture from a list of file paths.
+ * @param faces A vector of strings containing the file paths for each face of the cubemap.
+ */
+void Texture::loadTextureSkyBox(const std::vector<std::string>& faces) 
 {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    assert(faces.size() == 6 && "Cubemap requires exactly 6 face textures");
+
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(false); // cubemap images usually NOT flipped
+
+    for (unsigned int i = 0; i < faces.size(); i++) 
+    {
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data) 
+        {
+            GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+
+            glTexImage2D(
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data
+            );
+
+            stbi_image_free(data);
+        } 
+        else 
+        {
+            std::cerr << "Failed to load cubemap texture at path: " << faces[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
+
+// use the texture in OpenGL
+void Texture::useTexture(bool isSkybox) 
+{
+	if (!isSkybox) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureID);
+	} else { // for skybox textures
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	}
+}
+
 
 // clear the texture from OpenGL
 // this is called when the texture is no longer needed
