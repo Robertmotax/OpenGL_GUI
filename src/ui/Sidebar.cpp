@@ -644,6 +644,7 @@ void Sidebar::createActionButtons(float xPos, float yPos) {
                 ++it;
             }
         }
+        selectedObject = nullptr;
         std::cout << "Deleted scene";
     });
 

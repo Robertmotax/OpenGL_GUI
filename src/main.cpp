@@ -13,7 +13,6 @@
 #include <singleton/RayPicker.h>
 #include "core/Texture.h"
 #include "core/MouseClickHandler.h"
-#include "core/Model.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -35,15 +34,10 @@ const char* vertexPath = "shaders/main.vert";
 const char* fragmentPath = "shaders/main.frag";
 const char* vertexPathShadow = "shaders/shadow.vert";
 const char* fragmentPathShadow = "shaders/shadow.frag";
-const char* humanModelPath = "models/human.obj";
 
 // Global variables for the scene
 glm::mat4 viewProj;
 glm::mat4 viewProjInverse;
-
-// See Globals.h/.cpp -- ballAngles and radius are connected with animatedBalls
-std::vector<float> ballAngles; // angle (radians) for each orbiting ball
-std::vector<float> ballRadius; //orbiting the center of the triangle correlated with the original triangle
 
 Sidebar *sidebar;
 
@@ -84,7 +78,6 @@ int main() {
 
     glViewport(0, 0, 800, 600);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    //glClearColor(0.53f, 0.81f, 0.98f, 1.0f);  // Nice sky blue (RGB)
 
     int width, height;
     glfwGetWindowSize(window, &width, &height);
@@ -96,10 +89,7 @@ int main() {
 
     defaultShader = new Shader(vertexPath, fragmentPath);
     shadowShader = new Shader(vertexPathShadow, fragmentPathShadow);
-    //_____________________________________________________________________
-    //objLoader.importFromObj("assets/models/testScene.obj");
     sidebar = new Sidebar();
-    //______________________________________________________________________
 
     for (const auto& ui : uiElements) {
         allObjects.push_back(ui->object);

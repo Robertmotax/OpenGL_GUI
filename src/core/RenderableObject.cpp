@@ -136,7 +136,6 @@ bool RenderableObject::isClicked(float mouseX, float mouseY, int winWidth, int w
  */
 bool RenderableObject::isRayIntersecting(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, float& outDistance) {
     glm::mat4 modelMatrix = getModelMatrix();
-    //3: Accurate per-triangle intersection (narrow-phase)
     float closestT = FLT_MAX;
     bool hit = false;
 
@@ -309,7 +308,6 @@ void RenderableObject::updateFromKeyframes(float currentTime) {
     glm::quat rotPrev = glm::quat(prev->rotation);
     glm::quat rotNext = glm::quat(next->rotation);
 
-    // Slerp rotation
     glm::quat interpRot = glm::slerp(rotPrev, rotNext, t);
 
     // Compose local transform matrix from position, rotation, scale
