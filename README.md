@@ -6,9 +6,9 @@
 
 ## Author
 
-**Marcus Sharma | Student ID:40240069**
+**Marcus Sharma | **
 
-**Robert Chen | Student ID:40241709**  
+**Robert Chen | **  
 
 
 ## OpenGL Object Animation Tool
